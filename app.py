@@ -140,9 +140,56 @@ def patient_registration_step2():
     return render_template("patient-registration-step2.html", error=error)
 
 
-@app.route("/patient/register/step-3")
+def is_pregnancy_applicable(profile):
+    if not profile or not profile.gender or not profile.date_of_birth:
+        return False
+    
+    gender = profile.gender.strip().lower()
+    if gender != 'female':
+        return False
+        
+    today = datetime.now().date()
+    dob = profile.date_of_birth
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    
+    return 10 <= age <= 55
+
+
+@app.route("/patient/register/step-3", methods=["GET", "POST"])
 def patient_registration_step3():
-    return render_template("patient-registration-step3.html")
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    user = User.query.get(user_id)
+    if not user:
+        session.pop('registration_user_id', None)
+        return redirect(url_for('patient_registration_step1'))
+
+    profile = PatientProfile.query.filter_by(user_id=user_id).first()
+    if not profile:
+        return redirect(url_for('patient_registration_step2'))
+
+    show_pregnancy = is_pregnancy_applicable(profile)
+
+    if request.method == "POST":
+        if show_pregnancy:
+            pregnancy = request.form.get("pregnancy", "").strip()
+            if pregnancy in ["Yes", "No", "Not sure"]:
+                profile.pregnancy_status = pregnancy
+            else:
+                profile.pregnancy_status = None
+        else:
+            profile.pregnancy_status = None
+            
+        try:
+            db.session.commit()
+            return redirect(url_for("patient_registration_step4"))
+        except Exception as e:
+            db.session.rollback()
+            # If there's an error, just redirect back or render with error. The UI has no error banner, so we just pass for now.
+
+    return render_template("patient-registration-step3.html", show_pregnancy=show_pregnancy)
 
 
 @app.route("/patient/register/step-4")

@@ -113,6 +113,11 @@ class PatientProfile(db.Model):
         db.String(100),
         nullable=True
     )
+    
+    pregnancy_status = db.Column(
+        db.String(20),
+        nullable=True
+    )
 
     created_at = db.Column(
         db.DateTime(timezone=True),

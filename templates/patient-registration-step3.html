@@ -235,7 +235,7 @@
                 <p class="text-[15px] text-gray-500 mb-10 leading-relaxed">Help hospitals understand your condition so they can provide accurate treatment estimates.</p>
                 
                 <!-- Form -->
-                <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='{{ url_for('patient_registration_step4') }}';" class="flex flex-col w-full">
+                <form action="{{ url_for('patient_registration_step3') }}" method="POST" class="flex flex-col w-full">
                     
                     <!-- ============================================== -->
                     <!-- SECTION 1: MEDICAL CONDITION                   -->
@@ -514,8 +514,9 @@
                             </div>
                         </div>
 
+                        {% if show_pregnancy %}
                         <!-- Pregnancy Status (Conditional) -->
-                        <div id="pregnancy-section" class="flex flex-col gap-2.5 p-5 bg-[#F8F9FA] rounded-[24px] border border-gray-100 mt-2 transition-all duration-500" style="display: none;">
+                        <div id="pregnancy-section" class="flex flex-col gap-2.5 p-5 bg-[#F8F9FA] rounded-[24px] border border-gray-100 mt-2 transition-all duration-500">
                             <label class="text-[14px] font-bold text-gray-800 ml-1">Are you currently pregnant?</label>
                             <div class="flex flex-wrap gap-5 mt-1">
                                 <label class="flex items-center gap-2.5 cursor-pointer">
@@ -533,14 +534,15 @@
                                     <span class="text-[14.5px] text-[#0B1D40] font-semibold transition-colors">No</span>
                                 </label>
                                 <label class="flex items-center gap-2.5 cursor-pointer">
-                                    <input type="radio" name="pregnancy" value="Prefer not to say" class="custom-radio sr-only">
+                                    <input type="radio" name="pregnancy" value="Not sure" class="custom-radio sr-only">
                                     <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center transition-colors">
                                         <div class="radio-inner w-2.5 h-2.5 rounded-full bg-secondary transform scale-0 transition-transform"></div>
                                     </div>
-                                    <span class="text-[14.5px] text-gray-700 font-medium transition-colors">Prefer not to say</span>
+                                    <span class="text-[14.5px] text-gray-700 font-medium transition-colors">Not sure</span>
                                 </label>
                             </div>
                         </div>
+                        {% endif %}
 
                         <!-- Emergency Contact -->
                         <div class="flex flex-col gap-3.5 mt-2 p-5 bg-white border border-gray-200 rounded-[24px] shadow-sm">
@@ -859,25 +861,8 @@
             }
         });
 
-        // 4. Conditional Pregnancy Display
-        const pregnancySection = document.getElementById('pregnancy-section');
+        // 4. Pregnancy custom radio sync
         const pregnancyRadios = document.querySelectorAll('input[name="pregnancy"]');
-        
-        // Read gender from sessionStorage
-        const storedGender = sessionStorage.getItem('medibid_patient_gender') || '';
-        const isFemale = storedGender.toLowerCase() === 'female';
-        
-        if (isFemale) {
-            pregnancySection.style.display = 'flex';
-            pregnancyRadios.forEach(r => r.disabled = false);
-        } else {
-            pregnancySection.style.display = 'none';
-            // Disable inputs so hidden values aren't submitted
-            pregnancyRadios.forEach(r => {
-                r.disabled = true;
-                r.checked = false; // clear selection
-            });
-        }
 
         // Pregnancy custom radio sync
         pregnancyRadios.forEach(radio => {
