@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Profile | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40',
+                        secondary: '#0082CA',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                        success: '#10B981', 
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        softBlue: '#EFF6FF',
+                        softTeal: '#ECFDF5',
+                        tealAccent: '#14B8A6',
+                        softLavender: '#F5F3FF',
+                        lavenderAccent: '#8B5CF6',
+                        softAmber: '#FFFBEB',
+                        amberAccent: '#D97706',
+                        softPeach: '#FFF7ED',
+                        peachAccent: '#EA580C',
+                        softGreen: '#F0FDF4',
+                        greenAccent: '#15803D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        .dropdown-menu {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        .dropdown-menu.open {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        #mobile-menu {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+
+    <!-- AUTHENTICATED HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-1 ml-6">
+                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
+                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-5">
+            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
+                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+            </button>
+
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                </button>
+                
+                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
+                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
+                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
+                    </div>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="shield" class="w-4 h-4 text-textMuted"></i> Privacy Settings</a>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i> Help & Support</a>
+                    <div class="h-[1px] bg-gray-100 my-1"></div>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
+                </div>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION -->
+    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm">
+        <nav class="flex flex-col p-4 gap-1">
+            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
+            <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</a>
+            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow w-full max-w-[850px] mx-auto py-6 sm:py-8 px-4 sm:px-6 flex flex-col gap-6">
+        
+        <!-- BREADCRUMBS & TOP NAVIGATION -->
+        <div class="flex items-center justify-between opacity-0 animate-fade-in">
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2" aria-label="Breadcrumb">
+                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors hidden sm:inline">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors hidden md:inline">Hospital Responses</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden md:inline"></i>
+                <span class="text-textMain font-bold truncate">Hospital Profile</span>
+            </nav>
+            <div class="flex items-center gap-4">
+                <a href="{{ url_for('patient_treatment_proposal_details') }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex-shrink-0">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Back to Proposal</span>
+                    <span class="sm:hidden">Back</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 1. HOSPITAL IDENTITY & VERIFICATION HERO -->
+        <div class="bg-white rounded-[20px] shadow-sm border border-gray-200 overflow-hidden relative opacity-0 animate-fade-in stagger-1">
+            <!-- Subtle Header Pattern -->
+            <div class="h-24 sm:h-32 bg-gray-50 relative overflow-hidden flex items-center justify-center">
+                <!-- Fallback abstract pattern instead of heavy image -->
+                <div class="absolute inset-0 bg-primary opacity-[0.02]">
+                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"/></pattern></defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Profile Info -->
+            <div class="px-5 sm:px-8 pb-6 sm:pb-8 relative pt-12 sm:pt-14">
+                <!-- Logo -->
+                <div class="absolute -top-12 sm:-top-16 left-5 sm:left-8 w-24 h-24 sm:w-28 sm:h-28 bg-white rounded-2xl border-4 border-white shadow-card flex items-center justify-center overflow-hidden z-10">
+                    <!-- Developer Note: Insert hospital logo here. Using icon placeholder. -->
+                    <i data-lucide="building-2" class="w-10 h-10 sm:w-12 sm:h-12 text-primary opacity-50"></i>
+                </div>
+                
+                <!-- Details Header -->
+                <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mt-2">
+                    <div class="flex flex-col">
+                        <h1 class="text-[24px] sm:text-[30px] font-extrabold text-primary leading-tight">Apollo Hospitals</h1>
+                        <div class="text-[14px] text-textMuted flex items-center gap-1.5 mt-1.5 font-medium">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i> New Delhi, India
+                        </div>
+                    </div>
+                    
+                    <!-- Verification Badges -->
+                    <div class="flex flex-col gap-2 md:items-end">
+                        <div class="flex items-center gap-1.5 bg-softGreen border border-green-200 text-green-800 px-3 py-1.5 rounded-lg uppercase text-[11px] font-bold tracking-wider relative group cursor-help shadow-sm">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i> Verified by MediBid
+                            
+                            <!-- Tooltip -->
+                            <div class="absolute top-full right-0 mt-2 w-[280px] bg-gray-800 text-white text-[12.5px] p-4 rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 text-left font-normal normal-case leading-relaxed shadow-floating">
+                                Verification indicates that MediBid has reviewed selected healthcare provider information according to its verification process. It is not a medical endorsement.
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 md:justify-end mt-1">
+                            <span class="text-[12px] bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-md text-textMuted font-semibold">Multispecialty Hospital</span>
+                            <span class="text-[12px] bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-md text-textMuted font-semibold">JCI Accredited</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. RELEVANT TO YOUR TREATMENT REQUEST -->
+        <!-- Developer Note: Only display this section if viewed within the context of a Treatment Request -->
+        <div class="bg-softBlue/30 border border-blue-100 rounded-[16px] p-5 shadow-sm opacity-0 animate-fade-in stagger-2">
+            <h2 class="text-[13px] font-bold text-primary mb-3 flex items-center gap-2 uppercase tracking-wider">
+                <i data-lucide="file-text" class="w-4 h-4 text-secondary"></i> Relevant to Your Request
+            </h2>
+            <div class="flex flex-col sm:flex-row items-center justify-between bg-white rounded-xl p-4 border border-blue-50 shadow-sm gap-4">
+                <div class="flex flex-col gap-1 w-full sm:w-auto">
+                    <span class="text-[12px] text-textMuted font-medium">Proposed Treatment</span>
+                    <span class="text-[14.5px] font-bold text-textMain">Minimally Invasive CABG</span>
+                    <div class="text-[12.5px] font-bold text-secondary bg-softBlue px-2.5 py-0.5 rounded-md inline-flex items-center gap-1.5 w-max mt-1">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i> Under Consideration
+                    </div>
+                </div>
+                <div class="w-full sm:w-auto">
+                    <a href="{{ url_for('patient_treatment_proposal_details') }}" class="w-full sm:w-auto bg-white border border-gray-200 hover:border-secondary hover:text-secondary text-textMain text-[13.5px] font-bold px-5 py-2.5 rounded-xl transition-colors focus:outline-none flex justify-center text-center shadow-sm">
+                        View Proposal
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. HOSPITAL OVERVIEW -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="building" class="w-5 h-5 text-secondary"></i> Hospital Overview
+            </h2>
+            
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- About Text -->
+                <div class="md:w-3/5">
+                    <p class="text-[14.5px] text-textMain leading-relaxed mb-4">
+                        Apollo Hospitals, New Delhi is a leading comprehensive multispecialty hospital in India. Established with the goal of bringing world-class healthcare within the reach of every individual, it is known for pioneering advanced medical procedures.
+                    </p>
+                    <p class="text-[14.5px] text-textMain leading-relaxed">
+                        The facility integrates clinical excellence with state-of-the-art medical technology. The international patient department is dedicated to providing seamless, personalized care for global patients traveling for specialized treatment.
+                    </p>
+                    <div class="mt-4 flex items-center gap-1.5 text-[11.5px] text-textMuted italic">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i> Information provided by hospital.
+                    </div>
+                </div>
+                
+                <!-- Quick Summary -->
+                <div class="md:w-2/5 bg-gray-50 rounded-xl border border-gray-100 p-5">
+                    <h3 class="text-[12px] font-bold text-textMuted uppercase mb-4 tracking-widest">Quick Facts</h3>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex justify-between items-center text-[14px]">
+                            <span class="text-textMuted font-medium">Established</span>
+                            <span class="font-bold text-textMain">1996</span>
+                        </div>
+                        <div class="w-full h-px bg-gray-200"></div>
+                        <div class="flex justify-between items-center text-[14px]">
+                            <span class="text-textMuted font-medium">Bed Capacity</span>
+                            <span class="font-bold text-textMain">718</span>
+                        </div>
+                        <div class="w-full h-px bg-gray-200"></div>
+                        <div class="flex justify-between items-center text-[14px]">
+                            <span class="text-textMuted font-medium">ICU Beds</span>
+                            <span class="font-bold text-textMain">120+</span>
+                        </div>
+                        <div class="w-full h-px bg-gray-200"></div>
+                        <div class="flex justify-between items-center text-[14px]">
+                            <span class="text-textMuted font-medium">Emergency Care</span>
+                            <span class="font-bold text-textMain">24/7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ACCREDITATION & CERTIFICATIONS -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="award" class="w-5 h-5 text-secondary"></i> Accreditation & Certifications
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- JCI -->
+                <div class="border border-green-100 bg-softGreen/30 rounded-xl p-4 flex items-start gap-4 hover:bg-softGreen/50 transition-colors">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-green-200 shadow-sm">
+                        <i data-lucide="award" class="w-6 h-6 text-greenAccent"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-[15px] font-bold text-textMain">JCI</h3>
+                        <p class="text-[13px] text-textMuted mt-0.5">Joint Commission International</p>
+                        <div class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-[11px] font-bold mt-2 w-max">
+                            <i data-lucide="check" class="w-3 h-3"></i> Verified Active
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NABH -->
+                <div class="border border-green-100 bg-softGreen/30 rounded-xl p-4 flex items-start gap-4 hover:bg-softGreen/50 transition-colors">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-green-200 shadow-sm">
+                        <i data-lucide="award" class="w-6 h-6 text-greenAccent"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-[15px] font-bold text-textMain">NABH</h3>
+                        <p class="text-[13px] text-textMuted mt-0.5">National Accreditation Board for Hospitals</p>
+                        <div class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-[11px] font-bold mt-2 w-max">
+                            <i data-lucide="check" class="w-3 h-3"></i> Verified Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 flex items-center gap-1.5 text-[11.5px] text-textMuted italic">
+                <i data-lucide="shield" class="w-3.5 h-3.5"></i> Accreditation records verified by MediBid.
+            </div>
+        </div>
+
+        <!-- 5. MEDICAL SPECIALTIES -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="stethoscope" class="w-5 h-5 text-secondary"></i> Medical Specialties
+            </h2>
+            
+            <div class="flex flex-wrap gap-2.5">
+                <!-- Highlighted Specialty -->
+                <span class="bg-softBlue border border-blue-200 text-secondary px-4 py-2 rounded-xl text-[13.5px] font-bold shadow-sm flex items-center gap-1.5 ring-2 ring-secondary/20">
+                    <i data-lucide="heart-pulse" class="w-4 h-4"></i> Cardiology (Relevant)
+                </span>
+                
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Oncology</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Orthopedics</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Neurology</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Gastroenterology</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Transplant Medicine</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Urology</span>
+            </div>
+        </div>
+
+        <!-- 6. DOCTORS & MEDICAL TEAM -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-[18px] font-extrabold text-primary flex items-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5 text-secondary"></i> Doctors & Medical Team
+                </h2>
+                <!-- Developer Note: Connect to doctor listing route if applicable -->
+                <a href="#" class="text-[13px] font-bold text-secondary hover:underline focus:outline-none">View All Directory</a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Doctor Card (Relevant) -->
+                <div class="border-2 border-blue-100 bg-softBlue/10 rounded-xl p-4 flex gap-4 hover:border-blue-200 transition-colors relative">
+                    <div class="absolute top-2 right-2 text-[10px] font-bold uppercase text-secondary bg-softBlue px-2 py-0.5 rounded">Proposed Doctor</div>
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-200 mt-2">
+                        <i data-lucide="user" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <div class="flex flex-col pt-1">
+                        <h3 class="text-[15.5px] font-bold text-textMain">Dr. Amit Singh</h3>
+                        <span class="text-[13px] font-medium text-textMain">Cardiothoracic Surgery</span>
+                        <span class="text-[12px] text-textMuted mt-1">15+ years experience</span>
+                        <span class="text-[12px] text-textMuted mt-0.5">English, Hindi</span>
+                        <a href="#" class="text-[12.5px] font-bold text-secondary mt-2 w-max hover:underline focus:outline-none">View Profile</a>
+                    </div>
+                </div>
+
+                <!-- Doctor Card -->
+                <div class="border border-gray-200 bg-white rounded-xl p-4 flex gap-4 hover:border-gray-300 transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-200">
+                        <i data-lucide="user" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <div class="flex flex-col pt-1">
+                        <h3 class="text-[15.5px] font-bold text-textMain">Dr. R. K. Sharma</h3>
+                        <span class="text-[13px] font-medium text-textMain">Interventional Cardiology</span>
+                        <span class="text-[12px] text-textMuted mt-1">20+ years experience</span>
+                        <span class="text-[12px] text-textMuted mt-0.5">English, Hindi</span>
+                        <a href="#" class="text-[12.5px] font-bold text-secondary mt-2 w-max hover:underline focus:outline-none">View Profile</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 7. FACILITIES, TECH & ROOMS -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="activity" class="w-5 h-5 text-secondary"></i> Facilities & Amenities
+            </h2>
+            
+            <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Medical Facilities</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                    <i data-lucide="heart-pulse" class="w-5 h-5 text-primary opacity-70"></i>
+                    <span class="text-[13px] font-semibold text-textMain">Intensive Care (ICU)</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                    <i data-lucide="cross" class="w-5 h-5 text-primary opacity-70"></i>
+                    <span class="text-[13px] font-semibold text-textMain">24/7 Emergency</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                    <i data-lucide="scissors" class="w-5 h-5 text-primary opacity-70"></i>
+                    <span class="text-[13px] font-semibold text-textMain">Operating Theatres</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                    <i data-lucide="radiation" class="w-5 h-5 text-primary opacity-70"></i>
+                    <span class="text-[13px] font-semibold text-textMain">Advanced Imaging</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                    <i data-lucide="test-tube" class="w-5 h-5 text-primary opacity-70"></i>
+                    <span class="text-[13px] font-semibold text-textMain">Clinical Laboratory</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                    <i data-lucide="pills" class="w-5 h-5 text-primary opacity-70"></i>
+                    <span class="text-[13px] font-semibold text-textMain">24/7 Pharmacy</span>
+                </div>
+            </div>
+
+            <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Patient Amenities</h3>
+            <div class="flex flex-wrap gap-2.5">
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium flex items-center gap-1.5"><i data-lucide="bed" class="w-4 h-4 text-textMuted"></i> Private Rooms</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium flex items-center gap-1.5"><i data-lucide="bed-double" class="w-4 h-4 text-textMuted"></i> Companion Stay</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium flex items-center gap-1.5"><i data-lucide="wifi" class="w-4 h-4 text-textMuted"></i> Free Wi-Fi</span>
+                <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium flex items-center gap-1.5"><i data-lucide="utensils" class="w-4 h-4 text-textMuted"></i> Custom Meals</span>
+            </div>
+        </div>
+
+        <!-- 8. GALLERY & VIDEOS -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="image" class="w-5 h-5 text-secondary"></i> Hospital Gallery
+            </h2>
+            
+            <div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x cursor-grab active:cursor-grabbing">
+                
+                <!-- Video Thumbnail Placeholder -->
+                <div class="w-[260px] h-[170px] sm:w-[280px] sm:h-[180px] bg-gray-800 rounded-xl flex-shrink-0 snap-center relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-primary opacity-50 group-hover:opacity-60 transition-opacity"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <button class="w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center pl-1 focus:outline-none group-hover:scale-110 transition-transform">
+                            <i data-lucide="play" class="w-6 h-6 text-primary"></i>
+                        </button>
+                    </div>
+                    <span class="absolute bottom-3 left-3 text-[11px] font-bold text-white bg-black/60 px-2.5 py-1 rounded shadow-sm">Facility Tour</span>
+                </div>
+
+                <!-- Image Placeholders -->
+                <div class="w-[260px] h-[170px] sm:w-[280px] sm:h-[180px] bg-gray-100 rounded-xl flex-shrink-0 border border-gray-200 snap-center relative group overflow-hidden flex items-center justify-center">
+                    <i data-lucide="image" class="w-8 h-8 text-gray-300"></i>
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-zoom-in">
+                        <i data-lucide="zoom-in" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+                <div class="w-[260px] h-[170px] sm:w-[280px] sm:h-[180px] bg-gray-100 rounded-xl flex-shrink-0 border border-gray-200 snap-center relative group overflow-hidden flex items-center justify-center">
+                    <i data-lucide="image" class="w-8 h-8 text-gray-300"></i>
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-zoom-in">
+                        <i data-lucide="zoom-in" class="w-6 h-6 text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. LOCATION & MAP -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="map" class="w-5 h-5 text-secondary"></i> Location
+            </h2>
+            <div class="flex flex-col md:flex-row gap-6 items-center md:items-stretch">
+                <!-- Map Placeholder -->
+                <div class="w-full md:w-[300px] h-[200px] bg-gray-100 rounded-xl border border-gray-200 flex flex-col items-center justify-center flex-shrink-0 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHBhdGggZD0iTTEwIDBoMTB2MTBIMTB6IiBmaWxsPSJyZ2JhKDAsMCwwLDAuMDMpIi8+PC9zdmc+')] opacity-50"></div>
+                    <i data-lucide="map-pin" class="w-8 h-8 text-gray-400 mb-2"></i>
+                    <span class="text-[12px] text-gray-400 font-medium">Map View</span>
+                </div>
+                
+                <div class="flex flex-col justify-center flex-grow w-full md:w-auto">
+                    <h3 class="text-[16px] font-bold text-textMain mb-1">Apollo Hospitals</h3>
+                    <p class="text-[14.5px] text-textMuted mb-5 leading-relaxed max-w-md">Indraprastha, Mathura Road, New Delhi, Delhi 110076, India</p>
+                    <a href="#" class="text-[13.5px] font-bold text-secondary border border-gray-200 rounded-xl px-5 py-2.5 inline-flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors w-full sm:w-max focus:outline-none">
+                        Get Directions <i data-lucide="external-link" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. INTERNATIONAL PATIENT SERVICES & TRAVEL -->
+        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
+            <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
+                <i data-lucide="plane" class="w-5 h-5 text-secondary"></i> International Patient Support
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <!-- Services Column -->
+                <div>
+                    <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Support Services</h3>
+                    <div class="flex flex-col gap-2.5">
+                        <div class="flex justify-between items-center text-[14px] pb-2 border-b border-gray-50">
+                            <span class="text-textMuted">International Patient Desk</span>
+                            <span class="font-bold text-textMain">Available</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[14px] pb-2 border-b border-gray-50">
+                            <span class="text-textMuted">Visa Assistance Letter</span>
+                            <span class="font-bold text-textMain">Available</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[14px] pb-2 border-b border-gray-50">
+                            <span class="text-textMuted">Airport Transfer</span>
+                            <span class="font-bold text-textMain">Available</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[14px] pb-2 border-b border-gray-50">
+                            <span class="text-textMuted">Accommodation Assistance</span>
+                            <span class="font-bold text-textMain">Partner Hotels</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Languages Column -->
+                <div>
+                    <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Languages Supported</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium">English</span>
+                        <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium">Arabic</span>
+                        <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium">Russian</span>
+                        <span class="bg-gray-50 border border-gray-200 text-textMain px-3 py-1.5 rounded-lg text-[13px] font-medium">Hindi</span>
+                    </div>
+                    <p class="text-[12px] text-textMuted italic mt-3">
+                        <i data-lucide="languages" class="w-3.5 h-3.5 inline mr-0.5"></i> MediBid in-app translation services are available for secure messaging.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRUST DISCLAIMER -->
+        <div class="text-[12.5px] text-textMuted text-center max-w-2xl mx-auto opacity-0 animate-fade-in stagger-3 px-4">
+            MediBid provides structured healthcare provider information to help patients evaluate options. Verification and accreditation information should be considered alongside medical advice, treatment suitability, and your individual healthcare needs.
+        </div>
+
+        <!-- 11. PATIENT ACTIONS (Sticky Bottom Bar) -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-floating sticky bottom-6 z-40 opacity-0 animate-fade-in stagger-3">
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-center md:justify-start">
+                <button class="bg-softLavender text-lavenderAccent hover:bg-purple-100 border border-purple-100 font-bold px-5 py-2.5 rounded-xl text-[13.5px] transition-colors flex items-center justify-center gap-2 focus:outline-none w-full sm:w-auto">
+                    <i data-lucide="star" class="w-4 h-4 fill-lavenderAccent"></i> Shortlisted
+                </button>
+                <button class="bg-white border border-gray-200 text-textMain hover:bg-gray-50 font-bold px-5 py-2.5 rounded-xl text-[13.5px] transition-colors flex items-center justify-center gap-2 focus:outline-none w-full sm:w-auto">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-textMuted"></i> Message Hospital
+                </button>
+            </div>
+            
+            <div class="w-full md:w-auto mt-1 md:mt-0 flex gap-3">
+                <a href="{{ url_for('patient_treatment_proposal_details') }}" class="w-full md:w-auto bg-primary text-white hover:bg-blue-800 font-bold px-8 py-3 rounded-xl text-[14.5px] transition-all shadow-glow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-center gap-2 text-center">
+                    View Treatment Proposal <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto border-t border-gray-200 bg-white py-6">
+        <div class="w-full max-w-[1000px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
+                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
+            </div>
+            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Mobile Menu & Profile Dropdown
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.contains('open');
+                if (isOpen) {
+                    mobileMenu.classList.remove('open');
+                } else {
+                    mobileMenu.classList.add('open');
+                    if(profileDropdown) profileDropdown.classList.remove('open');
+                }
+            });
+        }
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = profileDropdown.classList.contains('open');
+                if (isOpen) {
+                    profileDropdown.classList.remove('open');
+                } else {
+                    profileDropdown.classList.add('open');
+                    if(mobileMenu) mobileMenu.classList.remove('open');
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+    </script>
+</body>
+</html>

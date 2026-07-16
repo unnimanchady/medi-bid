@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBid - Healthcare Without Borders</title>
+    <meta name="description" content="MediBid connects patients with verified hospitals, NGOs, and financial assistance programs around the world. The world's healthcare marketplace.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy for brand identity
+                        secondary: '#0082CA', // Bright Blue for highlights
+                        textMain: '#111827',
+                        textMuted: '#4B5563',
+                        bgLight: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Ensure responsive media */
+        img, video {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain overflow-x-hidden selection:bg-secondary selection:text-white flex flex-col min-h-screen">
+
+    <!-- Sticky Header -->
+    <header class="glass-nav fixed w-full top-0 z-50 border-b border-gray-100 transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg" aria-label="MediBid Home">
+                <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M5 24H27" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M5 8H27" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[22px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-[0.08em] mt-0.5">Healthcare Without Borders</span>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden lg:flex items-center gap-8 xl:gap-10" aria-label="Main Navigation">
+                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                    How It Works
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </a>
+                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                    For Patients
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </a>
+                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                    For Hospitals
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </a>
+                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                    For NGOs
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </a>
+                <a href="#" class="text-[15px] font-semibold text-gray-500 hover:text-gray-700 transition-colors duration-300 focus:outline-none relative group">
+                    For CSR Partners
+                    <span class="absolute -top-3.5 -right-3.5 bg-blue-50 text-secondary text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border border-blue-100">Soon</span>
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gray-300 transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </a>
+                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                    About Us
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
+                </a>
+            </nav>
+
+            <!-- Right Actions -->
+            <div class="hidden lg:flex items-center gap-6">
+                <button class="flex items-center gap-1.5 text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary rounded px-2 py-1" aria-label="Change language">
+                    <i data-lucide="globe" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
+                    EN
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
+                </button>
+                <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:-translate-y-0.5">
+                    <i data-lucide="user" class="w-4 h-4" aria-hidden="true"></i>
+                    Sign In
+                </a>
+            </div>
+            
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" class="lg:hidden text-gray-700 p-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open mobile menu" aria-expanded="false" aria-controls="mobile-menu-panel">
+                <i data-lucide="menu" class="w-7 h-7" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content wrapper to push down below sticky header -->
+    <div class="pt-20 flex-grow">
+        
+        <!-- Hero Section -->
+        <main id="main-content" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-8 xl:gap-16 h-auto lg:h-[calc(100vh-80px)] py-8 lg:py-0">
+            
+            <!-- Hero Left Column -->
+            <div class="w-full lg:w-1/2 pt-2 lg:pt-0 flex flex-col justify-center lg:pr-4">
+                
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-2 bg-[#EAF5FB] text-[#02649B] font-medium px-4 py-1.5 rounded-full text-[13px] mb-4 sm:mb-6 self-start border border-[#D5EBF7]">
+                    <i data-lucide="globe" class="w-4 h-4" aria-hidden="true"></i>
+                    Global Platform. Transparent Care. Better Choices.
+                </div>
+                
+                <!-- Headline -->
+                <h1 class="text-[clamp(32px,8vw,48px)] font-extrabold text-primary leading-[1.1] mb-4 sm:mb-6 tracking-tight">
+                    Find the Right Treatment.<br>
+                    At the <span class="text-secondary">Right Price.</span>
+                </h1>
+                
+                <!-- Description -->
+                <p class="text-gray-600 text-[clamp(15px,4vw,18px)] mb-6 sm:mb-8 max-w-[540px] leading-relaxed">
+                    MediBid connects patients with verified hospitals, NGOs, and financial assistance programs around the world &mdash; so you can focus on what matters most: your health.
+                </p>
+                
+                <!-- Features Row (Hidden on mobile for cleaner layout) -->
+                <div class="hidden sm:flex items-stretch gap-6 xl:gap-10 mb-8 max-w-3xl">
+                    <div class="flex flex-col items-center flex-1 text-center group cursor-default">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2.5 text-secondary group-hover:bg-blue-100 group-hover:-translate-y-1 transition-all duration-300">
+                            <i data-lucide="file-text" class="w-4 h-4 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-[14px] font-semibold text-textMain leading-snug">Compare<br>Estimates</span>
+                    </div>
+                    <div class="w-px bg-gray-100 my-2"></div>
+                    
+                    <div class="flex flex-col items-center flex-1 text-center group cursor-default">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2.5 text-secondary group-hover:bg-blue-100 group-hover:-translate-y-1 transition-all duration-300">
+                            <i data-lucide="heart-handshake" class="w-4 h-4 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-[14px] font-semibold text-textMain leading-snug">Financial<br>Assistance</span>
+                    </div>
+                    <div class="w-px bg-gray-100 my-2"></div>
+                    
+                    <div class="flex flex-col items-center flex-1 text-center group cursor-default">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2.5 text-secondary group-hover:bg-blue-100 group-hover:-translate-y-1 transition-all duration-300">
+                            <i data-lucide="shield-check" class="w-4 h-4 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-[14px] font-semibold text-textMain leading-snug">Privacy &<br>Patient First</span>
+                    </div>
+                    <div class="w-px bg-gray-100 my-2"></div>
+                    
+                    <div class="flex flex-col items-center flex-1 text-center group cursor-default">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2.5 text-secondary group-hover:bg-blue-100 group-hover:-translate-y-1 transition-all duration-300">
+                            <i data-lucide="globe-2" class="w-4 h-4 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <span class="text-[14px] font-semibold text-textMain leading-snug">Global Access,<br>Local Support</span>
+                    </div>
+                </div>
+                
+                <!-- CTA -->
+                <div>
+                    <a href="{{ url_for('patient_registration_step1') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-8 sm:px-10 py-3 sm:py-3.5 rounded-full inline-flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[16px] w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Get Started
+                        <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Hero Right Column (Hidden on Mobile) -->
+            <div class="w-full lg:w-1/2 relative h-[420px] xl:h-[500px] hidden lg:block">
+                
+                <!-- Main Image wrapper -->
+                <div class="absolute inset-0 right-0 xl:right-2 rounded-[48px] overflow-hidden shadow-2xl bg-gray-200">
+                    <img src="{{ url_for('static', filename='images/hero.webp') }}"
+     alt="Mother embracing her child, representing care, health and global support"
+     loading="lazy"
+     class="w-full h-full object-cover object-center">
+                </div>
+                
+                <!-- Differentiator Value Card (Replaces old Stats Card) -->
+                <div class="absolute -bottom-6 -left-6 xl:-left-10 bg-primary text-white p-7 xl:p-8 rounded-[28px] shadow-glow w-[370px] z-20 hover:-translate-y-1 transition-transform duration-300 cursor-default">
+                    <div class="text-[17px] xl:text-[18px] font-bold mb-5 text-white tracking-wide leading-tight whitespace-nowrap">Global Healthcare Marketplace</div>
+                    
+                    <ul class="flex flex-col gap-3.5">
+                        <li class="flex items-center gap-3 group">
+                            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/40 transition-colors">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-blue-300 stroke-[3]" aria-hidden="true"></i>
+                            </div>
+                            <span class="text-[14px] xl:text-[15px] text-blue-50 font-medium">Multilingual Communication</span>
+                        </li>
+                        <li class="flex items-center gap-3 group">
+                            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/40 transition-colors">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-blue-300 stroke-[3]" aria-hidden="true"></i>
+                            </div>
+                            <span class="text-[14px] xl:text-[15px] text-blue-50 font-medium">Transparent Treatment Estimates</span>
+                        </li>
+                        <li class="flex items-center gap-3 group">
+                            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/40 transition-colors">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-blue-300 stroke-[3]" aria-hidden="true"></i>
+                            </div>
+                            <span class="text-[14px] xl:text-[15px] text-blue-50 font-medium">Secure Medical Records</span>
+                        </li>
+                        <li class="flex items-center gap-3 group">
+                            <div class="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/40 transition-colors">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-blue-300 stroke-[3]" aria-hidden="true"></i>
+                            </div>
+                            <span class="text-[14px] xl:text-[15px] text-blue-50 font-medium">Intelligent Hospital Matching</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Floating Cards -->
+                <div class="absolute top-1/2 -translate-y-1/2 -right-4 xl:-right-8 flex flex-col gap-4 z-20">
+                    
+                    <!-- Card 1 -->
+                    <div class="bg-white/95 backdrop-blur-md p-4 xl:p-5 rounded-2xl shadow-floating flex items-center gap-4 w-[280px] xl:w-[300px] border border-gray-100/80 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-premium transition-all duration-300 cursor-default">
+                        <div class="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#EAF5FB] flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="heart" class="w-5 h-5 xl:w-6 xl:h-6 text-[#006FB0] stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <div class="text-[16px] xl:text-[17px] font-bold text-gray-900 leading-tight">Patient Controlled</div>
+                            <div class="text-[14px] xl:text-[15px] text-gray-600 mt-1 leading-snug">You stay in control. Always.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 2 -->
+                    <div class="bg-white/95 backdrop-blur-md p-4 xl:p-5 rounded-2xl shadow-floating flex items-center gap-4 w-[280px] xl:w-[300px] border border-gray-100/80 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-premium transition-all duration-300 cursor-default">
+                        <div class="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#E8F6F0] flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="shield-check" class="w-5 h-5 xl:w-6 xl:h-6 text-[#158953] stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <div class="text-[16px] xl:text-[17px] font-bold text-gray-900 leading-tight">Verified Hospitals</div>
+                            <div class="text-[14px] xl:text-[15px] text-gray-600 mt-1 leading-snug">Verified hospitals worldwide.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 3 -->
+                    <div class="bg-white/95 backdrop-blur-md p-4 xl:p-5 rounded-2xl shadow-floating flex items-center gap-4 w-[280px] xl:w-[300px] border border-gray-100/80 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-premium transition-all duration-300 cursor-default">
+                        <div class="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#FFF6E5] flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="users" class="w-5 h-5 xl:w-6 xl:h-6 text-[#B67600] stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <div class="text-[16px] xl:text-[17px] font-bold text-gray-900 leading-tight">Financial Assistance</div>
+                            <div class="text-[14px] xl:text-[15px] text-gray-600 mt-1 leading-snug">Hospital aid & NGO support.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 4 -->
+                    <div class="bg-white/95 backdrop-blur-md p-4 xl:p-5 rounded-2xl shadow-floating flex items-center gap-4 w-[280px] xl:w-[300px] border border-gray-100/80 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-premium transition-all duration-300 cursor-default">
+                        <div class="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#F0E6F9] flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="lock" class="w-5 h-5 xl:w-6 xl:h-6 text-[#6A2B99] stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <div class="text-[16px] xl:text-[17px] font-bold text-gray-900 leading-tight">Privacy First</div>
+                            <div class="text-[14px] xl:text-[15px] text-gray-600 mt-1 leading-snug">Shared only with consent.</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </main>
+        
+        <!-- Core Value Proposition Cards (Below Fold) -->
+        <section aria-label="Core Features" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 lg:mt-24 mb-10 sm:mb-12 lg:mb-16 relative z-30">
+            <div class="bg-white rounded-[24px] sm:rounded-[32px] shadow-card p-6 lg:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 lg:gap-6 xl:gap-8 border border-gray-100">
+                
+                <!-- Feature 1 -->
+                <div class="flex flex-col sm:flex-row xl:flex-row items-start gap-4 sm:gap-5 flex-1 w-full hover:-translate-y-1 transition-transform duration-300">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#EAF5FB] flex items-center justify-center flex-shrink-0 mt-1">
+                        <i data-lucide="building-2" class="w-5 h-5 sm:w-6 sm:h-6 text-[#006FB0] stroke-[2]" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[clamp(17px,5vw,20px)] font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">Treatment<br class="hidden sm:block">Estimates</h3>
+                        <p class="text-[clamp(14px,4vw,16px)] text-gray-600 leading-relaxed mb-3 sm:mb-4">Compare transparent treatment estimates from verified hospitals.</p>
+                        <div class="inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-md px-2.5 py-1.5 shadow-sm">
+                            <i data-lucide="cpu" class="w-4 h-4 text-secondary" aria-hidden="true"></i>
+                            <span class="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Intelligent Matching</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="hidden lg:block w-px h-32 bg-gray-100"></div>
+                
+                <!-- Feature 2 -->
+                <div class="flex flex-col sm:flex-row xl:flex-row items-start gap-4 sm:gap-5 flex-1 w-full hover:-translate-y-1 transition-transform duration-300">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#E8F6F0] flex items-center justify-center flex-shrink-0 mt-1">
+                        <i data-lucide="heart-handshake" class="w-5 h-5 sm:w-6 sm:h-6 text-[#158953] stroke-[2]" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[clamp(17px,5vw,20px)] font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">Financial<br class="hidden sm:block">Assistance</h3>
+                        <p class="text-[clamp(14px,4vw,16px)] text-gray-600 leading-relaxed mb-3 sm:mb-4">Explore support from hospitals, NGOs and CSR partners to reduce costs.</p>
+                        <div class="inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-md px-2.5 py-1.5 shadow-sm">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-[#158953]" aria-hidden="true"></i>
+                            <span class="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Zero Patient Fees</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="hidden lg:block w-px h-32 bg-gray-100"></div>
+                
+                <!-- Feature 3 -->
+                <div class="flex flex-col sm:flex-row xl:flex-row items-start gap-4 sm:gap-5 flex-1 w-full hover:-translate-y-1 transition-transform duration-300">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#F0E6F9] flex items-center justify-center flex-shrink-0 mt-1">
+                        <i data-lucide="globe-2" class="w-5 h-5 sm:w-6 sm:h-6 text-[#6A2B99] stroke-[2]" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[clamp(17px,5vw,20px)] font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">Global Care,<br class="hidden sm:block">Local Support</h3>
+                        <p class="text-[clamp(14px,4vw,16px)] text-gray-600 leading-relaxed mb-3 sm:mb-4">Access world-class healthcare wherever you are with support in your language.</p>
+                        <div class="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-100 rounded-md px-2.5 py-1.5 shadow-sm">
+                            <span class="text-[12px] font-bold text-gray-700">FR</span>
+                            <i data-lucide="arrow-right-left" class="w-3 h-3 text-[#6A2B99]" aria-hidden="true"></i>
+                            <span class="text-[12px] font-bold text-gray-700">EN</span>
+                            <i data-lucide="arrow-right-left" class="w-3 h-3 text-[#6A2B99]" aria-hidden="true"></i>
+                            <span class="text-[12px] font-bold text-gray-700">FR</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="hidden lg:block w-px h-32 bg-gray-100"></div>
+                
+                <!-- Feature 4 -->
+                <div class="flex flex-col sm:flex-row xl:flex-row items-start gap-4 sm:gap-5 flex-1 w-full hover:-translate-y-1 transition-transform duration-300">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#FFF6E5] flex items-center justify-center flex-shrink-0 mt-1">
+                        <i data-lucide="shield-check" class="w-5 h-5 sm:w-6 sm:h-6 text-[#B67600] stroke-[2]" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[clamp(17px,5vw,20px)] font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">Safe, Secure,<br class="hidden sm:block">Transparent</h3>
+                        <p class="text-[clamp(14px,4vw,16px)] text-gray-600 leading-relaxed mb-3 sm:mb-4">We protect your privacy and ensure complete transparency at every step.</p>
+                        <div class="inline-flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-md px-2.5 py-1.5 shadow-sm">
+                            <i data-lucide="lock-keyhole" class="w-4 h-4 text-[#B67600]" aria-hidden="true"></i>
+                            <span class="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Secure Records</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Trusted Ecosystem Banner -->
+        <section aria-label="Ecosystem Partners" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-20">
+            <div class="bg-primary rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 lg:p-12 flex flex-col items-center text-center lg:text-left shadow-glow border border-blue-900/50">
+                
+                <h2 class="text-[clamp(22px,6vw,28px)] font-bold text-white mb-8 lg:mb-14 tracking-wide w-full text-center">A Trusted Ecosystem Built for You</h2>
+                
+                <div class="w-full flex flex-col lg:flex-row justify-between items-start lg:items-center gap-0 lg:gap-4 divide-y lg:divide-y-0 lg:divide-x divide-blue-400/20">
+                    
+                    <!-- Item 1 -->
+                    <div class="flex items-center gap-4 sm:gap-5 py-5 lg:py-0 lg:px-6 xl:px-8 first:pt-0 first:lg:px-0 first:lg:pr-6 xl:first:pr-8 last:pb-0 w-full lg:w-auto group">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-blue-400/30 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-800 transition-colors duration-300">
+                            <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-300 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="text-[clamp(16px,4vw,18px)] font-bold text-white mb-1">For Patients</h4>
+                            <p class="text-[clamp(13px,3.5vw,15px)] text-blue-100 leading-snug">Better choices.<br>Better outcomes.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 -->
+                    <div class="flex items-center gap-4 sm:gap-5 py-5 lg:py-0 lg:px-6 xl:px-8 w-full lg:w-auto group">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-blue-400/30 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-800 transition-colors duration-300">
+                            <i data-lucide="building-2" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-300 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="text-[clamp(16px,4vw,18px)] font-bold text-white mb-1">For Hospitals</h4>
+                            <p class="text-[clamp(13px,3.5vw,15px)] text-blue-100 leading-snug">Reach more patients.<br>Build global trust.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 3 -->
+                    <div class="flex items-center gap-4 sm:gap-5 py-5 lg:py-0 lg:px-6 xl:px-8 w-full lg:w-auto group">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-blue-400/30 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-800 transition-colors duration-300">
+                            <i data-lucide="heart-handshake" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-300 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="text-[clamp(16px,4vw,18px)] font-bold text-white mb-1">For NGOs</h4>
+                            <p class="text-[clamp(13px,3.5vw,15px)] text-blue-100 leading-snug">Find more people.<br>Make bigger impact.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 4 -->
+                    <div class="flex items-center gap-4 sm:gap-5 py-5 lg:py-0 lg:px-6 xl:px-8 w-full lg:w-auto group">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-blue-400/30 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-800 transition-colors duration-300">
+                            <i data-lucide="building" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-300 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="text-[clamp(16px,4vw,18px)] font-bold text-white mb-1">For CSR Partners</h4>
+                            <p class="text-[clamp(13px,3.5vw,15px)] text-blue-100 leading-snug">Empower lives.<br>Strengthen communities.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 5 -->
+                    <div class="flex items-center gap-4 sm:gap-5 py-5 lg:py-0 lg:px-6 xl:px-8 last:pr-0 last:pb-0 w-full lg:w-auto group">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-blue-400/30 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-800 transition-colors duration-300">
+                            <i data-lucide="shield-check" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-300 stroke-[2]" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="text-[clamp(16px,4vw,18px)] font-bold text-white mb-1">For All</h4>
+                            <p class="text-[clamp(13px,3.5vw,15px)] text-blue-100 leading-snug">Working together for<br>a healthier world.</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[60] hidden opacity-0 transition-opacity duration-300" aria-hidden="true"></div>
+    
+    <!-- Mobile Menu Panel -->
+    <div id="mobile-menu-panel" class="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white z-[70] transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+        
+        <div class="px-6 h-20 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M5 24H27" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M5 8H27" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-wider mt-1">Healthcare Without Borders</span>
+                </div>
+            </div>
+            <button id="close-menu-btn" class="p-2.5 text-gray-500 hover:text-gray-900 bg-gray-50 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary transition-colors" aria-label="Close menu">
+                <i data-lucide="x" class="w-6 h-6" aria-hidden="true"></i>
+            </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6 bg-white hide-scroll">
+            <nav class="flex flex-col gap-2" aria-label="Mobile Main Navigation">
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">How It Works</a>
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Patients</a>
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Hospitals</a>
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For NGOs</a>
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-500 flex items-center justify-between pointer-events-none">
+                    For CSR Partners
+                    <span class="bg-gray-100 text-gray-600 text-[11px] px-2.5 py-1 rounded uppercase font-bold border border-gray-200">Coming Soon</span>
+                </a>
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">About Us</a>
+            </nav>
+            
+            <div class="h-px bg-gray-100 w-full my-4"></div>
+            
+            <div class="px-4">
+                <button class="flex items-center gap-3 text-[16px] font-semibold text-gray-700 w-full focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg py-2">
+                    <i data-lucide="globe" class="w-5 h-5 text-gray-500" aria-hidden="true"></i>
+                    Language: English (EN)
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-4 rounded-xl w-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <i data-lucide="user" class="w-5 h-5" aria-hidden="true"></i>
+                Sign In to MediBid
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const overlay = document.getElementById('mobile-menu-overlay');
+        const panel = document.getElementById('mobile-menu-panel');
+
+        function openMenu() {
+            menuBtn.setAttribute('aria-expanded', 'true');
+            overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Lock body scroll
+            
+            // Trigger reflow for transitions
+            void overlay.offsetWidth;
+            
+            overlay.classList.remove('opacity-0');
+            panel.classList.remove('translate-x-full');
+            
+            // Focus management
+            setTimeout(() => {
+                closeBtn.focus();
+            }, 300);
+        }
+
+        function closeMenu() {
+            menuBtn.setAttribute('aria-expanded', 'false');
+            overlay.classList.add('opacity-0');
+            panel.classList.add('translate-x-full');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                document.body.style.overflow = ''; // Restore body scroll
+                menuBtn.focus();
+            }, 300);
+        }
+
+        menuBtn.addEventListener('click', openMenu);
+        closeBtn.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', closeMenu);
+        
+        // Escape key closes menu
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !overlay.classList.contains('hidden')) {
+                closeMenu();
+            }
+        });
+    </script>
+</body>
+</html>

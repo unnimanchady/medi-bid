@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Step 2 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy
+                        secondary: '#0082CA', // Bright Blue
+                        textMain: '#111827',
+                        textMuted: '#4B5563',
+                        bgLight: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(0,130,202,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom radio cards for Gender */
+        .gender-radio:checked + div {
+            border-color: #0082CA;
+            background-color: #F0F9FF;
+            color: #0B1D40;
+        }
+        .gender-radio:checked + div .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .gender-radio:focus-visible + div {
+            outline: 2px solid #0082CA;
+            outline-offset: 2px;
+        }
+        @keyframes float-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .animate-float-subtle {
+            animation: float-subtle 5s ease-in-out infinite;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+
+    <!-- 1. SIMPLIFIED REGISTRATION HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
+        
+        <!-- Logo and Back -->
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            
+            <!-- Back to Home -->
+            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4 focus:outline-none focus:underline">
+                <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+                Back to Home
+            </a>
+        </div>
+        
+        <!-- Right Actions -->
+        <div class="flex items-center gap-4 sm:gap-6">
+            
+            <!-- Language -->
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Change Language">
+                <i data-lucide="globe" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">English</span>
+            </button>
+            
+            <!-- Help -->
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Help and Support">
+                <i data-lucide="help-circle" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">Help</span>
+            </button>
+            
+            <!-- Sign In -->
+            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                Sign In
+            </a>
+            
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+        
+        <!-- Mobile Back link -->
+        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-8 self-start focus:outline-none focus:underline">
+            <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+            Back to Home
+        </a>
+
+        <!-- 1.5. HEALTHCARE ILLUSTRATION & TRUST MESSAGE -->
+        <div class="flex flex-col items-center justify-center mb-8 opacity-0 animate-fade-in text-center">
+            <!-- Subtle floating illustration -->
+            <div class="relative w-[110px] sm:w-[140px] md:w-[170px] h-[110px] sm:h-[140px] md:h-[170px] mb-5 animate-float-subtle flex-shrink-0">
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-sm">
+                    <!-- Clean, Premium Medical/Global SVG Illustration -->
+                    <!-- Globe background -->
+                    <circle cx="100" cy="100" r="80" fill="#F8F9FA" stroke="#E5E7EB" stroke-width="1.5" />
+                    <!-- Globe Grid Lines (Subtle) -->
+                    <path d="M100 20C100 20 140 50 140 100C140 150 100 180 100 180M100 20C100 20 60 50 60 100C60 150 100 180 100 180" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M20 100H180" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M36 60H164" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M36 140H164" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    
+                    <!-- Secure Connection Nodes (Technology) -->
+                    <path d="M140 70L115 85" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
+                    <path d="M55 125L80 110" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
+                    <circle cx="140" cy="70" r="6" fill="#158953" /> <!-- Green Trust Accent -->
+                    <circle cx="55" cy="125" r="5" fill="#0B1D40" /> <!-- Primary Navy Accent -->
+                    <circle cx="70" cy="50" r="3" fill="#0082CA" /> <!-- Secondary Blue Accent -->
+
+                    <!-- Medical Cross Centerpiece -->
+                    <rect x="75" y="85" width="50" height="30" rx="8" fill="#0082CA" />
+                    <rect x="85" y="75" width="30" height="50" rx="8" fill="#0082CA" />
+                    <circle cx="100" cy="100" r="8" fill="#FFFFFF" />
+                </svg>
+            </div>
+            <!-- Trust Message -->
+            <p class="text-[12px] text-gray-400 font-semibold tracking-widest uppercase">Trusted by patients seeking healthcare worldwide</p>
+        </div>
+
+        <!-- 2. PAGE TITLE -->
+        <div class="text-center mb-10">
+            <h1 class="text-[32px] sm:text-[38px] font-extrabold text-primary leading-tight tracking-tight mb-3">
+                Patient Registration
+            </h1>
+            <p class="text-[15px] sm:text-[16px] text-gray-500 font-medium">
+                Create your MediBid account in just a few simple steps.
+            </p>
+        </div>
+
+        <!-- 3. REGISTRATION PROGRESS -->
+        <div class="w-full max-w-[600px] mb-10 sm:mb-12">
+            <div class="w-full flex items-center justify-between mb-8 pb-6 relative z-10 px-2 sm:px-4">
+                <div class="absolute left-2 right-2 top-[7px] h-[2px] bg-gray-200 -z-10"></div>
+                <!-- Progress Line: 20% filled because we are on step 2 -->
+                <div class="absolute left-2 top-[7px] w-[20%] h-[2px] bg-secondary -z-10 transition-all duration-500"></div>
+                
+                <!-- Account (Completed) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Account</span>
+                </div>
+                <!-- Personal (Active) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Personal</span>
+                </div>
+                <!-- Medical -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Medical</span>
+                </div>
+                <!-- Preferences -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Preferences</span>
+                </div>
+                <!-- Reports -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Reports</span>
+                </div>
+                <!-- Submit -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Submit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. REGISTRATION CARD -->
+        <div class="w-full max-w-[520px]">
+            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-8 sm:p-10 relative">
+                
+                <!-- Inner Badge: Step 2 of 6 -->
+                <div class="flex items-center justify-start mb-8">
+                    <div class="inline-flex items-center gap-1.5 bg-[#EAF5FB] text-[#02649B] font-bold px-3.5 py-1.5 rounded-lg text-[12px] uppercase tracking-widest border border-[#D5EBF7]">
+                        Step 2 of 6
+                    </div>
+                </div>
+                
+                <!-- Heading -->
+                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Personal Information</h2>
+                <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">Please provide your personal details.</p>
+                
+                <!-- Form -->
+                <form id="step2-form" action="#" method="POST" class="flex flex-col gap-5">
+                    
+                    <!-- Profile Photo (Optional) -->
+                    <div class="flex flex-col gap-1.5 w-full">
+                        <div class="flex flex-col items-center sm:flex-row sm:items-center gap-5 p-4 rounded-[20px] border-2 border-dashed border-gray-200 bg-[#F8F9FA] hover:bg-gray-100/60 transition-colors cursor-pointer group focus-within:ring-2 focus-within:ring-secondary focus-within:outline-none" tabindex="0">
+                            <div id="photo-preview-container" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm relative overflow-hidden group-hover:border-secondary transition-colors">
+                                <i id="photo-placeholder-icon" data-lucide="user" class="w-8 h-8 text-gray-400" aria-hidden="true"></i>
+                                <img id="photo-preview-img" src="" alt="Profile Photo Preview" class="w-full h-full object-cover hidden">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i data-lucide="camera" class="w-5 h-5 sm:w-6 sm:h-6 text-white" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col text-center sm:text-left">
+                                <span class="text-[14.5px] font-bold text-gray-800">Upload Profile Photo</span>
+                                <span class="text-[13px] text-gray-500 mt-1">Drag & drop or click to browse</span>
+                                <span class="text-[11px] text-gray-400 mt-1 uppercase font-semibold tracking-wider">Max 5MB (JPG, PNG, WEBP)</span>
+                            </div>
+                            <input type="file" id="photo" class="hidden" accept="image/jpeg, image/png, image/webp" aria-label="Upload Profile Photo">
+                        </div>
+                        <p id="photo-error" class="text-red-500 text-[13px] font-medium hidden ml-1 mt-0.5" aria-live="polite"></p>
+                    </div>
+
+                    <!-- Name Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="first-name" class="text-[14px] font-bold text-gray-800 ml-1">First Name <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="text" id="first-name" name="first-name" required aria-required="true"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="John">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="last-name" class="text-[14px] font-bold text-gray-800 ml-1">Last Name <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <input type="text" id="last-name" name="last-name" required aria-required="true"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="Doe">
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth & Gender Row -->
+                    <div class="flex flex-col gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="dob" class="text-[14px] font-bold text-gray-800 ml-1">Date of Birth <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="calendar" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <input type="date" id="dob" name="dob" required aria-required="true"
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                            </div>
+                        </div>
+
+                        <!-- Premium Gender Selection Cards -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[14px] font-bold text-gray-800 ml-1">Gender <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <label class="cursor-pointer relative block">
+                                    <input type="radio" name="gender" value="male" class="gender-radio sr-only" required aria-required="true">
+                                    <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
+                                        <span class="text-[14px] font-semibold text-gray-700">Male</span>
+                                        <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-secondary fill-blue-50" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative block">
+                                    <input type="radio" name="gender" value="female" class="gender-radio sr-only">
+                                    <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
+                                        <span class="text-[14px] font-semibold text-gray-700">Female</span>
+                                        <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-secondary fill-blue-50" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer relative block">
+                                    <input type="radio" name="gender" value="other" class="gender-radio sr-only">
+                                    <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
+                                        <span class="text-[14px] font-semibold text-gray-700">Other</span>
+                                        <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4 text-secondary fill-blue-50" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nationality & Country Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="nationality" class="text-[14px] font-bold text-gray-800 ml-1">Nationality <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <div class="relative">
+                                <select id="nationality" name="nationality" required aria-required="true"
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="IN">India</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="FR">France</option>
+                                    <option value="NG">Nigeria</option>
+                                    <option value="PH">Philippines</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="residence" class="text-[14px] font-bold text-gray-800 ml-1">Country of Residence <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <div class="relative">
+                                <select id="residence" name="residence" required aria-required="true"
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    <option value="" disabled selected>Select</option>
+                                    <option value="US">United States</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="IN">India</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="FR">France</option>
+                                    <option value="NG">Nigeria</option>
+                                    <option value="PH">Philippines</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- City & Passport Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="city" class="text-[14px] font-bold text-gray-800 ml-1">City <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="map-pin" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <input type="text" id="city" name="city" required aria-required="true"
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="e.g. New York">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="passport" class="text-[14px] font-bold text-gray-800 ml-1">Passport Number <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="file-text" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <input type="text" id="passport" name="passport"
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="e.g. A1234567">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Buttons -->
+                    <div class="flex items-center gap-4 mt-6">
+                        <a href="{{ url_for('patient_registration_step1') }}" 
+                            class="px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[16px] sm:text-[17px] flex-shrink-0 text-center">
+                            Back
+                        </a>
+                        <button type="submit" 
+                            class="bg-primary hover:bg-blue-800 text-white font-bold px-6 sm:px-8 py-3.5 sm:py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[16px] sm:text-[17px] flex-grow focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                            Continue
+                            <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                </form>
+            </main>
+            
+            <!-- Trust Section (from original step 2) -->
+            <div class="mt-6 mb-4 bg-white border border-gray-100 shadow-sm rounded-2xl p-4 flex items-center gap-3.5 w-full max-w-[520px]">
+                <div class="w-10 h-10 rounded-full bg-[#E8F6F0] flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="lock" class="w-5 h-5 text-[#158953]" aria-hidden="true"></i>
+                </div>
+                <p class="text-[13px] sm:text-[13.5px] text-gray-600 font-medium leading-snug">
+                    Your personal information is encrypted and shared only with your consent.
+                </p>
+            </div>
+            
+        </div>
+
+        <!-- 8. TRUST FOOTER -->
+        <footer class="mt-8 mb-8 w-full max-w-[520px] flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-5 sm:gap-6 text-[13px] text-gray-500 font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Contact Support</a>
+            </div>
+            <div class="text-[12px] text-gray-400 font-medium flex flex-col items-center gap-1.5 mt-1">
+                <span>&copy; 2026 MediBid</span>
+                <span class="text-secondary/80 font-semibold tracking-wider uppercase text-[10px]">Healthcare Without Borders</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Profile Photo Upload & Preview Logic
+        const photoUpload = document.getElementById('photo');
+        const dropZone = photoUpload.closest('.group');
+        let currentPreviewUrl = null;
+        let currentValidFile = null;
+
+        // Handle enter key on dropzone (accessibility)
+        dropZone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                photoUpload.click();
+            }
+        });
+
+        // Click to trigger input (prevent double trigger)
+        dropZone.addEventListener('click', (e) => {
+            if (e.target !== photoUpload) {
+                photoUpload.click();
+            }
+        });
+
+        function showPhotoError(message) {
+            const errorElement = document.getElementById('photo-error');
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+            dropZone.classList.add('border-red-500', 'bg-red-50');
+            dropZone.classList.remove('border-gray-200', 'border-secondary', 'bg-[#F8F9FA]', 'bg-blue-50');
+        }
+
+        function restorePreviousFile() {
+            if (currentValidFile) {
+                try {
+                    const dt = new DataTransfer();
+                    dt.items.add(currentValidFile);
+                    photoUpload.files = dt.files;
+                } catch (e) {
+                    photoUpload.value = '';
+                }
+            } else {
+                photoUpload.value = '';
+            }
+        }
+
+        function handlePhotoSelection(file) {
+            const errorElement = document.getElementById('photo-error');
+            const previewImg = document.getElementById('photo-preview-img');
+            const placeholderIcon = document.getElementById('photo-placeholder-icon');
+
+            // Reset error state
+            errorElement.classList.add('hidden');
+            errorElement.textContent = '';
+            dropZone.classList.remove('border-red-500', 'bg-red-50');
+            dropZone.classList.add('border-gray-200', 'bg-[#F8F9FA]');
+
+            if (!file) return;
+
+            // Validate type
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                showPhotoError('Please upload a JPG, PNG, or WEBP image.');
+                restorePreviousFile();
+                return;
+            }
+
+            // Validate size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showPhotoError('Profile photo must be 5 MB or smaller.');
+                restorePreviousFile();
+                return;
+            }
+
+            // File is valid. Store it.
+            currentValidFile = file;
+
+            // Generate preview.
+            if (currentPreviewUrl) {
+                URL.revokeObjectURL(currentPreviewUrl);
+            }
+            
+            currentPreviewUrl = URL.createObjectURL(file);
+            previewImg.src = currentPreviewUrl;
+            previewImg.classList.remove('hidden');
+            placeholderIcon.classList.add('hidden');
+        }
+
+        photoUpload.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handlePhotoSelection(e.target.files[0]);
+            }
+        });
+
+        // Drag events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (!dropZone.classList.contains('border-red-500')) {
+                dropZone.classList.add('border-secondary', 'bg-blue-50');
+                dropZone.classList.remove('border-gray-200', 'bg-[#F8F9FA]');
+            }
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if (!dropZone.classList.contains('border-red-500')) {
+                dropZone.classList.remove('border-secondary', 'bg-blue-50');
+                dropZone.classList.add('border-gray-200', 'bg-[#F8F9FA]');
+            }
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (!dropZone.classList.contains('border-red-500')) {
+                dropZone.classList.remove('border-secondary', 'bg-blue-50');
+                dropZone.classList.add('border-gray-200', 'bg-[#F8F9FA]');
+            }
+            
+            if(e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                photoUpload.files = e.dataTransfer.files;
+                handlePhotoSelection(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Form Submission - Save Gender
+        const step2Form = document.getElementById('step2-form');
+        if (step2Form) {
+            step2Form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const genderInput = document.querySelector('input[name="gender"]:checked');
+                if (genderInput) {
+                    sessionStorage.setItem('medibid_patient_gender', genderInput.value.toLowerCase());
+                }
+                window.location.href = "{{ url_for('patient_registration_step3') }}";
+            });
+        }
+        
+        // Ensure keyboard interaction for custom radio buttons works smoothly
+        const genderRadios = document.querySelectorAll('.gender-radio');
+        genderRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                // Focus styling is handled by CSS, no extra JS needed for basic accessibility
+            });
+        });
+    </script>
+</body>
+</html>

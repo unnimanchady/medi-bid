@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Communication | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40',
+                        secondary: '#0082CA',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                        success: '#10B981', 
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        softBlue: '#EFF6FF',
+                        softTeal: '#ECFDF5',
+                        tealAccent: '#14B8A6',
+                        softLavender: '#F5F3FF',
+                        lavenderAccent: '#8B5CF6',
+                        softAmber: '#FFFBEB',
+                        amberAccent: '#D97706',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        .dropdown-menu {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        .dropdown-menu.open {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        #mobile-menu {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        /* Responsive chat window height to prevent body scroll */
+        .chat-container-height {
+            height: calc(100vh - 70px - 2rem); /* Header height + padding */
+        }
+        @media (min-width: 640px) {
+            .chat-container-height {
+                height: calc(100vh - 80px - 3rem); 
+            }
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain h-screen flex flex-col overflow-hidden selection:bg-secondary selection:text-white">
+
+    <!-- AUTHENTICATED HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 flex-shrink-0 z-50 shadow-sm relative">
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-1 ml-6">
+                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
+                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-5">
+            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
+                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+            </button>
+
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                </button>
+                
+                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
+                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
+                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
+                    </div>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
+                    <div class="h-[1px] bg-gray-100 my-1"></div>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
+                </div>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION -->
+    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] shadow-sm">
+        <nav class="flex flex-col p-4 gap-1">
+            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
+            <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5 text-textMuted"></i> My Requests</a>
+            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5"></i> Messages</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CHAT INTERFACE -->
+    <main class="w-full max-w-[1400px] mx-auto p-0 sm:p-4 md:p-6 flex flex-col flex-grow chat-container-height relative">
+        
+        <!-- BREADCRUMBS (Hidden on small mobile for space) -->
+        <div class="hidden sm:flex items-center justify-between mb-4 flex-shrink-0 px-4 sm:px-0">
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2">
+                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors">My Requests</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
+                <span class="text-textMain font-bold">Secure Communication</span>
+            </nav>
+        </div>
+
+        <!-- TWO COLUMN LAYOUT -->
+        <div class="flex-grow bg-white sm:border border-gray-200 sm:rounded-[20px] shadow-sm overflow-hidden flex relative w-full h-full">
+            
+            <!-- LEFT PANEL: Conversation List -->
+            <div id="conversations-list" class="w-full md:w-[320px] lg:w-[380px] border-r border-gray-200 flex flex-col flex-shrink-0 bg-gray-50/30 absolute md:relative inset-0 z-20 md:z-auto h-full bg-white md:bg-transparent">
+                
+                <!-- List Header & Search -->
+                <div class="p-4 border-b border-gray-200 bg-white">
+                    <h2 class="text-[20px] font-extrabold text-primary mb-4 hidden md:block">Messages</h2>
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" placeholder="Search Hospital or Request ID..." class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors" aria-label="Search Messages">
+                    </div>
+                    <!-- Filters -->
+                    <div class="flex gap-2 mt-4 overflow-x-auto hide-scrollbar pb-1">
+                        <button class="bg-primary text-white px-3.5 py-1.5 rounded-lg text-[12px] font-bold flex-shrink-0 focus:outline-none">All</button>
+                        <button class="bg-white border border-gray-200 text-textMuted hover:bg-gray-50 px-3.5 py-1.5 rounded-lg text-[12px] font-bold flex-shrink-0 flex items-center gap-1.5 focus:outline-none transition-colors">
+                            Action Required <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px]">1</span>
+                        </button>
+                        <button class="bg-white border border-gray-200 text-textMuted hover:bg-gray-50 px-3.5 py-1.5 rounded-lg text-[12px] font-bold flex-shrink-0 focus:outline-none transition-colors">Unread</button>
+                    </div>
+                </div>
+
+                <!-- List Items -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar bg-white md:bg-transparent">
+                    
+                    <!-- Active/Selected Conversation -->
+                    <button class="conv-item w-full text-left p-4 border-b border-gray-100 bg-softBlue/30 hover:bg-softBlue/40 transition-colors flex gap-3 relative focus:outline-none">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+                        <div class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building-2" class="w-6 h-6 text-secondary opacity-80"></i>
+                        </div>
+                        <div class="flex-grow min-w-0 flex flex-col">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="font-bold text-[14px] text-primary truncate pr-2">Apollo Hospitals</span>
+                                <span class="text-[11px] text-secondary font-bold whitespace-nowrap">11:15 AM</span>
+                            </div>
+                            <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: MB-2026-8A39C2</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[13px] text-textMain font-medium truncate pr-2">Thank you for getting back to me...</span>
+                                <!-- Unread dot/count if any -->
+                            </div>
+                            <div class="mt-2.5 flex flex-wrap gap-1.5">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amberAccent bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded flex items-center gap-1"><i data-lucide="file-question" class="w-3 h-3"></i> Clarification</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Unread Conversation -->
+                    <button class="conv-item w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors flex gap-3 focus:outline-none bg-white">
+                        <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building" class="w-6 h-6 text-gray-400"></i>
+                        </div>
+                        <div class="flex-grow min-w-0 flex flex-col">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="font-extrabold text-[14px] text-textMain truncate pr-2">Bumrungrad International</span>
+                                <span class="text-[11px] text-textMain font-bold whitespace-nowrap">Yesterday</span>
+                            </div>
+                            <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: MB-2026-8A39C2</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[13px] font-bold text-textMain truncate pr-2">Please find the updated estimate attached...</span>
+                                <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">1</span>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Read Conversation -->
+                    <button class="conv-item w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors flex gap-3 focus:outline-none bg-white">
+                        <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building" class="w-6 h-6 text-gray-400"></i>
+                        </div>
+                        <div class="flex-grow min-w-0 flex flex-col">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="font-bold text-[14px] text-textMain truncate pr-2">Mount Elizabeth Hospital</span>
+                                <span class="text-[11px] text-textMuted font-medium whitespace-nowrap">Jul 12</span>
+                            </div>
+                            <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: MB-2026-B94F2X</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[13px] text-textMuted truncate pr-2">We look forward to receiving your reports.</span>
+                            </div>
+                        </div>
+                    </button>
+                    
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: Active Chat -->
+            <div id="active-chat" class="w-full flex flex-col flex-grow bg-white md:bg-bgLight relative z-10 h-full hidden md:flex">
+                
+                <!-- Chat Header (Sticky) -->
+                <div class="bg-white border-b border-gray-200 px-3 sm:px-5 py-3 sm:py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-sm relative">
+                    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                        <button id="back-to-list-btn" class="md:hidden p-2 -ml-2 text-textMuted hover:text-primary rounded-lg focus:outline-none transition-colors" aria-label="Back to Messages">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </button>
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building-2" class="w-5 h-5 sm:w-6 sm:h-6 text-secondary opacity-70"></i>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="font-extrabold text-[15px] sm:text-[17px] text-primary truncate">Apollo Hospitals</span>
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-greenAccent flex-shrink-0" title="Verified by MediBid"></i>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] sm:text-[12px] text-textMuted truncate mt-0.5">
+                                <span class="hidden sm:inline">New Delhi, India</span> <span class="text-gray-300 hidden sm:inline">•</span>
+                                <span class="uppercase tracking-widest font-mono font-medium">Req: MB-2026-8A39C2</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
+                        <!-- Contextual Actions -->
+                        <a href="{{ url_for('patient_treatment_proposal_details') }}" class="hidden lg:flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 hover:text-secondary px-3.5 py-1.5 rounded-lg text-[12px] font-bold text-textMain transition-colors focus:outline-none shadow-sm">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> View Proposal
+                        </a>
+                        <a href="{{ url_for('patient_hospital_profile') }}" class="hidden md:flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 hover:text-secondary px-3.5 py-1.5 rounded-lg text-[12px] font-bold text-textMain transition-colors focus:outline-none shadow-sm">
+                            <i data-lucide="building" class="w-3.5 h-3.5"></i> Profile
+                        </a>
+                        <!-- Mobile Dropdown Trigger -->
+                        <button class="p-2 text-textMuted hover:bg-gray-50 rounded-lg focus:outline-none transition-colors" aria-label="More Options">
+                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Emergency Notice -->
+                <div class="bg-red-50 border-b border-red-100 px-4 py-2 flex items-center justify-center gap-2 text-[11.5px] sm:text-[12px] text-danger font-medium flex-shrink-0 z-0">
+                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                    <span class="text-center">For medical emergencies, contact local emergency services. This chat is not an emergency service.</span>
+                </div>
+
+                <!-- Messages Area (Scrollable) -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar p-4 sm:p-5 flex flex-col gap-5 bg-white md:bg-bgLight">
+                    
+                    <!-- Date Separator -->
+                    <div class="flex justify-center my-2">
+                        <span class="bg-gray-100 text-textMuted text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Today, July 15</span>
+                    </div>
+
+                    <!-- System Event -->
+                    <div class="flex justify-center">
+                        <div class="bg-white border border-gray-200 text-textMuted text-[12px] font-medium px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-center max-w-sm">
+                            <i data-lucide="clipboard-check" class="w-4 h-4 text-secondary flex-shrink-0"></i> 
+                            Treatment Estimate & Proposal submitted by Apollo Hospitals.
+                        </div>
+                    </div>
+
+                    <!-- Hospital Message (Standard) -->
+                    <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] opacity-0 animate-fade-in stagger-1">
+                        <div class="w-8 h-8 rounded-full bg-white border border-gray-200 items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
+                            <i data-lucide="building" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <div class="flex flex-col gap-1 w-full">
+                            <div class="flex items-baseline gap-2 ml-1">
+                                <span class="text-[12px] font-bold text-textMuted">Apollo Hospitals</span>
+                                <span class="text-[11px] text-gray-400 font-medium">10:40 AM</span>
+                            </div>
+                            <div class="bg-white border border-gray-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tl-sm shadow-sm leading-relaxed">
+                                Dear Sarah, we have reviewed your initial inquiry and submitted our formal Treatment Proposal. To refine the clinical plan and confirm the suitability for the minimally invasive approach, our medical board requires a bit more information.
+                                
+                                <div class="mt-3 text-[11px] text-textMuted italic flex items-center gap-1.5 border-t border-gray-100 pt-2">
+                                    <i data-lucide="languages" class="w-3.5 h-3.5"></i> Translated from Hindi. <a href="#" class="text-secondary hover:underline font-medium ml-1">View Original</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hospital Message (Structured: Document Request) -->
+                    <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] opacity-0 animate-fade-in stagger-1">
+                        <div class="w-8 h-8 flex-shrink-0 hidden sm:block"></div>
+                        <div class="bg-softLavender/30 border border-purple-200 rounded-[16px] rounded-tl-sm p-4 sm:p-5 w-full shadow-sm">
+                            <div class="flex items-start sm:items-center gap-3 mb-4">
+                                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm border border-purple-100 flex-shrink-0">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-lavenderAccent"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <h4 class="text-[14.5px] font-bold text-primary leading-tight">Medical Document Requested</h4>
+                                    <div class="text-[12px] text-textMuted mt-0.5">Requested by Dr. Amit Singh</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-purple-100 mb-4 shadow-sm">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <div class="sm:col-span-1">
+                                        <div class="text-[11.5px] text-textMuted font-medium uppercase tracking-wider mb-1">Document Type</div>
+                                        <div class="text-[14px] font-bold text-textMain">Recent MRI Scan (Cardiac)</div>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <div class="text-[11.5px] text-textMuted font-medium uppercase tracking-wider mb-1">Instructions</div>
+                                        <div class="text-[13.5px] text-textMain leading-relaxed">Please provide the complete written report and DICOM image files if available, dated within the last 30 days.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                                <div class="flex items-center justify-center gap-1.5 text-[12px] font-bold text-amberAccent bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg w-full sm:w-auto">
+                                    <i data-lucide="clock" class="w-3.5 h-3.5"></i> Pending Upload
+                                </div>
+                                <button class="bg-white border border-purple-200 text-lavenderAccent hover:bg-purple-50 hover:border-lavenderAccent px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all focus:outline-none flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm">
+                                    <i data-lucide="upload" class="w-4 h-4"></i> Upload Document
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hospital Message (Structured: Clarification) -->
+                    <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] opacity-0 animate-fade-in stagger-2">
+                        <div class="w-8 h-8 flex-shrink-0 hidden sm:block"></div>
+                        <div class="bg-softAmber/30 border border-amber-200 rounded-[16px] rounded-tl-sm p-4 sm:p-5 w-full shadow-sm">
+                            <div class="flex items-start sm:items-center gap-3 mb-4">
+                                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm border border-amber-100 flex-shrink-0">
+                                    <i data-lucide="help-circle" class="w-4 h-4 text-amberAccent"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <h4 class="text-[14.5px] font-bold text-primary leading-tight">Clarification Requested</h4>
+                                    <div class="text-[12px] text-textMuted mt-0.5">Regarding Travel Timeframe</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-amber-100 mb-4 shadow-sm text-[14px] text-textMain leading-relaxed">
+                                Could you confirm if you are able to travel within the next 2-3 weeks? This will help us tentatively block the primary surgeon's schedule and organize visa assistance letters if required.
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                                <div class="text-[12.5px] font-medium text-textMuted text-center sm:text-left">
+                                    Awaiting your reply...
+                                </div>
+                                <button class="bg-white border border-amber-200 text-amberAccent hover:bg-amber-50 hover:border-amberAccent px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all focus:outline-none flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm">
+                                    <i data-lucide="reply" class="w-4 h-4"></i> Provide Information
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patient Message (Reply) -->
+                    <div class="flex justify-end gap-3 max-w-[95%] lg:max-w-[80%] ml-auto mt-2 opacity-0 animate-fade-in stagger-3">
+                        <div class="flex flex-col gap-1 items-end w-full">
+                            <div class="flex items-baseline gap-2 mr-1">
+                                <span class="text-[11px] text-gray-400 font-medium">11:15 AM</span>
+                                <span class="text-[12px] font-bold text-textMuted">You</span>
+                            </div>
+                            <div class="bg-softBlue border border-blue-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tr-sm shadow-sm leading-relaxed text-left w-full sm:w-auto sm:max-w-full">
+                                Thank you for getting back to me so quickly. Yes, I am able to travel within the next 2-3 weeks. I am working on getting the MRI report now and will upload it shortly.
+                            </div>
+                            <div class="flex items-center gap-1 text-[11.5px] text-secondary font-bold mr-1 mt-0.5">
+                                <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Read
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dummy div to force scroll to bottom padding -->
+                    <div class="h-4 flex-shrink-0"></div>
+
+                </div>
+
+                <!-- Composer Area (Sticky Bottom) -->
+                <div class="bg-white border-t border-gray-200 p-3 sm:p-4 flex-shrink-0 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+                    
+                    <!-- Quick Prompts -->
+                    <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar pb-1">
+                        <button class="flex-shrink-0 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-textMuted hover:text-textMain text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-colors focus:outline-none">Ask about proposed treatment</button>
+                        <button class="flex-shrink-0 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-textMuted hover:text-textMain text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-colors focus:outline-none">Ask about estimated cost</button>
+                        <button class="flex-shrink-0 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-textMuted hover:text-textMain text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-colors focus:outline-none">Ask about inclusions</button>
+                    </div>
+
+                    <!-- Input Box -->
+                    <div class="flex items-end gap-2 sm:gap-3 bg-gray-50 border border-gray-200 rounded-[16px] p-2 focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary transition-all">
+                        
+                        <!-- Attach Button -->
+                        <button class="p-2.5 sm:p-3 text-textMuted hover:text-secondary hover:bg-blue-50 rounded-xl transition-colors focus:outline-none flex-shrink-0" title="Attach Medical Document">
+                            <i data-lucide="paperclip" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <!-- Textarea -->
+                        <textarea rows="1" class="w-full bg-transparent border-none focus:ring-0 text-[14px] sm:text-[14.5px] text-textMain placeholder-gray-400 resize-none py-3 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" placeholder="Write a secure message... (Shift + Enter for new line)"></textarea>
+                        
+                        <!-- Send Button -->
+                        <button class="bg-primary text-white hover:bg-blue-800 p-2.5 sm:p-3 rounded-xl transition-colors focus:outline-none flex-shrink-0 shadow-sm disabled:opacity-50" aria-label="Send Message" onclick="this.innerHTML='<i data-lucide=\'loader-2\' class=\'w-5 h-5 animate-spin\'></i>'; setTimeout(()=>{this.innerHTML='<i data-lucide=\'send\' class=\'w-5 h-5\'></i>'; lucide.createIcons();}, 1000);">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+
+                    </div>
+                    
+                    <!-- Privacy Note -->
+                    <div class="text-[11px] text-textMuted mt-2.5 px-1 flex justify-between items-center">
+                        <span class="flex items-center gap-1 font-medium text-gray-500"><i data-lucide="lock" class="w-3 h-3"></i> Secure End-to-End Environment</span>
+                        <span class="hidden sm:inline">Keep treatment communication within MediBid.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Mobile Menu & Profile Dropdown
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.contains('open');
+                if (isOpen) {
+                    mobileMenu.classList.remove('open');
+                } else {
+                    mobileMenu.classList.add('open');
+                    if(profileDropdown) profileDropdown.classList.remove('open');
+                }
+            });
+        }
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = profileDropdown.classList.contains('open');
+                if (isOpen) {
+                    profileDropdown.classList.remove('open');
+                } else {
+                    profileDropdown.classList.add('open');
+                    if(mobileMenu) mobileMenu.classList.remove('open');
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+
+        // Mobile Conversation Switching Logic
+        const listPanel = document.getElementById('conversations-list');
+        const chatPanel = document.getElementById('active-chat');
+        const backBtn = document.getElementById('back-to-list-btn');
+        const convItems = document.querySelectorAll('.conv-item');
+
+        convItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Only act if on mobile view (md breakpoint is 768px in Tailwind)
+                if (window.innerWidth < 768) {
+                    listPanel.classList.add('hidden');
+                    chatPanel.classList.remove('hidden');
+                    chatPanel.classList.add('flex');
+                }
+            });
+        });
+
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    chatPanel.classList.add('hidden');
+                    chatPanel.classList.remove('flex');
+                    listPanel.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Auto-resize textarea
+        const textarea = document.querySelector('textarea');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+    </script>
+</body>
+</html>

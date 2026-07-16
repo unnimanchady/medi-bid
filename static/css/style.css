@@ -1,0 +1,349 @@
+:root {
+    /* Colors */
+    --primary-blue: #2563EB;
+    --primary-green: #20C997;
+    --dark-text: #0F172A;
+    --paragraph-text: #64748B;
+    --bg-color: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --purple: #8B5CF6;
+    
+    /* Gradients */
+    --btn-gradient: linear-gradient(90deg, #20C997, #16A34A);
+    
+    /* Shadows */
+    --card-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    --btn-shadow: 0 4px 14px rgba(32, 201, 151, 0.4);
+    
+    /* Border Radius */
+    --br-main: 24px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--dark-text);
+    background-color: var(--bg-color);
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+}
+
+p {
+    color: var(--paragraph-text);
+    font-weight: 400;
+}
+
+.text-green { color: var(--primary-green) !important; }
+.text-primary { color: var(--primary-blue) !important; }
+.text-purple { color: var(--purple) !important; }
+
+.bg-light-green { background-color: rgba(32, 201, 151, 0.1); }
+.bg-light-blue { background-color: rgba(37, 99, 235, 0.1); }
+.bg-light-purple { background-color: rgba(139, 92, 246, 0.1); }
+
+/* Typography */
+.hero-title {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+    font-weight: 600;
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    max-width: 90%;
+    line-height: 1.6;
+}
+
+/* Navbar */
+.custom-navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 15px 0;
+    transition: all 0.3s ease;
+}
+
+.custom-navbar.scrolled {
+    padding: 10px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary-blue);
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--dark-text);
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-blue);
+}
+
+/* Buttons */
+.btn {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-gradient {
+    background: var(--btn-gradient);
+    color: white;
+    border: none;
+}
+
+.btn-primary-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--btn-shadow);
+    color: white;
+}
+
+.btn-outline-primary {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 60px 0 100px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-bg-shapes {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(32, 201, 151, 0.1) 0%, rgba(255,255,255,0) 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.badge-global {
+    display: inline-block;
+    padding: 6px 16px;
+    background: white;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--dark-text);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    letter-spacing: 0.5px;
+}
+
+/* Floating Feature Cards */
+.hero-image-wrapper {
+    max-width: 90%;
+}
+
+.main-hero-img {
+    width: 100%;
+    object-fit: cover;
+    border-radius: var(--br-main);
+    box-shadow: var(--card-shadow);
+}
+
+.feature-cards-container {
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 2;
+}
+
+.feature-card {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 12px 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    gap: 15px;
+    transition: transform 0.3s ease;
+    animation: slideUpFade 0.6s ease forwards;
+    opacity: 0;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.2s; }
+.feature-card:nth-child(2) { animation-delay: 0.4s; }
+.feature-card:nth-child(3) { animation-delay: 0.6s; }
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.floating-review {
+    position: absolute;
+    bottom: -20px;
+    right: 20px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    max-width: 200px;
+    z-index: 2;
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Signup Card */
+.signup-card {
+    background: var(--card-bg);
+    border-radius: var(--br-main);
+    padding: 40px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease;
+}
+
+.signup-card:hover {
+    transform: translateY(-5px);
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-input-group {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.custom-input-group:focus-within {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem rgba(32, 201, 151, 0.25);
+}
+
+.custom-input-group .input-group-text {
+    background: transparent;
+    border: none;
+    color: var(--paragraph-text);
+}
+
+.custom-input-group .form-control, 
+.custom-input-group .form-select {
+    border: none;
+    padding: 12px 15px;
+    box-shadow: none;
+    font-size: 0.95rem;
+}
+
+/* User Type Buttons */
+.user-type-selector .btn-outline-secondary {
+    border-color: rgba(0,0,0,0.1);
+    color: var(--paragraph-text);
+    padding: 10px;
+}
+
+.user-type-selector .btn-check:checked + .btn-outline-secondary {
+    background: rgba(32, 201, 151, 0.1);
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+/* Hospital Logos */
+.logos-section {
+    background: white;
+    position: relative;
+    z-index: 2;
+}
+
+.logos-container {
+    background: white;
+    border-radius: var(--br-main);
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+}
+
+.hospital-logo {
+    font-weight: 700;
+    color: var(--paragraph-text);
+    margin: 0;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.hospital-logo:hover {
+    opacity: 1;
+}
+
+/* Back to Top */
+#backToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border: none;
+    display: none;
+    z-index: 99;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+#backToTop:hover {
+    transform: translateY(-5px);
+}
+
+/* Animations */
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.z-index-2 { z-index: 2; }
+.tracking-wide { letter-spacing: 1px; }

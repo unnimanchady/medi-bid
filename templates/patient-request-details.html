@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treatment Request Details | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy
+                        secondary: '#0082CA', // Bright Blue
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                        success: '#10B981', 
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        // Soft UI Colors
+                        softBlue: '#EFF6FF',
+                        softTeal: '#ECFDF5',
+                        tealAccent: '#14B8A6',
+                        softLavender: '#F5F3FF',
+                        lavenderAccent: '#8B5CF6',
+                        softAmber: '#FFFBEB',
+                        amberAccent: '#D97706',
+                        softPeach: '#FFF7ED',
+                        peachAccent: '#EA580C',
+                        softGreen: '#F0FDF4',
+                        greenAccent: '#15803D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        /* Dropdown transitions */
+        .dropdown-menu {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        .dropdown-menu.open {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* Mobile menu */
+        #mobile-menu {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        /* Activity Timeline */
+        .activity-line {
+            position: absolute;
+            left: 23px;
+            top: 24px;
+            bottom: 0;
+            width: 2px;
+            background-color: #E2E8F0;
+            z-index: 0;
+        }
+
+        /* Responsive Progress Timeline */
+        .progress-line {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            height: 2px;
+            background-color: #E2E8F0;
+            z-index: 0;
+        }
+        .progress-line-active {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            height: 2px;
+            background-color: #0082CA;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white relative">
+
+    <!-- AUTHENTICATED HEADER (Identical to Dashboard) -->
+    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center gap-6">
+            <!-- Logo -->
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-1 ml-6">
+                <!-- Developer Note: Replace URLs with Flask routes -->
+                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
+                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-5">
+            <!-- Notifications Bell -->
+            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
+                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+            </button>
+
+            <!-- Profile Dropdown Trigger -->
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                </button>
+                
+                <!-- Profile Dropdown Menu -->
+                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
+                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
+                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
+                    </div>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="shield" class="w-4 h-4 text-textMuted"></i> Privacy Settings</a>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i> Help & Support</a>
+                    <div class="h-[1px] bg-gray-100 my-1"></div>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION (Hidden by default) -->
+    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm">
+        <nav class="flex flex-col p-4 gap-1">
+            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
+            <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</a>
+            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
+            <a href="#" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="bell" class="w-5 h-5 text-textMuted"></i> Notifications</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow w-full max-w-[1200px] mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8 flex flex-col gap-6">
+        
+        <!-- BREADCRUMBS -->
+        <div class="flex items-center justify-between opacity-0 animate-fade-in">
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2" aria-label="Breadcrumb">
+                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors hidden sm:block">My Requests</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:block"></i>
+                <span class="text-textMain font-bold truncate">Request Details</span>
+            </nav>
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Back to My Requests</span>
+                <span class="sm:hidden">Back</span>
+            </a>
+        </div>
+
+        <!-- HEADER & PRIMARY SUMMARY -->
+        <div class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden opacity-0 animate-fade-in stagger-1">
+            
+            <!-- Top Section -->
+            <div class="p-6 sm:p-8 flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-gray-100">
+                <div class="flex flex-col gap-1">
+                    <h1 class="text-[22px] sm:text-[26px] font-extrabold text-primary tracking-tight">Treatment Request</h1>
+                    <div class="flex items-center gap-3 mt-1 font-mono">
+                        <span class="text-[13px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-md border border-gray-100">MB-2026-8A39C2</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-4 text-[13px] text-textMuted">
+                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> Submitted: Jul 14, 2026</span>
+                        <span class="hidden sm:block text-gray-300">•</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Last Updated: 2 hours ago</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-start md:items-end gap-2 shrink-0">
+                    <span class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Current Status</span>
+                    <div class="flex items-center gap-2 bg-softTeal border border-teal-100 text-tealAccent px-4 py-2 rounded-xl shadow-sm">
+                        <span class="w-2.5 h-2.5 rounded-full bg-tealAccent animate-pulse"></span>
+                        <span class="text-[14px] font-bold">Responses Received</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primary Summary Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 sm:p-8 bg-softBlue/30">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[12px] text-textMuted font-medium">Specialty</span>
+                    <span class="text-[14px] font-bold text-textMain">Cardiology / Heart Surgery</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[12px] text-textMuted font-medium">Condition</span>
+                    <span class="text-[14px] font-bold text-textMain truncate" title="Coronary artery blockage requiring surgical intervention.">Coronary artery blockage</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[12px] text-textMuted font-medium">Preferred Location</span>
+                    <span class="text-[14px] font-bold text-textMain">India, Thailand</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[12px] text-textMuted font-medium">Timeframe</span>
+                    <span class="text-[14px] font-bold text-textMain">As soon as possible</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION REQUIRED (CONDITIONAL) -->
+        <!-- Hidden if not applicable. Using soft peach design. -->
+        <div class="bg-softPeach border border-orange-100 rounded-[24px] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm opacity-0 animate-fade-in stagger-1">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-white border border-orange-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-peachAccent"></i>
+                </div>
+                <div class="flex flex-col">
+                    <h3 class="text-[16px] font-bold text-textMain">Action Required</h3>
+                    <p class="text-[14px] text-textMain/80 mt-1 leading-relaxed max-w-[500px]">Apollo Hospitals has requested a recent MRI scan to finalize their Treatment Estimate and provide an accurate proposal.</p>
+                </div>
+            </div>
+            <button class="bg-white border border-gray-200 hover:border-peachAccent hover:text-peachAccent text-textMain font-bold px-6 py-3 rounded-full text-[14px] transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-peachAccent self-start sm:self-auto">
+                Upload Document
+            </button>
+        </div>
+
+        <!-- TWO COLUMN LAYOUT -->
+        <div class="flex flex-col lg:flex-row gap-6 opacity-0 animate-fade-in stagger-2">
+            
+            <!-- MAIN CONTENT COLUMN -->
+            <div class="flex-grow flex flex-col gap-6 lg:w-2/3">
+                
+                <!-- PROGRESS TIMELINE -->
+                <section class="bg-white rounded-[24px] border border-gray-200 p-6 sm:p-8 shadow-sm overflow-hidden">
+                    <h2 class="text-[17px] font-extrabold text-primary mb-8">Treatment Request Progress</h2>
+                    
+                    <!-- Horizontal for Desktop, scrollable on mobile if needed -->
+                    <div class="relative overflow-x-auto pb-4">
+                        <div class="min-w-[500px] relative">
+                            <div class="progress-line"></div>
+                            <div class="progress-line-active" style="width: 75%;"></div>
+                            
+                            <div class="flex justify-between relative z-10">
+                                <!-- Stage 1 -->
+                                <div class="flex flex-col items-center w-1/5 relative group">
+                                    <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
+                                        <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-textMain mt-3 text-center leading-tight">Request Submitted</span>
+                                </div>
+                                <!-- Stage 2 -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
+                                        <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-textMain mt-3 text-center leading-tight">Request Reviewed</span>
+                                </div>
+                                <!-- Stage 3 -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
+                                        <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-textMain mt-3 text-center leading-tight">Matched with Hospitals</span>
+                                </div>
+                                <!-- Stage 4 (Current) -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-white border-[3px] border-secondary ring-4 ring-blue-50 flex items-center justify-center shadow-sm">
+                                        <div class="w-2 h-2 rounded-full bg-secondary"></div>
+                                    </div>
+                                    <span class="text-[11px] font-extrabold text-secondary mt-3 text-center leading-tight">Responses Received</span>
+                                </div>
+                                <!-- Stage 5 (Future) -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"></div>
+                                    <span class="text-[11px] font-bold text-gray-400 mt-3 text-center leading-tight">Provider Selected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- HOSPITAL MATCHING & RESPONSES -->
+                <section class="flex flex-col gap-4">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-2">
+                        <div class="flex flex-col">
+                            <h2 class="text-[20px] font-extrabold text-primary">Matched Healthcare Providers</h2>
+                            <p class="text-[13.5px] text-textMuted mt-1 leading-relaxed max-w-[500px]">
+                                Your request is matched with relevant providers based on your medical needs and selected locations.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm flex-shrink-0 self-start sm:self-auto">
+                            <div class="flex flex-col items-center">
+                                <span class="text-[11px] text-textMuted font-bold uppercase">Matched</span>
+                                <span class="text-[16px] font-extrabold text-primary">12</span>
+                            </div>
+                            <div class="w-[1px] h-8 bg-gray-200"></div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-[11px] text-textMuted font-bold uppercase">Responses</span>
+                                <span class="text-[16px] font-extrabold text-secondary">3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compare Responses Button (Conditional) -->
+                    <div class="bg-softLavender/50 border border-purple-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="bar-chart-2" class="w-5 h-5 text-lavenderAccent"></i>
+                            <span class="text-[14px] font-bold text-textMain">You have 3 hospital responses available to compare.</span>
+                        </div>
+                        <a href="#" class="bg-white border border-gray-200 text-textMain font-bold px-5 py-2.5 rounded-full text-[13.5px] transition-all hover:border-lavenderAccent hover:text-lavenderAccent shadow-sm whitespace-nowrap text-center">
+                            Compare Responses
+                        </a>
+                    </div>
+
+                    <h3 class="text-[16px] font-extrabold text-primary mt-4">Hospital Responses</h3>
+                    
+                    <!-- Response 1 -->
+                    <div class="bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-teal-200 hover:shadow-md transition-all">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="building" class="w-7 h-7 text-tealAccent"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <h4 class="text-[16px] font-bold text-textMain">Apollo Hospitals</h4>
+                                    <i data-lucide="badge-check" class="w-4 h-4 text-blue-500" title="Verified Hospital"></i>
+                                </div>
+                                <span class="text-[13.5px] text-textMuted mb-2">New Delhi, India</span>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-[11px] font-bold text-gray-600 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded uppercase">New</span>
+                                    <span class="text-[11px] font-bold text-textMain bg-softTeal/50 border border-teal-50 px-2 py-0.5 rounded shadow-sm">Est: $8,500 - $10,000</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full sm:w-auto">
+                            <a href="#" class="w-full sm:w-auto px-5 py-2.5 rounded-full border border-teal-200 text-tealAccent hover:bg-softTeal font-bold text-[13px] transition-colors text-center focus:outline-none focus:ring-2 focus:ring-tealAccent whitespace-nowrap">
+                                View Proposal
+                            </a>
+                            <a href="#" class="w-full sm:w-auto px-5 py-2 text-center text-[12px] font-semibold text-textMuted hover:text-primary transition-colors">
+                                View Profile
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Response 2 -->
+                    <div class="bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-teal-200 hover:shadow-md transition-all">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="building" class="w-7 h-7 text-tealAccent"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="flex items-center gap-2 mb-0.5">
+                                    <h4 class="text-[16px] font-bold text-textMain">Bumrungrad International</h4>
+                                    <i data-lucide="badge-check" class="w-4 h-4 text-blue-500" title="Verified Hospital"></i>
+                                </div>
+                                <span class="text-[13.5px] text-textMuted mb-2">Bangkok, Thailand</span>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded uppercase">Viewed</span>
+                                    <span class="text-[11px] font-bold text-textMain bg-softTeal/50 border border-teal-50 px-2 py-0.5 rounded shadow-sm">Est: $12,000 - $14,000</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2 w-full sm:w-auto">
+                            <a href="#" class="w-full sm:w-auto px-5 py-2.5 rounded-full border border-gray-200 text-textMuted hover:border-gray-300 hover:text-textMain font-bold text-[13px] transition-colors text-center whitespace-nowrap">
+                                View Proposal
+                            </a>
+                            <a href="#" class="w-full sm:w-auto px-5 py-2 text-center text-[12px] font-semibold text-textMuted hover:text-primary transition-colors">
+                                View Profile
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MEDICAL INFORMATION -->
+                <section class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden mt-2">
+                    <div class="p-6 sm:p-8 border-b border-gray-100 flex items-center justify-between">
+                        <h2 class="text-[18px] font-extrabold text-primary">Medical Information</h2>
+                        <button class="text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex items-center gap-1.5">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">Request Update</span>
+                        </button>
+                    </div>
+                    <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                        
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Primary Health Concern</span>
+                            <p class="text-[14px] text-textMain font-medium leading-relaxed bg-bgLight p-3 rounded-xl border border-gray-100">
+                                Severe chest pain and shortness of breath leading to diagnosis of multiple coronary artery blockages.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Diagnosis</span>
+                            <p class="text-[14px] text-textMain font-medium leading-relaxed bg-bgLight p-3 rounded-xl border border-gray-100">
+                                Coronary Artery Disease (CAD). Recommended for CABG (Coronary Artery Bypass Grafting).
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Duration of Condition</span>
+                            <p class="text-[14px] text-textMain font-medium">Diagnosed 3 weeks ago.</p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Current Medications</span>
+                            <p class="text-[14px] text-textMain font-medium">Aspirin, Atorvastatin, Metoprolol.</p>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- TREATMENT PREFERENCES -->
+                <section class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="p-6 sm:p-8 border-b border-gray-100">
+                        <h2 class="text-[18px] font-extrabold text-primary">Treatment Preferences</h2>
+                    </div>
+                    <div class="p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Search Scope</span>
+                            <div class="flex items-center gap-2 text-[14px] font-medium text-textMain">
+                                <i data-lucide="globe" class="w-4 h-4 text-textMuted"></i> Selected Countries
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Travel Willingness</span>
+                            <div class="flex items-center gap-2 text-[14px] font-medium text-textMain">
+                                <i data-lucide="plane" class="w-4 h-4 text-textMuted"></i> Willing to travel internationally
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 sm:col-span-2 mt-2">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide mb-1">Required Assistance</span>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">Visa Assistance</span>
+                                <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">Airport Pickup</span>
+                                <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">Accommodation</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MEDICAL DOCUMENTS -->
+                <section class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="p-6 sm:p-8 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h2 class="text-[18px] font-extrabold text-primary">Medical Documents</h2>
+                        <button class="bg-softBlue hover:bg-blue-100 text-secondary font-bold px-4 py-2 rounded-xl text-[13.5px] transition-colors flex items-center gap-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Document
+                        </button>
+                    </div>
+                    <div class="p-6 sm:p-8 flex flex-col gap-4">
+                        
+                        <!-- Document Row 1 -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-bgLight border border-gray-200 rounded-xl gap-4 hover:border-blue-200 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-softBlue flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="file-text" class="w-5 h-5 text-secondary"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] font-bold text-textMain line-clamp-1">Cardiology_Report_DrSingh.pdf</span>
+                                    <div class="flex items-center gap-3 text-[12px] text-textMuted mt-0.5">
+                                        <span>Diagnostic Report</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span>2.4 MB</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span>Jul 14, 2026</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 self-start sm:self-auto">
+                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="View">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="Download">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Document Row 2 -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-bgLight border border-gray-200 rounded-xl gap-4 hover:border-blue-200 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-softTeal flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="image" class="w-5 h-5 text-tealAccent"></i>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] font-bold text-textMain line-clamp-1">Angiogram_Scan_Results.jpg</span>
+                                    <div class="flex items-center gap-3 text-[12px] text-textMuted mt-0.5">
+                                        <span>Imaging / Scans</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span>5.1 MB</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span>Jul 14, 2026</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 self-start sm:self-auto">
+                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="View">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="Download">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- SECONDARY SIDEBAR (Activity & Actions) -->
+            <div class="flex-grow flex flex-col gap-6 lg:w-1/3">
+                
+                <!-- QUICK ACTIONS -->
+                <section class="bg-white rounded-[24px] border border-gray-200 p-6 shadow-sm">
+                    <h2 class="text-[17px] font-extrabold text-primary mb-5">Quick Actions</h2>
+                    <div class="flex flex-col gap-3">
+                        <a href="#" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-softBlue flex items-center justify-center">
+                                    <i data-lucide="folder-plus" class="w-4 h-4 text-secondary"></i>
+                                </div>
+                                <span class="text-[14px] font-bold text-textMain">Add Medical Document</span>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('patient_secure_messages') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-purple-200 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-softLavender flex items-center justify-center">
+                                    <i data-lucide="message-square" class="w-4 h-4 text-lavenderAccent"></i>
+                                </div>
+                                <span class="text-[14px] font-bold text-textMain">View Messages</span>
+                            </div>
+                        </a>
+                        <a href="#" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                                    <i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i>
+                                </div>
+                                <span class="text-[14px] font-bold text-textMain">Get Help</span>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- REQUEST ACTIVITY -->
+                <section class="bg-white rounded-[24px] border border-gray-200 p-6 shadow-sm">
+                    <h2 class="text-[17px] font-extrabold text-primary mb-6">Request Activity</h2>
+                    <div class="relative flex flex-col gap-6 ml-2">
+                        <div class="activity-line"></div>
+                        
+                        <!-- Activity 1 -->
+                        <div class="flex items-start gap-4 relative z-10">
+                            <div class="w-10 h-10 rounded-full bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                                <i data-lucide="building-2" class="w-4 h-4 text-tealAccent"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Hospital Response Received</p>
+                                <p class="text-[13px] text-textMuted leading-snug mt-0.5">Apollo Hospitals submitted a proposal.</p>
+                                <span class="text-[11px] font-medium text-gray-400 mt-1">Today, 09:30 AM</span>
+                            </div>
+                        </div>
+
+                        <!-- Activity 2 -->
+                        <div class="flex items-start gap-4 relative z-10">
+                            <div class="w-10 h-10 rounded-full bg-softBlue border border-blue-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                                <i data-lucide="activity" class="w-4 h-4 text-secondary"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Matched with Hospitals</p>
+                                <p class="text-[13px] text-textMuted leading-snug mt-0.5">Request shared with 12 relevant providers.</p>
+                                <span class="text-[11px] font-medium text-gray-400 mt-1">Jul 15, 2026, 08:15 AM</span>
+                            </div>
+                        </div>
+
+                        <!-- Activity 3 -->
+                        <div class="flex items-start gap-4 relative z-10 opacity-70">
+                            <div class="w-10 h-10 rounded-full bg-softGreen border border-green-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                                <i data-lucide="check" class="w-4 h-4 text-greenAccent"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Request Reviewed</p>
+                                <span class="text-[11px] font-medium text-gray-400 mt-1">Jul 14, 2026, 02:40 PM</span>
+                            </div>
+                        </div>
+
+                        <!-- Activity 4 -->
+                        <div class="flex items-start gap-4 relative z-10 opacity-70">
+                            <div class="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
+                                <i data-lucide="file-plus" class="w-4 h-4 text-textMuted"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Request Submitted</p>
+                                <span class="text-[11px] font-medium text-gray-400 mt-1">Jul 14, 2026, 11:20 AM</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </section>
+
+                <!-- MANAGEMENT ACTIONS -->
+                <section class="p-2 flex justify-center">
+                    <button class="text-[13px] font-medium text-textMuted hover:text-danger transition-colors focus:outline-none">
+                        Close Request
+                    </button>
+                </section>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto border-t border-gray-200 bg-white py-6 mt-10">
+        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
+                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
+            </div>
+            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.contains('open');
+                if (isOpen) {
+                    mobileMenu.classList.remove('open');
+                } else {
+                    mobileMenu.classList.add('open');
+                    document.getElementById('profile-dropdown').classList.remove('open');
+                }
+            });
+        }
+
+        // Profile Dropdown Toggle
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = profileDropdown.classList.contains('open');
+                if (isOpen) {
+                    profileDropdown.classList.remove('open');
+                } else {
+                    profileDropdown.classList.add('open');
+                    document.getElementById('mobile-menu').classList.remove('open');
+                }
+            });
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+
+    </script>
+</body>
+</html>

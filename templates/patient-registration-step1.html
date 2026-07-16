@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Step 1 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy for brand identity
+                        secondary: '#0082CA', // Bright Blue for highlights
+                        textMain: '#111827',
+                        textMuted: '#4B5563',
+                        bgLight: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(0,130,202,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom Checkbox */
+        .custom-checkbox {
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.25em;
+            height: 1.25em;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.35em;
+            display: grid;
+            place-content: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .custom-checkbox::before {
+            content: "";
+            width: 0.75em;
+            height: 0.75em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white;
+            background-color: white;
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .custom-checkbox:checked {
+            background-color: #0B1D40;
+            border-color: #0B1D40;
+        }
+        .custom-checkbox:checked::before {
+            transform: scale(1);
+        }
+        .custom-checkbox:focus-visible {
+            outline: 2px solid #0082CA;
+            outline-offset: 2px;
+        }
+        @keyframes float-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .animate-float-subtle {
+            animation: float-subtle 5s ease-in-out infinite;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+
+    <!-- 1. SIMPLIFIED REGISTRATION HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
+        
+        <!-- Logo and Back -->
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            
+            <!-- Back to Home -->
+            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4 focus:outline-none focus:underline">
+                <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+                Back to Home
+            </a>
+        </div>
+        
+        <!-- Right Actions -->
+        <div class="flex items-center gap-4 sm:gap-6">
+            
+            <!-- Language -->
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Change Language">
+                <i data-lucide="globe" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">English</span>
+            </button>
+            
+            <!-- Help -->
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Help and Support">
+                <i data-lucide="help-circle" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">Help</span>
+            </button>
+            
+            <!-- Sign In -->
+            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                Sign In
+            </a>
+            
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+        
+        <!-- Mobile Back link -->
+        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-8 self-start focus:outline-none focus:underline">
+            <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+            Back to Home
+        </a>
+
+        <!-- 1.5. HEALTHCARE ILLUSTRATION & TRUST MESSAGE -->
+        <div class="flex flex-col items-center justify-center mb-8 opacity-0 animate-fade-in text-center">
+            <!-- Subtle floating illustration -->
+            <div class="relative w-[110px] sm:w-[140px] md:w-[170px] h-[110px] sm:h-[140px] md:h-[170px] mb-5 animate-float-subtle flex-shrink-0">
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-sm">
+                    <!-- Clean, Premium Medical/Global SVG Illustration -->
+                    <!-- Globe background -->
+                    <circle cx="100" cy="100" r="80" fill="#F8F9FA" stroke="#E5E7EB" stroke-width="1.5" />
+                    <!-- Globe Grid Lines (Subtle) -->
+                    <path d="M100 20C100 20 140 50 140 100C140 150 100 180 100 180M100 20C100 20 60 50 60 100C60 150 100 180 100 180" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M20 100H180" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M36 60H164" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    <path d="M36 140H164" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
+                    
+                    <!-- Secure Connection Nodes (Technology) -->
+                    <path d="M140 70L115 85" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
+                    <path d="M55 125L80 110" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
+                    <circle cx="140" cy="70" r="6" fill="#158953" /> <!-- Green Trust Accent -->
+                    <circle cx="55" cy="125" r="5" fill="#0B1D40" /> <!-- Primary Navy Accent -->
+                    <circle cx="70" cy="50" r="3" fill="#0082CA" /> <!-- Secondary Blue Accent -->
+
+                    <!-- Medical Cross Centerpiece -->
+                    <rect x="75" y="85" width="50" height="30" rx="8" fill="#0082CA" />
+                    <rect x="85" y="75" width="30" height="50" rx="8" fill="#0082CA" />
+                    <circle cx="100" cy="100" r="8" fill="#FFFFFF" />
+                </svg>
+            </div>
+            <!-- Trust Message -->
+            <p class="text-[12px] text-gray-400 font-semibold tracking-widest uppercase">Trusted by patients seeking healthcare worldwide</p>
+        </div>
+
+        <!-- 2. PAGE TITLE -->
+        <div class="text-center mb-10">
+            <h1 class="text-[32px] sm:text-[38px] font-extrabold text-primary leading-tight tracking-tight mb-3">
+                Patient Registration
+            </h1>
+            <p class="text-[15px] sm:text-[16px] text-gray-500 font-medium">
+                Create your MediBid account in just a few simple steps.
+            </p>
+        </div>
+
+        <!-- 3. REGISTRATION PROGRESS -->
+        <div class="w-full max-w-[600px] mb-10 sm:mb-12">
+            <div class="w-full flex items-center justify-between mb-8 pb-6 relative z-10 px-2 sm:px-4">
+                <div class="absolute left-2 right-2 top-[7px] h-[2px] bg-gray-200 -z-10"></div>
+                <!-- Progress Line: 0% filled because we are on step 1 -->
+                <div class="absolute left-2 top-[7px] w-[0%] h-[2px] bg-secondary -z-10 transition-all duration-500"></div>
+                
+                <!-- Account (Active) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Account</span>
+                </div>
+                <!-- Personal -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Personal</span>
+                </div>
+                <!-- Medical -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Medical</span>
+                </div>
+                <!-- Preferences -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Preferences</span>
+                </div>
+                <!-- Reports -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Reports</span>
+                </div>
+                <!-- Submit -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Submit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. REGISTRATION CARD -->
+        <div class="w-full max-w-[520px]">
+            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-8 sm:p-10 relative">
+                
+                <!-- Inner Badge: Step 1 of 6 -->
+                <div class="flex items-center justify-start mb-8">
+                    <div class="inline-flex items-center gap-1.5 bg-[#EAF5FB] text-[#02649B] font-bold px-3.5 py-1.5 rounded-lg text-[12px] uppercase tracking-widest border border-[#D5EBF7]">
+                        Step 1 of 6
+                    </div>
+                </div>
+                
+                <!-- Heading -->
+                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Create Your Account</h2>
+                <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">Let's begin by creating your secure MediBid account.</p>
+                
+                <!-- Form -->
+                <form id="registration-form" action="#" method="POST" class="flex flex-col gap-5">
+                    
+                    <!-- Email Address -->
+                    <div class="flex flex-col gap-1.5">
+                        <label for="email" class="text-[14px] font-bold text-gray-800 ml-1">Email Address <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="mail" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                            </div>
+                            <input type="email" id="email" name="email" required aria-required="true"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="name@example.com">
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Number -->
+                    <div class="flex flex-col gap-1.5">
+                        <label for="mobile" class="text-[14px] font-bold text-gray-800 ml-1">Mobile Number <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <div class="flex gap-2">
+                            <!-- Country Code Selector -->
+                            <div class="relative w-[110px] sm:w-[120px] flex-shrink-0">
+                                <select id="country-code" name="country-code" aria-label="Country Code"
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    <option value="+1">🇺🇸 +1</option>
+                                    <option value="+44">🇬🇧 +44</option>
+                                    <option value="+91">🇮🇳 +91</option>
+                                    <option value="+33">🇫🇷 +33</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <!-- Phone Input -->
+                            <div class="relative flex-grow">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="phone" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <input type="tel" id="mobile" name="mobile" required aria-required="true"
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="000-000-0000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Password -->
+                    <div class="flex flex-col gap-1.5">
+                        <label for="password" class="text-[14px] font-bold text-gray-800 ml-1">Password <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="lock" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                            </div>
+                            <input type="password" id="password" name="password" required aria-required="true"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="••••••••">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Toggle password visibility" aria-pressed="false" onclick="togglePasswordVisibility(this, 'password')">
+                                <i data-lucide="eye" class="h-5 w-5" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Live Password Checklist -->
+                        <div class="mt-1.5 bg-[#F8F9FA] rounded-[16px] p-4 border border-gray-100 shadow-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-4">
+                                <div id="req-length" class="flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors duration-300">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-gray-300 transition-colors duration-300" aria-hidden="true"></i>
+                                    Minimum 8 characters
+                                </div>
+                                <div id="req-upper" class="flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors duration-300">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-gray-300 transition-colors duration-300" aria-hidden="true"></i>
+                                    Uppercase letter
+                                </div>
+                                <div id="req-lower" class="flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors duration-300">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-gray-300 transition-colors duration-300" aria-hidden="true"></i>
+                                    Lowercase letter
+                                </div>
+                                <div id="req-num" class="flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors duration-300">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-gray-300 transition-colors duration-300" aria-hidden="true"></i>
+                                    Number
+                                </div>
+                                <div id="req-spec" class="flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors duration-300 sm:col-span-2">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-gray-300 transition-colors duration-300" aria-hidden="true"></i>
+                                    Special character (!@#$%^&*)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Password -->
+                    <div class="flex flex-col gap-1.5">
+                        <label for="confirm-password" class="text-[14px] font-bold text-gray-800 ml-1">Confirm Password <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="lock" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                            </div>
+                            <input type="password" id="confirm-password" name="confirm-password" required aria-required="true"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="••••••••">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Toggle password visibility" aria-pressed="false" onclick="togglePasswordVisibility(this, 'confirm-password')">
+                                <i data-lucide="eye" class="h-5 w-5" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <p id="confirm-password-error" class="text-red-500 text-[13px] font-medium hidden mt-1" aria-live="polite">Passwords do not match.</p>
+                    </div>
+
+                    <!-- Preferred Language -->
+                    <div class="flex flex-col gap-1.5">
+                        <label for="language" class="text-[14px] font-bold text-gray-800 ml-1">Preferred Language <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="globe" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                            </div>
+                            <select id="language" name="language" required aria-required="true"
+                                class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                <option value="" disabled selected>Select a language</option>
+                                <option value="en">English</option>
+                                <option value="fr">French</option>
+                                <option value="es">Spanish</option>
+                                <option value="ar">Arabic</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Checkboxes -->
+                    <div class="flex flex-col gap-3.5 mt-3 mb-2">
+                        <div class="flex items-start gap-3">
+                            <div class="flex items-center h-5 mt-0.5">
+                                <input id="terms" name="terms" type="checkbox" required aria-required="true" class="custom-checkbox">
+                            </div>
+                            <label for="terms" class="text-[14.5px] text-gray-600 font-medium leading-tight cursor-pointer">
+                                I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Terms of Service</a>
+                            </label>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="flex items-center h-5 mt-0.5">
+                                <input id="privacy" name="privacy" type="checkbox" required aria-required="true" class="custom-checkbox">
+                            </div>
+                            <label for="privacy" class="text-[14.5px] text-gray-600 font-medium leading-tight cursor-pointer">
+                                I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                        class="mt-2 bg-primary hover:bg-blue-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[16px] sm:text-[17px] w-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Continue
+                        <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                    </button>
+                    
+                </form>
+            </main>
+        </div>
+
+        <!-- 8. TRUST FOOTER -->
+        <footer class="mt-12 mb-8 w-full max-w-[520px] flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-5 sm:gap-6 text-[13px] text-gray-500 font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Contact Support</a>
+            </div>
+            <div class="text-[12px] text-gray-400 font-medium flex flex-col items-center gap-1.5 mt-1">
+                <span>&copy; 2026 MediBid</span>
+                <span class="text-secondary/80 font-semibold tracking-wider uppercase text-[10px]">Healthcare Without Borders</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Password Visibility Toggle
+        function togglePasswordVisibility(button, inputId) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === 'password';
+            
+            input.type = isPassword ? 'text' : 'password';
+            button.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+            
+            // Re-render the icon
+            button.innerHTML = `<i data-lucide="${isPassword ? 'eye-off' : 'eye'}" class="h-5 w-5" aria-hidden="true"></i>`;
+            lucide.createIcons();
+        }
+
+        // Live Password Validation Logic
+        const passwordInput = document.getElementById('password');
+        
+        passwordInput.addEventListener('input', function() {
+            const val = this.value;
+            
+            // Regex validation rules
+            const checks = {
+                length: val.length >= 8,
+                upper: /[A-Z]/.test(val),
+                lower: /[a-z]/.test(val),
+                num: /[0-9]/.test(val),
+                spec: /[!@#$%^&*(),.?":{}|<>\-_]/.test(val)
+            };
+
+            // Update UI
+            const updateCheck = (id, isValid) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                // Lucide replaces <i> with <svg>
+                const icon = el.querySelector('svg');
+                
+                if (isValid) {
+                    icon.classList.remove('text-gray-300');
+                    icon.classList.add('text-[#158953]'); // Verified Green
+                    el.classList.remove('text-gray-500');
+                    el.classList.add('text-gray-900');
+                } else {
+                    icon.classList.add('text-gray-300');
+                    icon.classList.remove('text-[#158953]');
+                    el.classList.add('text-gray-500');
+                    el.classList.remove('text-gray-900');
+                }
+            };
+
+            updateCheck('req-length', checks.length);
+            updateCheck('req-upper', checks.upper);
+            updateCheck('req-lower', checks.lower);
+            updateCheck('req-num', checks.num);
+            updateCheck('req-spec', checks.spec);
+        });
+
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const confirmError = document.getElementById('confirm-password-error');
+        const registrationForm = document.getElementById('registration-form');
+
+        function validatePasswordMatch() {
+            const pwd = passwordInput.value;
+            const confirmPwd = confirmPasswordInput.value;
+            
+            if (confirmPwd.length > 0 && pwd !== confirmPwd) {
+                // Show error
+                confirmError.classList.remove('hidden');
+                confirmPasswordInput.setAttribute('aria-invalid', 'true');
+                confirmPasswordInput.classList.remove('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                confirmPasswordInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-4', 'focus:ring-red-500/15');
+                return false;
+            } else {
+                // Hide error
+                confirmError.classList.add('hidden');
+                confirmPasswordInput.setAttribute('aria-invalid', 'false');
+                confirmPasswordInput.classList.add('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                confirmPasswordInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-4', 'focus:ring-red-500/15');
+                return pwd === confirmPwd;
+            }
+        }
+
+        passwordInput.addEventListener('input', validatePasswordMatch);
+        confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const val = passwordInput.value;
+            const checks = {
+                length: val.length >= 8,
+                upper: /[A-Z]/.test(val),
+                lower: /[a-z]/.test(val),
+                num: /[0-9]/.test(val),
+                spec: /[!@#$%^&*(),.?":{}|<>\-_]/.test(val)
+            };
+            
+            const isPasswordStrong = Object.values(checks).every(Boolean);
+            const isMatch = passwordInput.value === confirmPasswordInput.value;
+
+            if (!isPasswordStrong) {
+                passwordInput.focus();
+                return;
+            }
+            
+            if (!isMatch) {
+                validatePasswordMatch();
+                confirmPasswordInput.focus();
+                return;
+            }
+            
+            window.location.href = "{{ url_for('patient_registration_step2') }}";
+        });
+    </script>
+</body>
+</html>

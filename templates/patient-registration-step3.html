@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Step 3 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy
+                        secondary: '#0082CA', // Bright Blue
+                        textMain: '#111827',
+                        textMuted: '#4B5563',
+                        bgLight: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(0,130,202,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes float-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .animate-float-subtle {
+            animation: float-subtle 5s ease-in-out infinite;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 1s ease-out forwards;
+        }
+
+        /* Pill Checkboxes */
+        .pill-checkbox:checked + div {
+            background-color: #0B1D40;
+            color: #FFFFFF;
+            border-color: #0B1D40;
+        }
+        .pill-checkbox:focus-visible + div {
+            outline: 2px solid #0082CA;
+            outline-offset: 2px;
+        }
+
+        /* Custom Radio */
+        .custom-radio:checked + div {
+            border-color: #0082CA;
+            background-color: #F0F9FF;
+            color: #0B1D40;
+        }
+        .custom-radio:checked + div .radio-inner {
+            transform: scale(1);
+        }
+        .custom-radio:focus-visible + div {
+            outline: 2px solid #0082CA;
+            outline-offset: 2px;
+        }
+        
+        /* Metric/Imperial Toggle Switch */
+        .unit-toggle:checked + div {
+            background-color: #0B1D40;
+        }
+        .unit-toggle:checked + div > div {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4 focus:outline-none focus:underline">
+                <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+                Back to Home
+            </a>
+        </div>
+        <div class="flex items-center gap-4 sm:gap-6">
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Change Language">
+                <i data-lucide="globe" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">English</span>
+            </button>
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Help and Support">
+                <i data-lucide="help-circle" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">Help</span>
+            </button>
+            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                Sign In
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+        
+        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-8 self-start focus:outline-none focus:underline">
+            <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+            Back to Home
+        </a>
+
+        <!-- ILLUSTRATION & TRUST MESSAGE -->
+        <div class="flex flex-col items-center justify-center mb-8 opacity-0 animate-fade-in text-center">
+            <div class="relative w-[110px] sm:w-[140px] md:w-[170px] h-[110px] sm:h-[140px] md:h-[170px] mb-5 animate-float-subtle flex-shrink-0">
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-sm">
+                    <!-- Clean, Premium Medical SVG Illustration -->
+                    <circle cx="100" cy="100" r="80" fill="#F8F9FA" stroke="#E5E7EB" stroke-width="1.5" />
+                    <!-- Clipboard/Record -->
+                    <rect x="70" y="55" width="60" height="80" rx="6" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="2" />
+                    <rect x="85" y="45" width="30" height="15" rx="4" fill="#0082CA" />
+                    <line x1="85" y1="85" x2="115" y2="85" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
+                    <line x1="85" y1="100" x2="115" y2="100" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
+                    <line x1="85" y1="115" x2="105" y2="115" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
+                    <!-- Trust Icon -->
+                    <circle cx="135" cy="130" r="25" fill="#0B1D40" />
+                    <path d="M135 125C138.866 125 142 121.866 142 118C142 114.134 138.866 111 135 111C131.134 111 128 114.134 128 118C128 121.866 131.134 125 135 125Z" fill="#FFFFFF" />
+                    <path d="M124 139C124 134 128.5 129 135 129C141.5 129 146 134 146 139V142H124V139Z" fill="#FFFFFF" />
+                    <!-- AI Sparkles -->
+                    <path d="M60 120L62 132L74 134L62 136L60 148L58 136L46 134L58 132L60 120Z" fill="#0082CA" />
+                    <path d="M45 75L46.5 82.5L54 84L46.5 85.5L45 93L43.5 85.5L36 84L43.5 82.5L45 75Z" fill="#158953" />
+                </svg>
+            </div>
+            <p class="text-[12px] text-gray-400 font-semibold tracking-widest uppercase px-4 max-w-[400px]">Your medical information is securely shared only with verified hospitals.</p>
+        </div>
+
+        <!-- PAGE TITLE -->
+        <div class="text-center mb-10">
+            <h1 class="text-[32px] sm:text-[38px] font-extrabold text-primary leading-tight tracking-tight mb-3">
+                Patient Registration
+            </h1>
+            <p class="text-[15px] sm:text-[16px] text-gray-500 font-medium">
+                Medical Information
+            </p>
+        </div>
+
+        <!-- REGISTRATION PROGRESS -->
+        <div class="w-full max-w-[600px] mb-10 sm:mb-12">
+            <div class="w-full flex items-center justify-between mb-8 pb-6 relative z-10 px-2 sm:px-4">
+                <div class="absolute left-2 right-2 top-[7px] h-[2px] bg-gray-200 -z-10"></div>
+                <!-- Progress Line: 40% filled -->
+                <div class="absolute left-2 top-[7px] w-[40%] h-[2px] bg-secondary -z-10 transition-all duration-500"></div>
+                
+                <!-- Account (Completed) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Account</span>
+                </div>
+                <!-- Personal (Completed) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Personal</span>
+                </div>
+                <!-- Medical (Active) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Medical</span>
+                </div>
+                <!-- Preferences -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Preferences</span>
+                </div>
+                <!-- Reports -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Reports</span>
+                </div>
+                <!-- Submit -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Submit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTRATION CARD -->
+        <div class="w-full max-w-[640px]">
+            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-6 sm:p-10 md:p-12 relative overflow-visible">
+                
+                <!-- Inner Badge: Step 3 of 6 -->
+                <div class="flex items-center justify-start mb-8">
+                    <div class="inline-flex items-center gap-1.5 bg-[#EAF5FB] text-[#02649B] font-bold px-3.5 py-1.5 rounded-lg text-[12px] uppercase tracking-widest border border-[#D5EBF7]">
+                        Step 3 of 6
+                    </div>
+                </div>
+                
+                <!-- Heading -->
+                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Medical Information</h2>
+                <p class="text-[15px] text-gray-500 mb-10 leading-relaxed">Help hospitals understand your condition so they can provide accurate treatment estimates.</p>
+                
+                <!-- Form -->
+                <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='{{ url_for('patient_registration_step4') }}';" class="flex flex-col w-full">
+                    
+                    <!-- ============================================== -->
+                    <!-- SECTION 1: MEDICAL CONDITION                   -->
+                    <!-- ============================================== -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                            <i data-lucide="activity" class="w-4 h-4 text-secondary stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-primary">Medical Condition</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <!-- Searchable Dropdowns -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Primary Condition -->
+                            <div class="flex flex-col gap-1.5 relative searchable-dropdown-container">
+                                <label for="condition" class="text-[14px] font-bold text-gray-800 ml-1">Primary Medical Condition <span class="text-red-500" aria-hidden="true">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i data-lucide="search" class="h-4 w-4 text-gray-400" aria-hidden="true"></i>
+                                    </div>
+                                    <input type="text" id="condition" name="condition" required aria-required="true" autocomplete="off"
+                                        class="dropdown-input w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-10 pr-10 shadow-input transition-all duration-200 outline-none cursor-pointer" 
+                                        placeholder="Search condition...">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform dropdown-chevron" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <!-- Dropdown List -->
+                                <div class="dropdown-list absolute z-50 top-[100%] left-0 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-dropdown overflow-hidden hidden opacity-0 transition-opacity duration-200 max-h-[220px] overflow-y-auto">
+                                    <ul class="flex flex-col text-[14px] font-medium text-gray-700 py-2">
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Heart Disease</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Cancer</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Orthopedics</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Neurology</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Dental</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">IVF</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">General Surgery</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item text-secondary">Other</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Specialty Required -->
+                            <div class="flex flex-col gap-1.5 relative searchable-dropdown-container">
+                                <label for="specialty" class="text-[14px] font-bold text-gray-800 ml-1">Specialty Required <span class="text-red-500" aria-hidden="true">*</span></label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <i data-lucide="search" class="h-4 w-4 text-gray-400" aria-hidden="true"></i>
+                                    </div>
+                                    <input type="text" id="specialty" name="specialty" required aria-required="true" autocomplete="off"
+                                        class="dropdown-input w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-10 pr-10 shadow-input transition-all duration-200 outline-none cursor-pointer" 
+                                        placeholder="Search specialty...">
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform dropdown-chevron" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <!-- Dropdown List -->
+                                <div class="dropdown-list absolute z-50 top-[100%] left-0 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-dropdown overflow-hidden hidden opacity-0 transition-opacity duration-200 max-h-[220px] overflow-y-auto">
+                                    <ul class="flex flex-col text-[14px] font-medium text-gray-700 py-2">
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Cardiology</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Neurology</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Orthopedics</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Oncology</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">ENT</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">Gastroenterology</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item">General Physician</li>
+                                        <li class="px-4 py-2.5 hover:bg-bgLight cursor-pointer transition-colors dropdown-item text-secondary">Other</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Diagnosis -->
+                        <div class="flex flex-col gap-1.5">
+                            <label for="diagnosis" class="text-[14px] font-bold text-gray-800 ml-1">Current Diagnosis <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <textarea id="diagnosis" name="diagnosis" rows="3" required aria-required="true"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none resize-y min-h-[100px]" 
+                                placeholder="Describe your diagnosis or current medical condition."></textarea>
+                        </div>
+                        
+                        <!-- AI Helper Card -->
+                        <div class="bg-[#F9F5FF] border border-[#E9D5FF] rounded-[20px] p-4 flex gap-3.5 relative overflow-hidden group">
+                            <div class="absolute right-[-20px] top-[-20px] opacity-20 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                                <i data-lucide="sparkles" class="w-24 h-24 text-[#9333EA]"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm border border-[#F3E8FF] relative z-10">
+                                <span class="text-[14px]">💡</span>
+                            </div>
+                            <div class="flex flex-col relative z-10">
+                                <span class="text-[14px] font-bold text-[#6B21A8]">Not sure how to describe your condition?</span>
+                                <span class="text-[13px] text-[#7E22CE] leading-relaxed mt-0.5 pr-4">
+                                    Upload your medical reports in Step 5. MediBid AI will help organize and translate your medical information for hospitals.
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Symptoms -->
+                        <div class="flex flex-col gap-1.5">
+                            <label for="symptoms" class="text-[14px] font-bold text-gray-800 ml-1">Symptoms <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
+                            <textarea id="symptoms" name="symptoms" rows="2"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none resize-y" 
+                                placeholder="Briefly describe your symptoms."></textarea>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100 my-10">
+
+                    <!-- ============================================== -->
+                    <!-- SECTION 2: MEDICAL HISTORY                     -->
+                    <!-- ============================================== -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                            <i data-lucide="file-text" class="w-4 h-4 text-secondary stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-primary">Medical History</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <!-- Previous Treatments -->
+                        <div class="flex flex-col gap-1.5">
+                            <label for="previous-treatments" class="text-[14px] font-bold text-gray-800 ml-1">Previous Treatments <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
+                            <textarea id="previous-treatments" name="previous-treatments" rows="2"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none resize-y" 
+                                placeholder="e.g. Previous surgery, Chemotherapy, Physiotherapy, Medication"></textarea>
+                        </div>
+
+                        <!-- Current Medications -->
+                        <div class="flex flex-col gap-1.5">
+                            <label for="medications" class="text-[14px] font-bold text-gray-800 ml-1">Current Medications <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
+                            <textarea id="medications" name="medications" rows="2"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none resize-y" 
+                                placeholder="List any medications you are currently taking."></textarea>
+                        </div>
+
+                        <!-- Allergies -->
+                        <div class="flex flex-col gap-2.5">
+                            <label class="text-[14px] font-bold text-gray-800 ml-1">Allergies</label>
+                            <div class="flex flex-wrap gap-2.5">
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="allergies" value="Penicillin" class="pill-checkbox sr-only">
+                                    <div class="px-4 py-2 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-600 transition-colors duration-200 hover:border-gray-300">
+                                        Penicillin
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="allergies" value="Food" class="pill-checkbox sr-only">
+                                    <div class="px-4 py-2 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-600 transition-colors duration-200 hover:border-gray-300">
+                                        Food
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="allergies" value="Latex" class="pill-checkbox sr-only">
+                                    <div class="px-4 py-2 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-600 transition-colors duration-200 hover:border-gray-300">
+                                        Latex
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="allergies" value="Other" id="allergy-other-checkbox" class="pill-checkbox sr-only">
+                                    <div class="px-4 py-2 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-600 transition-colors duration-200 hover:border-gray-300">
+                                        Other
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="allergies" value="No Known Allergies" class="pill-checkbox sr-only" checked>
+                                    <div class="px-4 py-2 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-600 transition-colors duration-200 hover:border-gray-300">
+                                        No Known Allergies
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <!-- Other Allergy Input (Hidden by default) -->
+                            <div id="allergy-other-container" class="mt-2 hidden">
+                                <input type="text" id="allergy-other-text" name="allergy-other-text"
+                                    class="w-full sm:w-[50%] bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="Specify other allergy...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100 my-10">
+
+                    <!-- ============================================== -->
+                    <!-- SECTION 3: ADDITIONAL HEALTH INFORMATION       -->
+                    <!-- ============================================== -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                            <i data-lucide="info" class="w-4 h-4 text-secondary stroke-[2.5]" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-primary">Additional Health Information</h3>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Blood Group -->
+                            <div class="flex flex-col gap-1.5">
+                                <label for="blood-group" class="text-[14px] font-bold text-gray-800 ml-1">Blood Group</label>
+                                <div class="relative">
+                                    <select id="blood-group" name="blood-group"
+                                        class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                        <option value="Unknown" selected>Unknown</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                        <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Height & Weight Toggle Wrapper -->
+                            <div class="flex flex-col gap-1.5 relative">
+                                <div class="flex items-center justify-between ml-1 mb-1 sm:mb-0 sm:absolute sm:right-0 sm:-top-7">
+                                    <!-- Metric/Imperial Toggle -->
+                                    <label class="flex items-center gap-2 cursor-pointer relative z-10">
+                                        <span class="text-[12px] font-bold text-gray-500 unit-label-metric text-primary">Metric</span>
+                                        <div class="relative">
+                                            <input type="checkbox" id="unit-toggle" class="unit-toggle sr-only">
+                                            <div class="w-10 h-5 bg-gray-200 rounded-full transition-colors flex items-center p-0.5">
+                                                <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-transform transform"></div>
+                                            </div>
+                                        </div>
+                                        <span class="text-[12px] font-bold text-gray-400 unit-label-imperial">Imperial</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3" id="vitals-metric">
+                                    <div class="relative">
+                                        <input type="number" name="height-cm"
+                                            class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
+                                            placeholder="Height">
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-400 font-medium text-[13px]">cm</span>
+                                        </div>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" name="weight-kg"
+                                            class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
+                                            placeholder="Weight">
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-400 font-medium text-[13px]">kg</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 hidden" id="vitals-imperial">
+                                    <div class="flex gap-2">
+                                        <div class="relative w-1/2">
+                                            <input type="number" name="height-ft"
+                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-3.5 pr-6 shadow-input transition-all duration-200 outline-none text-center" 
+                                                placeholder="ft">
+                                        </div>
+                                        <div class="relative w-1/2">
+                                            <input type="number" name="height-in"
+                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-3.5 pr-6 shadow-input transition-all duration-200 outline-none text-center" 
+                                                placeholder="in">
+                                        </div>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="number" name="weight-lbs"
+                                            class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
+                                            placeholder="Weight">
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-400 font-medium text-[13px]">lbs</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Pregnancy Status (Conditional) -->
+                        <div id="pregnancy-section" class="flex flex-col gap-2.5 p-5 bg-[#F8F9FA] rounded-[24px] border border-gray-100 mt-2 transition-all duration-500" style="display: none;">
+                            <label class="text-[14px] font-bold text-gray-800 ml-1">Are you currently pregnant?</label>
+                            <div class="flex flex-wrap gap-5 mt-1">
+                                <label class="flex items-center gap-2.5 cursor-pointer">
+                                    <input type="radio" name="pregnancy" value="Yes" class="custom-radio sr-only">
+                                    <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center transition-colors">
+                                        <div class="radio-inner w-2.5 h-2.5 rounded-full bg-secondary transform scale-0 transition-transform"></div>
+                                    </div>
+                                    <span class="text-[14.5px] text-gray-700 font-medium transition-colors">Yes</span>
+                                </label>
+                                <label class="flex items-center gap-2.5 cursor-pointer">
+                                    <input type="radio" name="pregnancy" value="No" class="custom-radio sr-only" checked>
+                                    <div class="w-5 h-5 rounded-full border border-[#0082CA] bg-[#F0F9FF] flex items-center justify-center transition-colors">
+                                        <div class="radio-inner w-2.5 h-2.5 rounded-full bg-[#0B1D40] transform scale-100 transition-transform"></div>
+                                    </div>
+                                    <span class="text-[14.5px] text-[#0B1D40] font-semibold transition-colors">No</span>
+                                </label>
+                                <label class="flex items-center gap-2.5 cursor-pointer">
+                                    <input type="radio" name="pregnancy" value="Prefer not to say" class="custom-radio sr-only">
+                                    <div class="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center transition-colors">
+                                        <div class="radio-inner w-2.5 h-2.5 rounded-full bg-secondary transform scale-0 transition-transform"></div>
+                                    </div>
+                                    <span class="text-[14.5px] text-gray-700 font-medium transition-colors">Prefer not to say</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="flex flex-col gap-3.5 mt-2 p-5 bg-white border border-gray-200 rounded-[24px] shadow-sm">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i data-lucide="phone-call" class="w-4 h-4 text-gray-400"></i>
+                                <h4 class="text-[14px] font-bold text-gray-800">Emergency Contact <span class="text-[13px] text-gray-400 font-normal ml-1">(Optional)</span></h4>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input type="text" name="emergency-name"
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="Full Name">
+                                <input type="text" name="emergency-relationship"
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="Relationship (e.g. Spouse)">
+                            </div>
+                            
+                            <div class="flex gap-2 mt-1">
+                                <div class="relative w-[110px] sm:w-[120px] flex-shrink-0">
+                                    <select name="emergency-country-code" aria-label="Country Code"
+                                        class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                        <option value="+1">🇺🇸 +1</option>
+                                        <option value="+44">🇬🇧 +44</option>
+                                        <option value="+91">🇮🇳 +91</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <div class="relative flex-grow">
+                                    <input type="tel" name="emergency-phone"
+                                        class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all duration-200 outline-none" 
+                                        placeholder="Phone Number">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Bottom Buttons -->
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 mt-10">
+                        <a href="{{ url_for('patient_registration_step2') }}" 
+                            class="px-6 py-4 rounded-full border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
+                            Back
+                        </a>
+                        
+                        <button type="button" 
+                            class="px-6 py-4 rounded-full border-2 border-transparent bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-3 sm:order-2 ml-auto sm:ml-0 sm:mr-auto">
+                            Save Progress
+                        </button>
+
+                        <button type="submit" 
+                            class="bg-primary hover:bg-blue-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-3">
+                            Continue
+                            <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                </form>
+            </main>
+            
+            <!-- Expanded Trust Card -->
+            <div class="mt-6 mb-4 bg-white border border-gray-100 shadow-sm rounded-2xl p-6 flex flex-col gap-4 w-full max-w-[640px]">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-8 h-8 rounded-full bg-[#E8F6F0] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-[#158953]" aria-hidden="true"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-gray-800 font-bold">Total Control</span>
+                        <span class="text-[13.5px] text-gray-600 mt-0.5">Your medical information remains entirely under your control.</span>
+                    </div>
+                </div>
+                
+                <div class="h-[1px] w-full bg-gray-50"></div>
+                
+                <div class="flex items-start gap-3.5">
+                    <div class="w-8 h-8 rounded-full bg-[#EAF5FB] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i data-lucide="lock" class="w-4 h-4 text-secondary" aria-hidden="true"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-gray-800 font-bold">Bank-level Encryption</span>
+                        <span class="text-[13.5px] text-gray-600 mt-0.5">Medical records are encrypted and shared only with hospitals you choose.</span>
+                    </div>
+                </div>
+
+                <div class="h-[1px] w-full bg-gray-50"></div>
+
+                <div class="flex items-start gap-3.5">
+                    <div class="w-8 h-8 rounded-full bg-[#F3E8FF] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-[#9333EA]" aria-hidden="true"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[14px] text-gray-800 font-bold">AI Translation</span>
+                        <span class="text-[13.5px] text-gray-600 mt-0.5">Medical information is accurately translated for international hospitals.</span>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mt-8 mb-8 w-full max-w-[640px] flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-5 sm:gap-6 text-[13px] text-gray-500 font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Contact Support</a>
+            </div>
+            <div class="text-[12px] text-gray-400 font-medium flex flex-col items-center gap-1.5 mt-1">
+                <span>&copy; 2026 MediBid</span>
+                <span class="text-secondary/80 font-semibold tracking-wider uppercase text-[10px]">Healthcare Without Borders</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // 1. Interactive Searchable Dropdowns
+        const dropdownContainers = document.querySelectorAll('.searchable-dropdown-container');
+        
+        dropdownContainers.forEach(container => {
+            const input = container.querySelector('.dropdown-input');
+            const list = container.querySelector('.dropdown-list');
+            const ul = list.querySelector('ul');
+            const items = list.querySelectorAll('.dropdown-item');
+            const chevron = container.querySelector('.dropdown-chevron');
+            let hideTimeout;
+            let activeIndex = -1;
+
+            // Create no-results message element
+            const noResults = document.createElement('li');
+            noResults.className = 'px-4 py-2.5 text-[14px] text-gray-500 hidden';
+            noResults.textContent = 'No matching results. You can continue by entering your condition manually.';
+            ul.appendChild(noResults);
+
+            function openDropdown() {
+                clearTimeout(hideTimeout);
+                closeAllDropdowns(container);
+                list.classList.remove('hidden');
+                // Force reflow
+                void list.offsetWidth;
+                list.classList.remove('opacity-0');
+                chevron.classList.add('rotate-180');
+            }
+
+            function closeDropdown() {
+                list.classList.add('opacity-0');
+                chevron.classList.remove('rotate-180');
+                hideTimeout = setTimeout(() => list.classList.add('hidden'), 200);
+                activeIndex = -1;
+                updateActiveItem();
+            }
+
+            // Click chevron to toggle
+            chevron.closest('.absolute').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if(list.classList.contains('hidden')) {
+                    input.focus();
+                } else {
+                    closeDropdown();
+                }
+            });
+
+            input.addEventListener('click', () => {
+                openDropdown();
+            });
+
+            input.addEventListener('focus', () => {
+                openDropdown();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+                
+                if(e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if(list.classList.contains('hidden')) openDropdown();
+                    activeIndex = (activeIndex + 1) % visibleItems.length;
+                    updateActiveItem(visibleItems);
+                } else if(e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = activeIndex - 1 < 0 ? visibleItems.length - 1 : activeIndex - 1;
+                    updateActiveItem(visibleItems);
+                } else if(e.key === 'Enter') {
+                    e.preventDefault();
+                    if(activeIndex >= 0 && activeIndex < visibleItems.length) {
+                        input.value = visibleItems[activeIndex].textContent;
+                        closeDropdown();
+                    }
+                } else if(e.key === 'Escape') {
+                    closeDropdown();
+                }
+            });
+
+            function updateActiveItem(visibleItems = []) {
+                items.forEach(item => item.classList.remove('bg-gray-100'));
+                if(visibleItems[activeIndex]) {
+                    visibleItems[activeIndex].classList.add('bg-gray-100');
+                    visibleItems[activeIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+
+            // Filter items on type
+            input.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                let hasVisible = false;
+                activeIndex = -1;
+
+                items.forEach(item => {
+                    item.classList.remove('bg-gray-100');
+                    if(item.textContent.toLowerCase().includes(term)) {
+                        item.style.display = 'block';
+                        hasVisible = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                if(!hasVisible && term.length > 0) {
+                    noResults.classList.remove('hidden');
+                    noResults.style.display = 'block';
+                } else {
+                    noResults.classList.add('hidden');
+                    noResults.style.display = 'none';
+                }
+                
+                openDropdown();
+            });
+
+            // Select item
+            items.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    input.value = e.target.textContent;
+                    closeDropdown();
+                });
+            });
+
+            // Keep reference for global close
+            container._closeDropdown = closeDropdown;
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('.searchable-dropdown-container')) {
+                dropdownContainers.forEach(c => {
+                    if(!c.querySelector('.dropdown-list').classList.contains('hidden')) {
+                        if(c._closeDropdown) c._closeDropdown();
+                    }
+                });
+            }
+        });
+
+        function closeAllDropdowns(exceptContainer = null) {
+            dropdownContainers.forEach(c => {
+                if(c !== exceptContainer && !c.querySelector('.dropdown-list').classList.contains('hidden')) {
+                    if(c._closeDropdown) c._closeDropdown();
+                }
+            });
+        }
+
+        // 2. Allergy Checkbox Logic
+        const allergyCheckboxes = document.querySelectorAll('input[name="allergies"]');
+        const otherAllergyCheckbox = document.getElementById('allergy-other-checkbox');
+        const otherAllergyContainer = document.getElementById('allergy-other-container');
+        const otherAllergyInput = document.getElementById('allergy-other-text');
+
+        allergyCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                // If "No Known Allergies" is checked
+                if(e.target.value === "No Known Allergies" && e.target.checked) {
+                    allergyCheckboxes.forEach(cb => {
+                        if(cb.value !== "No Known Allergies") cb.checked = false;
+                    });
+                    otherAllergyContainer.classList.add('hidden');
+                    otherAllergyInput.removeAttribute('required');
+                } 
+                // If anything else is checked
+                else if (e.target.checked) {
+                    const noAllergies = document.querySelector('input[value="No Known Allergies"]');
+                    if(noAllergies) noAllergies.checked = false;
+                }
+
+                // Handle "Other" input visibility
+                if(otherAllergyCheckbox.checked) {
+                    otherAllergyContainer.classList.remove('hidden');
+                    otherAllergyInput.setAttribute('required', 'true');
+                } else {
+                    otherAllergyContainer.classList.add('hidden');
+                    otherAllergyInput.removeAttribute('required');
+                }
+            });
+        });
+
+        // 3. Metric/Imperial Toggle
+        const unitToggle = document.getElementById('unit-toggle');
+        const labelMetric = document.querySelector('.unit-label-metric');
+        const labelImperial = document.querySelector('.unit-label-imperial');
+        const vitalsMetric = document.getElementById('vitals-metric');
+        const vitalsImperial = document.getElementById('vitals-imperial');
+
+        unitToggle.addEventListener('change', (e) => {
+            if(e.target.checked) {
+                // Imperial
+                labelMetric.classList.replace('text-primary', 'text-gray-400');
+                labelImperial.classList.replace('text-gray-400', 'text-primary');
+                vitalsMetric.classList.add('hidden');
+                vitalsImperial.classList.remove('hidden');
+            } else {
+                // Metric
+                labelImperial.classList.replace('text-primary', 'text-gray-400');
+                labelMetric.classList.replace('text-gray-400', 'text-primary');
+                vitalsImperial.classList.add('hidden');
+                vitalsMetric.classList.remove('hidden');
+            }
+        });
+
+        // 4. Conditional Pregnancy Display
+        const pregnancySection = document.getElementById('pregnancy-section');
+        const pregnancyRadios = document.querySelectorAll('input[name="pregnancy"]');
+        
+        // Read gender from sessionStorage
+        const storedGender = sessionStorage.getItem('medibid_patient_gender') || '';
+        const isFemale = storedGender.toLowerCase() === 'female';
+        
+        if (isFemale) {
+            pregnancySection.style.display = 'flex';
+            pregnancyRadios.forEach(r => r.disabled = false);
+        } else {
+            pregnancySection.style.display = 'none';
+            // Disable inputs so hidden values aren't submitted
+            pregnancyRadios.forEach(r => {
+                r.disabled = true;
+                r.checked = false; // clear selection
+            });
+        }
+
+        // Pregnancy custom radio sync
+        pregnancyRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                pregnancyRadios.forEach(r => {
+                    const inner = r.nextElementSibling.querySelector('.radio-inner');
+                    const outer = r.nextElementSibling;
+                    const text = outer.nextElementSibling;
+                    if(r.checked) {
+                        outer.classList.replace('border-gray-300', 'border-[#0082CA]');
+                        outer.classList.add('bg-[#F0F9FF]');
+                        inner.classList.replace('scale-0', 'scale-100');
+                        inner.classList.replace('bg-secondary', 'bg-[#0B1D40]');
+                        text.classList.replace('text-gray-700', 'text-[#0B1D40]');
+                        text.classList.replace('font-medium', 'font-semibold');
+                    } else {
+                        outer.classList.replace('border-[#0082CA]', 'border-gray-300');
+                        outer.classList.remove('bg-[#F0F9FF]');
+                        inner.classList.replace('scale-100', 'scale-0');
+                        inner.classList.replace('bg-[#0B1D40]', 'bg-secondary');
+                        text.classList.replace('text-[#0B1D40]', 'text-gray-700');
+                        text.classList.replace('font-semibold', 'font-medium');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Step 4 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy
+                        secondary: '#0082CA', // Bright Blue
+                        textMain: '#111827',
+                        textMuted: '#4B5563',
+                        bgLight: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(0,130,202,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes float-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .animate-float-subtle {
+            animation: float-subtle 5s ease-in-out infinite;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 1s ease-out forwards;
+        }
+
+        /* Pill Checkboxes */
+        .pill-checkbox:checked + div {
+            background-color: #0B1D40;
+            color: #FFFFFF;
+            border-color: #0B1D40;
+        }
+        .pill-checkbox:focus-visible + div {
+            outline: 2px solid #0082CA;
+            outline-offset: 2px;
+        }
+
+        /* Custom Checkbox */
+        .custom-checkbox:checked + div {
+            border-color: #0082CA;
+            background-color: #0082CA;
+        }
+        .custom-checkbox:checked + div svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Drag and Drop Area */
+        .drop-zone {
+            border: 2px dashed #E5E7EB;
+            transition: all 0.2s ease;
+        }
+        .drop-zone.dragover {
+            border-color: #0082CA;
+            background-color: #F0F9FF;
+        }
+        
+        .upload-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4 focus:outline-none focus:underline">
+                <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+                Back to Home
+            </a>
+        </div>
+        <div class="flex items-center gap-4 sm:gap-6">
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Change Language">
+                <i data-lucide="globe" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">English</span>
+            </button>
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Help and Support">
+                <i data-lucide="help-circle" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="hidden sm:block text-[14px]">Help</span>
+            </button>
+            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                Sign In
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+        
+        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-8 self-start focus:outline-none focus:underline">
+            <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+            Back to Home
+        </a>
+
+        <!-- ILLUSTRATION & TRUST MESSAGE -->
+        <div class="flex flex-col items-center justify-center mb-8 opacity-0 animate-fade-in text-center">
+            <div class="relative w-[110px] sm:w-[140px] md:w-[170px] h-[110px] sm:h-[140px] md:h-[170px] mb-5 animate-float-subtle flex-shrink-0">
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-sm">
+                    <!-- Clean, Premium Medical SVG Illustration (Folder / Upload theme) -->
+                    <circle cx="100" cy="100" r="80" fill="#F8F9FA" stroke="#E5E7EB" stroke-width="1.5" />
+                    <!-- Folder Back -->
+                    <path d="M60 70C60 66.6863 62.6863 64 66 64H86.8284C88.4196 64 89.9456 64.6321 91.0711 65.7574L98.9289 73.6152C100.054 74.7405 101.58 75.3726 103.172 75.3726H134C137.314 75.3726 140 78.0589 140 81.3726V130C140 133.314 137.314 136 134 136H66C62.6863 136 60 133.314 60 130V70Z" fill="#E5E7EB" />
+                    <!-- Document -->
+                    <rect x="75" y="55" width="50" height="70" rx="4" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="2" />
+                    <line x1="85" y1="70" x2="115" y2="70" stroke="#0082CA" stroke-width="3" stroke-linecap="round" />
+                    <line x1="85" y1="85" x2="115" y2="85" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
+                    <line x1="85" y1="100" x2="105" y2="100" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
+                    <!-- Folder Front -->
+                    <path d="M55 85C55 81.6863 57.6863 79 61 79H139C142.314 79 145 81.6863 145 85V130C145 133.314 142.314 136 139 136H61C57.6863 136 55 133.314 55 130V85Z" fill="#0082CA" fill-opacity="0.9" />
+                    <path d="M100 95V115M90 105H110" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+                    <!-- AI Sparkles -->
+                    <path d="M45 65L46.5 72.5L54 74L46.5 75.5L45 83L43.5 75.5L36 74L43.5 72.5L45 65Z" fill="#158953" />
+                </svg>
+            </div>
+            <p class="text-[12px] text-gray-400 font-semibold tracking-widest uppercase px-4 max-w-[400px]">Securely share your documents with international experts.</p>
+        </div>
+
+        <!-- PAGE TITLE -->
+        <div class="text-center mb-10">
+            <h1 class="text-[32px] sm:text-[38px] font-extrabold text-primary leading-tight tracking-tight mb-3">
+                Patient Registration
+            </h1>
+            <p class="text-[15px] sm:text-[16px] text-gray-500 font-medium">
+                Medical Documents
+            </p>
+        </div>
+
+        <!-- REGISTRATION PROGRESS -->
+        <div class="w-full max-w-[600px] mb-10 sm:mb-12">
+            <div class="w-full flex items-center justify-between mb-8 pb-6 relative z-10 px-2 sm:px-4">
+                <div class="absolute left-2 right-2 top-[7px] h-[2px] bg-gray-200 -z-10"></div>
+                <!-- Progress Line: 60% filled for Step 4 -->
+                <div class="absolute left-2 top-[7px] w-[60%] h-[2px] bg-secondary -z-10 transition-all duration-500"></div>
+                
+                <!-- Account (Completed) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Account</span>
+                </div>
+                <!-- Personal (Completed) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Personal</span>
+                </div>
+                <!-- Medical (Completed) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Medical</span>
+                </div>
+                <!-- Preferences (Active) -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Documents</span>
+                </div>
+                <!-- Reports -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Preferences</span>
+                </div>
+                <!-- Submit -->
+                <div class="flex flex-col items-center justify-start relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Submit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTRATION CARD -->
+        <div class="w-full max-w-[640px]">
+            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-6 sm:p-10 md:p-12 relative overflow-visible">
+                
+                <!-- Inner Badge: Step 4 of 6 -->
+                <div class="flex items-center justify-start mb-8">
+                    <div class="inline-flex items-center gap-1.5 bg-[#EAF5FB] text-[#02649B] font-bold px-3.5 py-1.5 rounded-lg text-[12px] uppercase tracking-widest border border-[#D5EBF7]">
+                        Step 4 of 6
+                    </div>
+                </div>
+                
+                <!-- Heading -->
+                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Upload Medical Documents</h2>
+                <p class="text-[15px] text-gray-500 mb-2 leading-relaxed">Upload any available medical reports to help hospitals understand your condition and prepare a more accurate treatment estimate.</p>
+                <div class="flex items-center gap-2 mb-10 text-[13px] text-gray-400 font-medium">
+                    <i data-lucide="info" class="w-4 h-4 text-secondary"></i>
+                    You can continue even if you don't have all your medical documents available right now.
+                </div>
+                
+                <!-- Form -->
+                <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='{{ url_for('patient_registration_step5') }}';" class="flex flex-col w-full">
+                    
+                    <!-- Conditional Guidance Card (Simulated) -->
+                    <div id="guidance-card" class="bg-[#F0F9FF] border border-[#BDE0FE] rounded-[20px] p-4 flex gap-3.5 mb-8 relative overflow-hidden group">
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm border border-[#E0F2FE] relative z-10">
+                            <i data-lucide="activity" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                        </div>
+                        <div class="flex flex-col relative z-10">
+                            <span class="text-[14px] font-bold text-[#02649B]">Cardiology Recommendations</span>
+                            <span class="text-[13px] text-[#0369A1] leading-relaxed mt-0.5 pr-4">
+                                Helpful documents may include ECG, Echo reports, angiograms and previous cardiology reports.
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- NO DOCUMENTS OPTION -->
+                    <div class="mb-6 flex items-start">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative flex items-center justify-center">
+                                <input type="checkbox" id="no-docs-checkbox" name="no-docs" class="custom-checkbox sr-only">
+                                <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
+                                    <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <span class="text-[14.5px] font-bold text-gray-800 select-none">I don't have medical documents available right now</span>
+                        </label>
+                    </div>
+
+                    <!-- UPLOAD SECTION -->
+                    <div id="upload-section" class="transition-opacity duration-300">
+                        <div class="drop-zone relative bg-bgLight rounded-[24px] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 mb-6">
+                            <input type="file" id="file-upload" name="documents[]" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" aria-label="Upload Files" accept=".pdf,.jpg,.jpeg,.png,.dcm,.zip,application/pdf,image/jpeg,image/png,application/zip,application/dicom">
+                            
+                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 mb-4 group-hover:scale-110 transition-transform duration-300">
+                                <i data-lucide="upload-cloud" class="w-6 h-6 text-secondary"></i>
+                            </div>
+                            
+                            <h3 class="text-[16px] font-bold text-primary mb-1">Drag & drop your medical files here</h3>
+                            <p class="text-[14px] text-gray-500 mb-4">or <span class="text-secondary font-semibold hover:underline">Browse Files</span></p>
+                            
+                            <div class="flex flex-wrap items-center justify-center gap-2 text-[12px] text-gray-400 font-medium">
+                                <span class="bg-gray-200/50 px-2 py-1 rounded-md">PDF</span>
+                                <span class="bg-gray-200/50 px-2 py-1 rounded-md">JPG</span>
+                                <span class="bg-gray-200/50 px-2 py-1 rounded-md">PNG</span>
+                                <span class="bg-gray-200/50 px-2 py-1 rounded-md">DICOM</span>
+                                <span class="bg-gray-200/50 px-2 py-1 rounded-md">ZIP</span>
+                            </div>
+                            <p class="text-[12px] text-gray-400 mt-3">Maximum file size: 50MB per file</p>
+                        </div>
+                        <p id="upload-error" class="text-red-500 text-[13px] font-medium hidden mb-4 ml-2" aria-live="polite"></p>
+
+                        <!-- Uploaded Files List -->
+                        <div id="file-list" class="flex flex-col gap-3">
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100 my-8">
+
+                    <!-- Privacy & Security Message -->
+                    <div class="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-[13px] text-gray-600 leading-relaxed">
+                            <strong class="text-gray-800">Your medical documents are private and securely handled.</strong> They will only be shared with relevant healthcare providers according to your consent and MediBid's privacy policies.
+                        </p>
+                    </div>
+
+                    <!-- Bottom Buttons -->
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 mt-10">
+                        <a href="{{ url_for('patient_registration_step3') }}" 
+                            class="px-6 py-4 rounded-full border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
+                            Back
+                        </a>
+                        
+                        <button type="button" 
+                            class="px-6 py-4 rounded-full border-2 border-transparent bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-3 sm:order-2 ml-auto sm:ml-0 sm:mr-auto">
+                            Save Progress
+                        </button>
+
+                        <button type="submit" 
+                            class="bg-primary hover:bg-blue-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-3">
+                            Save & Continue
+                            <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                </form>
+            </main>
+            
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mt-8 mb-8 w-full max-w-[640px] flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-5 sm:gap-6 text-[13px] text-gray-500 font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Contact Support</a>
+            </div>
+            <div class="text-[12px] text-gray-400 font-medium flex flex-col items-center gap-1.5 mt-1">
+                <span>&copy; 2026 MediBid</span>
+                <span class="text-secondary/80 font-semibold tracking-wider uppercase text-[10px]">Healthcare Without Borders</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        /*
+         * SECURITY PREPARATION:
+         * This is a frontend prototype. The future backend MUST independently validate:
+         * - File type and MIME type
+         * - File signature / magic bytes
+         * - File size limitations
+         * - Safe generated filename (prevent path traversal)
+         * - Malware scanning where appropriate
+         * - DICOM handling, anonymization, and metadata/privacy requirements
+         * - ZIP archive safety (prevent zip bombs)
+         */
+
+        lucide.createIcons();
+
+        let selectedFiles = [];
+        const MAX_SIZE = 50 * 1024 * 1024;
+        const ALLOWED_EXTS = ['.pdf', '.jpg', '.jpeg', '.png', '.dcm', '.zip'];
+        const ALLOWED_MIMES = ['application/pdf', 'image/jpeg', 'image/png', 'application/zip', 'application/x-zip-compressed', 'application/dicom', 'image/dicom-rle'];
+
+        const dropZone = document.querySelector('.drop-zone');
+        const fileInput = document.getElementById('file-upload');
+        const fileListContainer = document.getElementById('file-list');
+        const uploadError = document.getElementById('upload-error');
+
+        // Helper to format bytes
+        function formatBytes(bytes, decimals = 1) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Highlight drop zone
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        // Handle file selection
+        dropZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            processFiles(files);
+        }
+
+        function handleFiles(e) {
+            processFiles(e.target.files);
+            // reset input to allow selecting same file after removal
+            fileInput.value = '';
+        }
+
+        function processFiles(files) {
+            uploadError.classList.add('hidden');
+            let hasError = false;
+            let errorMsg = '';
+
+            Array.from(files).forEach(file => {
+                const ext = '.' + file.name.split('.').pop().toLowerCase();
+                
+                // Validate size
+                if (file.size > MAX_SIZE) {
+                    hasError = true;
+                    errorMsg = 'Each file must be 50 MB or smaller.';
+                    return;
+                }
+                
+                // Validate type (MIME or Extension)
+                // Note: DICOM sometimes has empty MIME type in browsers
+                const isValidType = ALLOWED_EXTS.includes(ext) || ALLOWED_MIMES.includes(file.type);
+                if (!isValidType) {
+                    hasError = true;
+                    errorMsg = 'This file type is not supported. Please upload PDF, JPG, PNG, DICOM, or ZIP files.';
+                    return;
+                }
+
+                // Check duplicate
+                const isDuplicate = selectedFiles.some(f => 
+                    f.name === file.name && 
+                    f.size === file.size && 
+                    f.lastModified === file.lastModified
+                );
+
+                if (!isDuplicate) {
+                    selectedFiles.push(file);
+                }
+            });
+
+            if (hasError) {
+                uploadError.textContent = errorMsg;
+                uploadError.classList.remove('hidden');
+            }
+
+            renderFiles();
+        }
+
+        function getIconClass(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if(ext === 'pdf') return 'bg-red-50 text-red-500';
+            if(ext === 'zip') return 'bg-yellow-50 text-yellow-600';
+            if(ext === 'dcm') return 'bg-purple-50 text-purple-600';
+            return 'bg-blue-50 text-secondary';
+        }
+
+        function getIconName(name) {
+            const ext = name.split('.').pop().toLowerCase();
+            if(['jpg', 'jpeg', 'png'].includes(ext)) return 'image';
+            if(ext === 'zip') return 'archive';
+            return 'file-text';
+        }
+
+        function renderFiles() {
+            fileListContainer.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const sizeStr = formatBytes(file.size);
+                const iconClass = getIconClass(file.name);
+                const iconName = getIconName(file.name);
+                
+                const card = document.createElement('div');
+                card.className = 'file-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border border-gray-200 bg-white shadow-sm';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="w-10 h-10 rounded-xl ${iconClass} flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="${iconName}" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex flex-col overflow-hidden w-full">
+                            <span class="text-[14px] font-bold text-gray-800 truncate" title="${file.name}">${file.name}</span>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[12px] text-gray-500">${sizeStr}</span>
+                                <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                                <span class="text-[12px] text-green-600 font-semibold flex items-center gap-1">
+                                    <i data-lucide="check-circle-2" class="w-3 h-3"></i> Ready
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-gray-100 pt-3 sm:pt-0 mt-1 sm:mt-0">
+                        <div class="relative w-[180px] sm:w-[200px]">
+                            <select class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[13px] font-medium rounded-xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-2 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                <option value="" disabled selected>Select Document Type</option>
+                                <option value="Medical Report">Medical Report</option>
+                                <option value="Doctor's Prescription">Doctor's Prescription</option>
+                                <option value="Laboratory Report">Laboratory Report</option>
+                                <option value="Blood Test">Blood Test</option>
+                                <option value="Scan / Imaging Report">Scan / Imaging Report</option>
+                                <option value="X-Ray">X-Ray</option>
+                                <option value="CT Scan">CT Scan</option>
+                                <option value="MRI">MRI</option>
+                                <option value="Ultrasound">Ultrasound</option>
+                                <option value="Pathology Report">Pathology Report</option>
+                                <option value="Discharge Summary">Discharge Summary</option>
+                                <option value="Previous Treatment Record">Previous Treatment Record</option>
+                                <option value="Other Medical Document">Other Medical Document</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <button type="button" class="remove-btn text-gray-400 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50 focus:outline-none" aria-label="Remove File" data-index="${index}">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                fileListContainer.appendChild(card);
+            });
+            lucide.createIcons({ root: fileListContainer });
+
+            // Attach remove events
+            const removeBtns = fileListContainer.querySelectorAll('.remove-btn');
+            removeBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+                    selectedFiles.splice(idx, 1);
+                    renderFiles();
+                });
+            });
+        }
+
+        // 2. No Documents Toggle Logic
+        const noDocsCheckbox = document.getElementById('no-docs-checkbox');
+        const uploadSection = document.getElementById('upload-section');
+
+        noDocsCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                if (selectedFiles.length > 0) {
+                    const confirmClear = window.confirm("This will clear your currently selected files. Continue?");
+                    if (!confirmClear) {
+                        e.target.checked = false;
+                        return;
+                    }
+                    // Clear files
+                    selectedFiles = [];
+                    renderFiles();
+                }
+                uploadSection.classList.add('upload-disabled');
+                fileInput.disabled = true;
+                document.getElementById('guidance-card').style.opacity = '0.5';
+            } else {
+                uploadSection.classList.remove('upload-disabled');
+                fileInput.disabled = false;
+                document.getElementById('guidance-card').style.opacity = '1';
+            }
+        });
+
+    </script>
+</body>
+</html>

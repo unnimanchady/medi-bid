@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Hospitals & Proposals | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40',
+                        secondary: '#0082CA',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                        success: '#10B981', 
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        softBlue: '#EFF6FF',
+                        softTeal: '#ECFDF5',
+                        tealAccent: '#14B8A6',
+                        softLavender: '#F5F3FF',
+                        lavenderAccent: '#8B5CF6',
+                        softAmber: '#FFFBEB',
+                        amberAccent: '#D97706',
+                        softPeach: '#FFF7ED',
+                        peachAccent: '#EA580C',
+                        softGreen: '#F0FDF4',
+                        greenAccent: '#15803D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.5s ease-out forwards;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        .dropdown-menu {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        .dropdown-menu.open {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        #mobile-menu {
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        /* Accordion Transitions */
+        .accordion-wrapper {
+            display: grid;
+            grid-template-rows: 1fr;
+            transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 1;
+        }
+        .accordion-wrapper.closed {
+            grid-template-rows: 0fr;
+            opacity: 0;
+        }
+        .accordion-inner {
+            overflow: hidden;
+        }
+
+        /* Print Styles */
+        @media print {
+            body { background: white; }
+            header, .no-print, #mobile-menu { display: none !important; }
+            main { max-width: 100%; margin: 0; padding: 0; }
+            .accordion-wrapper { grid-template-rows: 1fr !important; opacity: 1 !important; }
+            .accordion-inner { overflow: visible !important; }
+            .accordion-btn i { display: none; }
+            .shadow-sm, .shadow-card { box-shadow: none !important; border-color: #e5e7eb !important; }
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white relative">
+
+    <!-- AUTHENTICATED HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm no-print">
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-1 ml-6">
+                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
+                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
+                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-5">
+            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
+                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+            </button>
+
+            <div class="relative">
+                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                </button>
+                
+                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
+                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
+                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
+                    </div>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
+                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="shield" class="w-4 h-4 text-textMuted"></i> Privacy Settings</a>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i> Help & Support</a>
+                    <div class="h-[1px] bg-gray-100 my-1"></div>
+                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
+                </div>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE NAVIGATION -->
+    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm no-print">
+        <nav class="flex flex-col p-4 gap-1">
+            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
+            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</a>
+            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow w-full max-w-[1200px] mx-auto py-6 sm:py-8 px-4 sm:px-6 flex flex-col gap-6">
+        
+        <!-- BREADCRUMBS -->
+        <div class="flex items-center justify-between opacity-0 animate-fade-in no-print">
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2" aria-label="Breadcrumb">
+                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors hidden sm:inline">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
+                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors hidden sm:inline">My Requests</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
+                <a href="{{ url_for('patient_request_details') }}" class="hover:text-primary transition-colors hidden md:inline truncate">Request Details</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden md:inline"></i>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors truncate">Hospital Responses</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
+                <span class="text-textMain font-bold truncate">Compare</span>
+            </nav>
+            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex-shrink-0">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Back to Responses</span>
+                <span class="sm:hidden">Back</span>
+            </a>
+        </div>
+
+        <!-- HEADER CONTEXT -->
+        <div class="flex flex-col gap-3 opacity-0 animate-fade-in stagger-1">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-[24px] sm:text-[28px] font-extrabold text-primary tracking-tight">Compare Hospitals & Proposals</h1>
+                    <p class="text-[14px] sm:text-[15px] text-textMuted mt-1">Compare important treatment, hospital, service and cost information to help you evaluate your available options.</p>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 font-mono self-start mt-1">
+                    <span class="text-[12px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">MB-2026-8A39C2</span>
+                </div>
+            </div>
+            
+            <!-- Patient Guidance Card -->
+            <div class="bg-softTeal border border-teal-100 rounded-[16px] p-4 flex items-start gap-4 shadow-sm mt-2">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                    <i data-lucide="info" class="w-5 h-5 text-tealAccent"></i>
+                </div>
+                <div class="flex flex-col">
+                    <h3 class="text-[14px] font-bold text-textMain">Make an Informed Decision</h3>
+                    <p class="text-[13px] text-textMuted leading-relaxed mt-1">
+                        Treatment cost is one part of your decision. Consider the proposed treatment approach, healthcare provider expertise, accreditation, facilities, support services and your individual medical needs.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Print Actions -->
+        <div class="flex justify-end gap-3 opacity-0 animate-fade-in stagger-2 no-print mt-2">
+            <button onclick="window.print()" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2 rounded-xl text-[13px] transition-all hover:bg-gray-50 shadow-sm flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                <i data-lucide="printer" class="w-4 h-4"></i> Print Comparison
+            </button>
+        </div>
+
+        <!-- MOBILE LEGEND (Hidden on Desktop) -->
+        <div class="md:hidden bg-white border border-gray-200 rounded-[16px] p-4 shadow-sm opacity-0 animate-fade-in stagger-2 no-print">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-[14px] font-bold text-textMain">Comparing Options</h3>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="text-[12px] text-secondary font-semibold hover:underline">Change</a>
+            </div>
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-md bg-primary text-white flex items-center justify-center text-[11px] font-bold shadow-sm">A</div>
+                        <span class="text-[13px] font-bold text-textMain">Apollo Hospitals</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pb-3 border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-md bg-lavenderAccent text-white flex items-center justify-center text-[11px] font-bold shadow-sm">B</div>
+                        <span class="text-[13px] font-bold text-textMain">Bumrungrad International</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-md bg-secondary text-white flex items-center justify-center text-[11px] font-bold shadow-sm">F</div>
+                        <span class="text-[13px] font-bold text-textMain">Fortis Escorts Heart Institute</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESKTOP STICKY HEADER -->
+        <div class="hidden md:grid md:grid-cols-4 gap-6 sticky top-[80px] bg-white/95 backdrop-blur-sm z-40 py-4 border-b border-gray-200 shadow-sm opacity-0 animate-fade-in stagger-2 px-2 no-print rounded-b-lg">
+            <div class="col-span-1 flex flex-col justify-end pb-2">
+                <h2 class="text-[18px] font-extrabold text-primary">Comparing Options</h2>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13px] text-secondary font-semibold hover:underline mt-1 flex items-center gap-1"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Change Hospitals</a>
+            </div>
+            
+            <!-- Header 1 -->
+            <div class="col-span-1 flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group hover:border-gray-300 transition-colors">
+                <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="building" class="w-5 h-5 text-primary opacity-50"></i>
+                    </div>
+                    <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-1.5 py-0.5 rounded uppercase text-[9px] font-bold tracking-wider">
+                        <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
+                    </div>
+                </div>
+                <div class="flex flex-col mt-auto">
+                    <h3 class="text-[15px] font-bold text-textMain leading-tight truncate">Apollo Hospitals</h3>
+                    <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5"><i data-lucide="map-pin" class="w-3 h-3"></i> New Delhi, India</span>
+                </div>
+            </div>
+
+            <!-- Header 2 -->
+            <div class="col-span-1 flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group hover:border-gray-300 transition-colors">
+                <div class="absolute top-0 left-0 w-1 h-full bg-lavenderAccent"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="building" class="w-5 h-5 text-lavenderAccent opacity-50"></i>
+                    </div>
+                    <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-1.5 py-0.5 rounded uppercase text-[9px] font-bold tracking-wider">
+                        <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
+                    </div>
+                </div>
+                <div class="flex flex-col mt-auto">
+                    <h3 class="text-[15px] font-bold text-textMain leading-tight truncate">Bumrungrad Intl</h3>
+                    <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5"><i data-lucide="map-pin" class="w-3 h-3"></i> Bangkok, Thailand</span>
+                </div>
+            </div>
+
+            <!-- Header 3 -->
+            <div class="col-span-1 flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group hover:border-gray-300 transition-colors">
+                <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+                <div class="flex items-start justify-between mb-3">
+                    <div class="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="building" class="w-5 h-5 text-secondary opacity-50"></i>
+                    </div>
+                    <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-1.5 py-0.5 rounded uppercase text-[9px] font-bold tracking-wider">
+                        <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
+                    </div>
+                </div>
+                <div class="flex flex-col mt-auto">
+                    <h3 class="text-[15px] font-bold text-textMain leading-tight truncate">Fortis Escorts</h3>
+                    <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5"><i data-lucide="map-pin" class="w-3 h-3"></i> New Delhi, India</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARISON SECTIONS -->
+        <div class="flex flex-col gap-5 opacity-0 animate-fade-in stagger-3 pb-8">
+            
+            <!-- Category 1: Hospital Overview (Default Open) -->
+            <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-overview">
+                    <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="building-2" class="w-5 h-5 text-secondary"></i> Hospital Overview</h2>
+                    <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                </button>
+                <div id="section-overview" class="accordion-wrapper">
+                    <div class="accordion-inner">
+                        <!-- Accreditation -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Accreditation</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain font-medium">JCI Accredited</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain font-medium">JCI Accredited</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain font-medium">NABH Accredited</span></div>
+                            </div>
+                        </div>
+                        <!-- Hospital Type -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Hospital Type</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Multispecialty Hospital</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Multispecialty Hospital</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Specialty Cardiac Center</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 2: Medical Expertise (Default Open) -->
+            <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-expertise">
+                    <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="stethoscope" class="w-5 h-5 text-secondary"></i> Medical Expertise</h2>
+                    <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                </button>
+                <div id="section-expertise" class="accordion-wrapper">
+                    <div class="accordion-inner">
+                        <!-- Department -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Department / Specialty</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Cardiology & Heart Institute</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Cardiovascular Surgery Center</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Adult Cardiothoracic Surgery</span></div>
+                            </div>
+                        </div>
+                        <!-- Proposed Doctor -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Proposed Medical Team</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] text-textMain font-medium">Dr. Amit Singh</span>
+                                    <span class="text-[12px] text-textMuted mt-0.5">15+ years experience, 1,200+ procedures</span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] text-textMain font-medium">Multidisciplinary Team</span>
+                                    <span class="text-[12px] text-textMuted mt-0.5">Assigned upon arrival based on exact case</span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] text-textMuted italic">Not Specified</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 3: Proposed Treatment Plan (Default Open) -->
+            <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-treatment">
+                    <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="clipboard-list" class="w-5 h-5 text-secondary"></i> Proposed Treatment Plan</h2>
+                    <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                </button>
+                <div id="section-treatment" class="accordion-wrapper">
+                    <div class="accordion-inner">
+                        <!-- Procedure -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Proposed Procedure</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain font-semibold">Minimally Invasive CABG</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain font-semibold">Traditional CABG + Rehab</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain font-semibold">Beating Heart CABG (OPCAB)</span></div>
+                            </div>
+                        </div>
+                        <!-- Approach -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Treatment Approach Summary</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[13.5px] text-textMuted leading-relaxed">Minimally invasive approach to reduce recovery time. Includes pre-op stabilization and post-op rehab.</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[13.5px] text-textMuted leading-relaxed">Traditional sternotomy approach with a structured 5-day inpatient rehabilitation program included.</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[13.5px] text-textMuted leading-relaxed">Off-pump coronary artery bypass (OPCAB) procedure to minimize complications and avoid heart-lung machine.</span></div>
+                            </div>
+                        </div>
+                        <!-- Expected Stay -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Expected Stay</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] text-textMain">Hospital: <span class="font-bold">5–7 days</span></span>
+                                    <span class="text-[13px] text-textMuted mt-0.5">Total Destination: 14–21 days</span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] text-textMain">Hospital: <span class="font-bold">7–10 days</span></span>
+                                    <span class="text-[13px] text-textMuted mt-0.5">Total Destination: 21 days</span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[14px] text-textMain">Hospital: <span class="font-bold">6–8 days</span></span>
+                                    <span class="text-[13px] text-textMuted mt-0.5">Total Destination: 14–18 days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 4: Treatment Estimate (Default Open) -->
+            <div class="bg-white border-2 border-amber-100/50 rounded-[16px] overflow-hidden shadow-sm relative">
+                <!-- Neutral accent strip -->
+                <div class="absolute left-0 top-0 w-1 h-full bg-gray-200"></div>
+                <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-softAmber/30 hover:bg-softAmber/50 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print pl-6" aria-expanded="true" data-target="section-estimate">
+                    <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="calculator" class="w-5 h-5 text-amberAccent"></i> Treatment Estimate</h2>
+                    <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                </button>
+                <div id="section-estimate" class="accordion-wrapper pl-2">
+                    <div class="accordion-inner">
+                        <div class="px-5 py-3 bg-white text-[12px] text-textMuted italic border-t border-gray-100 flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-gray-400"></i>
+                            Treatment estimates may change based on medical evaluation, additional investigations, treatment requirements and other clinical factors.
+                        </div>
+                        
+                        <!-- Estimated Cost -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors bg-white">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Estimated Cost Range</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1 md:hidden">A</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[20px] font-extrabold text-primary">$8,500 – $10,000</span>
+                                    <span class="text-[12px] text-textMuted mt-0.5">USD</span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1 md:hidden">B</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[20px] font-extrabold text-primary">$12,000 – $14,000</span>
+                                    <span class="text-[12px] text-textMuted mt-0.5">USD</span>
+                                </div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-1 md:hidden">F</div>
+                                <div class="flex flex-col">
+                                    <span class="text-[20px] font-extrabold text-primary">$7,800 – $9,200</span>
+                                    <span class="text-[12px] text-textMuted mt-0.5">USD</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Validity -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors bg-white">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Estimate Validity</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">30 Days</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">60 Days</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">45 Days</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 5: Cost Inclusions & Exclusions (Default Collapsed) -->
+            <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="false" data-target="section-inclusions">
+                    <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="list-checks" class="w-5 h-5 text-secondary"></i> Cost Inclusions & Exclusions</h2>
+                    <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform rotate-180"></i>
+                </button>
+                <div id="section-inclusions" class="accordion-wrapper closed">
+                    <div class="accordion-inner">
+                        <!-- Standard Investigations -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Standard Investigations</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Medicines during admission -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Medicines (Admission)</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                        </div>
+
+                        <!-- Follow-up Consultation -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Follow-up Consultation</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <span class="text-[14px] text-textMuted flex items-center gap-1.5"><i data-lucide="minus" class="w-4 h-4"></i> Not Specified</span>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <span class="text-[14px] text-textMain flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4 text-success"></i> Included</span>
+                            </div>
+                        </div>
+
+                        <!-- Explicit Exclusions -->
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors bg-red-50/20">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Important Exclusions</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <ul class="text-[13px] text-textMuted list-disc pl-4 space-y-1">
+                                    <li>Complications requiring additional treatment</li>
+                                    <li>Companion meals</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <ul class="text-[13px] text-textMuted list-disc pl-4 space-y-1">
+                                    <li>Extended hospital stay beyond 10 days</li>
+                                    <li>Take-home medication</li>
+                                </ul>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <ul class="text-[13px] text-textMuted list-disc pl-4 space-y-1">
+                                    <li>Personal expenses</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 6: International Patient Support (Default Collapsed) -->
+            <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="false" data-target="section-support">
+                    <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="plane" class="w-5 h-5 text-secondary"></i> International Patient Support</h2>
+                    <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform rotate-180"></i>
+                </button>
+                <div id="section-support" class="accordion-wrapper closed">
+                    <div class="accordion-inner">
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Airport Pickup</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Available (Complimentary)</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Available ($50 Fee)</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Available</span></div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                            <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Language Support</div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">A</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">English, Arabic, Russian</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">B</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">Multiple (30+ Languages)</span></div>
+                            </div>
+                            <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">F</div>
+                                <div class="flex flex-col"><span class="text-[14px] text-textMain">English, Hindi</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Category (Always Open) -->
+            <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm mt-4 no-print">
+                <div class="w-full flex items-center p-4 sm:p-5 bg-gray-50 border-b border-gray-200">
+                    <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary">Your Next Steps</h2>
+                </div>
+                <div class="flex flex-col md:grid md:grid-cols-4 gap-4 p-4 sm:p-5">
+                    <div class="md:col-span-1 hidden md:block text-[14px] font-medium text-textMuted pt-2 pr-4">
+                        Review the complete proposal or save your private thoughts for each option. Shortlist your favorites to decide later.
+                    </div>
+                    
+                    <!-- Hosp 1 Actions -->
+                    <div class="md:col-span-1 flex flex-col gap-3 pb-6 border-b border-gray-100 md:border-b-0 md:pb-0">
+                        <span class="md:hidden text-[13px] font-bold text-textMain mb-2 flex items-center gap-2">
+                            <div class="w-5 h-5 rounded bg-primary text-white flex items-center justify-center text-[10px] font-bold shadow-sm">A</div> Apollo Hospitals
+                        </span>
+                        
+                        <a href="{{ url_for('patient_treatment_proposal_details') }}" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-blue-800 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-primary">
+                            View Full Proposal
+                        </a>
+                        <a href="{{ url_for('patient_hospital_profile') }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            View Hospital Profile
+                        </a>
+                        <button class="bg-white border border-gray-200 text-textMuted hover:text-lavenderAccent font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-purple-50 flex items-center justify-center gap-2 w-full focus:outline-none">
+                            <i data-lucide="star" class="w-4 h-4"></i> Shortlist
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label class="text-[12px] font-bold text-textMuted mb-1.5 block flex items-center justify-between">
+                                My Notes
+                                <i data-lucide="lock" class="w-3 h-3 text-gray-300" title="Private to you"></i>
+                            </label>
+                            <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[13px] text-textMain focus:outline-none focus:ring-2 focus:ring-secondary resize-none transition-shadow focus:bg-white" rows="3" placeholder="Add a private note..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Hosp 2 Actions -->
+                    <div class="md:col-span-1 flex flex-col gap-3 pb-6 border-b border-gray-100 md:border-b-0 md:pb-0">
+                        <span class="md:hidden text-[13px] font-bold text-textMain mb-2 flex items-center gap-2">
+                            <div class="w-5 h-5 rounded bg-lavenderAccent text-white flex items-center justify-center text-[10px] font-bold shadow-sm">B</div> Bumrungrad Intl
+                        </span>
+                        
+                        <a href="{{ url_for('patient_treatment_proposal_details') }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 hover:text-secondary hover:border-secondary text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-secondary">
+                            View Full Proposal
+                        </a>
+                        <a href="{{ url_for('patient_hospital_profile') }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            View Hospital Profile
+                        </a>
+                        <button class="bg-softLavender border border-purple-100 text-lavenderAccent font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-purple-100 flex items-center justify-center gap-2 w-full focus:outline-none">
+                            <i data-lucide="star" class="w-4 h-4 fill-lavenderAccent"></i> Shortlisted
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label class="text-[12px] font-bold text-textMuted mb-1.5 block flex items-center justify-between">
+                                My Notes
+                                <i data-lucide="lock" class="w-3 h-3 text-gray-300" title="Private to you"></i>
+                            </label>
+                            <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[13px] text-textMain focus:outline-none focus:ring-2 focus:ring-secondary resize-none transition-shadow focus:bg-white" rows="3" placeholder="Add a private note...">Consider this for the comprehensive rehab program.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Hosp 3 Actions -->
+                    <div class="md:col-span-1 flex flex-col gap-3">
+                        <span class="md:hidden text-[13px] font-bold text-textMain mb-2 flex items-center gap-2">
+                            <div class="w-5 h-5 rounded bg-secondary text-white flex items-center justify-center text-[10px] font-bold shadow-sm">F</div> Fortis Escorts
+                        </span>
+                        
+                        <a href="{{ url_for('patient_treatment_proposal_details') }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 hover:text-secondary hover:border-secondary text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-secondary">
+                            View Full Proposal
+                        </a>
+                        <a href="{{ url_for('patient_hospital_profile') }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            View Hospital Profile
+                        </a>
+                        <button class="bg-white border border-gray-200 text-textMuted hover:text-lavenderAccent font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-purple-50 flex items-center justify-center gap-2 w-full focus:outline-none">
+                            <i data-lucide="star" class="w-4 h-4"></i> Shortlist
+                        </button>
+                        
+                        <div class="mt-3">
+                            <label class="text-[12px] font-bold text-textMuted mb-1.5 block flex items-center justify-between">
+                                My Notes
+                                <i data-lucide="lock" class="w-3 h-3 text-gray-300" title="Private to you"></i>
+                            </label>
+                            <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[13px] text-textMain focus:outline-none focus:ring-2 focus:ring-secondary resize-none transition-shadow focus:bg-white" rows="3" placeholder="Add a private note..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto border-t border-gray-200 bg-white py-6 no-print">
+        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
+                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
+            </div>
+            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Mobile Menu & Profile Dropdown
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.contains('open');
+                if (isOpen) {
+                    mobileMenu.classList.remove('open');
+                } else {
+                    mobileMenu.classList.add('open');
+                    if(profileDropdown) profileDropdown.classList.remove('open');
+                }
+            });
+        }
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = profileDropdown.classList.contains('open');
+                if (isOpen) {
+                    profileDropdown.classList.remove('open');
+                } else {
+                    profileDropdown.classList.add('open');
+                    if(mobileMenu) mobileMenu.classList.remove('open');
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+
+        // Accordion Toggle Logic
+        document.querySelectorAll('.accordion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                const icon = btn.querySelector('i.transform');
+                const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+                
+                if (isExpanded) {
+                    // Close it
+                    btn.setAttribute('aria-expanded', 'false');
+                    target.classList.add('closed');
+                    icon.classList.add('rotate-180');
+                } else {
+                    // Open it
+                    btn.setAttribute('aria-expanded', 'true');
+                    target.classList.remove('closed');
+                    icon.classList.remove('rotate-180');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
