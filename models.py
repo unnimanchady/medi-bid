@@ -84,7 +84,32 @@ class PatientProfile(db.Model):
         nullable=True
     )
 
-    country = db.Column(
+    date_of_birth = db.Column(
+        db.Date,
+        nullable=False
+    )
+
+    gender = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    nationality = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    country_of_residence = db.Column(
+        db.String(100),
+        nullable=False
+    )
+    
+    city = db.Column(
+        db.String(100),
+        nullable=False
+    )
+    
+    passport_number = db.Column(
         db.String(100),
         nullable=True
     )

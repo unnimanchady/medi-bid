@@ -235,8 +235,18 @@
                 <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Personal Information</h2>
                 <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">Please provide your personal details.</p>
                 
+                {% if error %}
+                <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-bold">Registration Failed</p>
+                        <p>{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Form -->
-                <form id="step2-form" action="#" method="POST" class="flex flex-col gap-5">
+                <form id="step2-form" action="{{ url_for('patient_registration_step2') }}" method="POST" class="flex flex-col gap-5">
                     
                     <!-- Profile Photo (Optional) -->
                     <div class="flex flex-col gap-1.5 w-full">
@@ -264,13 +274,13 @@
                             <label for="first-name" class="text-[14px] font-bold text-gray-800 ml-1">First Name <span class="text-red-500" aria-hidden="true">*</span></label>
                             <input type="text" id="first-name" name="first-name" required aria-required="true"
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
-                                placeholder="John">
+                                placeholder="John" value="{{ request.form.get('first-name', '') }}">
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label for="last-name" class="text-[14px] font-bold text-gray-800 ml-1">Last Name <span class="text-red-500" aria-hidden="true">*</span></label>
                             <input type="text" id="last-name" name="last-name" required aria-required="true"
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
-                                placeholder="Doe">
+                                placeholder="Doe" value="{{ request.form.get('last-name', '') }}">
                         </div>
                     </div>
 
@@ -283,7 +293,8 @@
                                     <i data-lucide="calendar" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                                 </div>
                                 <input type="date" id="dob" name="dob" required aria-required="true"
-                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer"
+                                    value="{{ request.form.get('dob', '') }}">
                             </div>
                         </div>
 
@@ -292,7 +303,7 @@
                             <label class="text-[14px] font-bold text-gray-800 ml-1">Gender <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="grid grid-cols-3 gap-3">
                                 <label class="cursor-pointer relative block">
-                                    <input type="radio" name="gender" value="male" class="gender-radio sr-only" required aria-required="true">
+                                    <input type="radio" name="gender" value="male" class="gender-radio sr-only" required aria-required="true" {% if request.form.get('gender') == 'male' %}checked{% endif %}>
                                     <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
                                         <span class="text-[14px] font-semibold text-gray-700">Male</span>
                                         <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
@@ -301,7 +312,7 @@
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative block">
-                                    <input type="radio" name="gender" value="female" class="gender-radio sr-only">
+                                    <input type="radio" name="gender" value="female" class="gender-radio sr-only" {% if request.form.get('gender') == 'female' %}checked{% endif %}>
                                     <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
                                         <span class="text-[14px] font-semibold text-gray-700">Female</span>
                                         <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
@@ -310,7 +321,7 @@
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative block">
-                                    <input type="radio" name="gender" value="other" class="gender-radio sr-only">
+                                    <input type="radio" name="gender" value="other" class="gender-radio sr-only" {% if request.form.get('gender') == 'other' %}checked{% endif %}>
                                     <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
                                         <span class="text-[14px] font-semibold text-gray-700">Other</span>
                                         <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
@@ -374,7 +385,7 @@
                                 </div>
                                 <input type="text" id="city" name="city" required aria-required="true"
                                     class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
-                                    placeholder="e.g. New York">
+                                    placeholder="e.g. New York" value="{{ request.form.get('city', '') }}">
                             </div>
                         </div>
                         <div class="flex flex-col gap-1.5">
@@ -385,7 +396,7 @@
                                 </div>
                                 <input type="text" id="passport" name="passport"
                                     class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
-                                    placeholder="e.g. A1234567">
+                                    placeholder="e.g. A1234567" value="{{ request.form.get('passport', '') }}">
                             </div>
                         </div>
                     </div>
@@ -559,18 +570,7 @@
             }
         });
 
-        // Form Submission - Save Gender
-        const step2Form = document.getElementById('step2-form');
-        if (step2Form) {
-            step2Form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const genderInput = document.querySelector('input[name="gender"]:checked');
-                if (genderInput) {
-                    sessionStorage.setItem('medibid_patient_gender', genderInput.value.toLowerCase());
-                }
-                window.location.href = "{{ url_for('patient_registration_step3') }}";
-            });
-        }
+
         
         // Ensure keyboard interaction for custom radio buttons works smoothly
         const genderRadios = document.querySelectorAll('.gender-radio');
