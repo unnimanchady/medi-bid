@@ -16,6 +16,13 @@ class User(db.Model):
         nullable=False,
         index=True
     )
+    
+    phone = db.Column(
+    db.String(30),
+    unique=True,
+    nullable=True,
+    index=True
+)
 
     password_hash = db.Column(
         db.String(255),

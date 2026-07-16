@@ -259,8 +259,18 @@
                 <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Create Your Account</h2>
                 <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">Let's begin by creating your secure MediBid account.</p>
                 
+                {% if error %}
+                <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-bold">Registration Failed</p>
+                        <p>{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Form -->
-                <form id="registration-form" action="#" method="POST" class="flex flex-col gap-5">
+                <form id="registration-form" action="{{ url_for('patient_registration_step1') }}" method="POST" class="flex flex-col gap-5">
                     
                     <!-- Email Address -->
                     <div class="flex flex-col gap-1.5">
@@ -520,8 +530,6 @@
         confirmPasswordInput.addEventListener('input', validatePasswordMatch);
 
         registrationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
             const val = passwordInput.value;
             const checks = {
                 length: val.length >= 8,
@@ -535,17 +543,19 @@
             const isMatch = passwordInput.value === confirmPasswordInput.value;
 
             if (!isPasswordStrong) {
+                e.preventDefault();
                 passwordInput.focus();
                 return;
             }
             
             if (!isMatch) {
+                e.preventDefault();
                 validatePasswordMatch();
                 confirmPasswordInput.focus();
                 return;
             }
             
-            window.location.href = "{{ url_for('patient_registration_step2') }}";
+            // Allow form submission to proceed natively
         });
     </script>
 </body>

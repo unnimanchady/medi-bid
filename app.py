@@ -1,7 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from flask_migrate import Migrate
 from config import Config
-from models import db
+from models import db, User
+from werkzeug.security import generate_password_hash
+import re
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -23,9 +25,32 @@ def home():
 # PATIENT REGISTRATION
 # =========================================================
 
-@app.route("/patient/register/step-1")
+@app.route("/patient/register/step-1", methods=["GET", "POST"])
 def patient_registration_step1():
-    return render_template("patient-registration-step1.html")
+    error = None
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm-password", "")
+        
+        if not email or not password:
+            error = "Email and password are required."
+        elif password != confirm_password:
+            error = "Passwords do not match."
+        elif len(password) < 8 or not re.search(r"[A-Z]", password) or not re.search(r"[a-z]", password) or not re.search(r"[0-9]", password) or not re.search(r"[!@#$%^&*(),.?\":{}|<>\-_]", password):
+            error = "Password does not meet the security requirements."
+        else:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                error = "An account with this email already exists."
+            else:
+                hashed_pw = generate_password_hash(password)
+                new_user = User(email=email, password_hash=hashed_pw, role="patient")
+                db.session.add(new_user)
+                db.session.commit()
+                return redirect(url_for("patient_registration_step2"))
+
+    return render_template("patient-registration-step1.html", error=error)
 
 
 @app.route("/patient/register/step-2")
