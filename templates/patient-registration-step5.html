@@ -22,8 +22,8 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#0B1D40', // Deep Navy
-                        secondary: '#0082CA', // Bright Blue
+                        primary: '#0B1D40',
+                        secondary: '#0082CA',
                         textMain: '#111827',
                         textMuted: '#4B5563',
                         bgLight: '#F8F9FA',
@@ -33,10 +33,7 @@
                     },
                     boxShadow: {
                         'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
-                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
                         'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
-                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
                         'input': '0 2px 4px rgba(0,0,0,0.02)',
                         'input-focus': '0 0 0 4px rgba(0,130,202,0.15)',
                     }
@@ -50,13 +47,6 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        @keyframes float-subtle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-        .animate-float-subtle {
-            animation: float-subtle 5s ease-in-out infinite;
-        }
         @keyframes fade-in {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -64,50 +54,16 @@
         .animate-fade-in {
             animation: fade-in 1s ease-out forwards;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-custom {
-            animation: spin 1s linear infinite;
-        }
 
-        /* Custom Checkbox */
-        .custom-checkbox:checked + div {
-            border-color: #0082CA;
-            background-color: #0082CA;
+        /* Pill Checkboxes */
+        .pill-checkbox:checked + div {
+            background-color: #0B1D40;
+            color: #FFFFFF;
+            border-color: #0B1D40;
         }
-        .custom-checkbox:checked + div svg {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .custom-checkbox:focus-visible + div {
+        .pill-checkbox:focus-visible + div {
             outline: 2px solid #0082CA;
             outline-offset: 2px;
-        }
-        
-        .submit-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-        
-        /* Summary Section Transitions */
-        .summary-content {
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 1000px;
-            opacity: 1;
-            overflow: hidden;
-        }
-        .summary-collapsed .summary-content {
-            max-height: 0;
-            opacity: 0;
-        }
-        .chevron-icon {
-            transition: transform 0.3s ease;
-        }
-        .summary-collapsed .chevron-icon {
-            transform: rotate(-90deg);
         }
     </style>
 </head>
@@ -116,8 +72,8 @@
     <!-- HEADER -->
     <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
         <div class="flex items-center gap-6">
-            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0">
                     <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
                     <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
                     <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
@@ -129,21 +85,21 @@
                     <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
                 </div>
             </a>
-            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4 focus:outline-none focus:underline">
-                <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 Back to Home
             </a>
         </div>
         <div class="flex items-center gap-4 sm:gap-6">
-            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Change Language">
-                <i data-lucide="globe" class="w-5 h-5" aria-hidden="true"></i>
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium">
+                <i data-lucide="globe" class="w-5 h-5"></i>
                 <span class="hidden sm:block text-[14px]">English</span>
             </button>
-            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Help and Support">
-                <i data-lucide="help-circle" class="w-5 h-5" aria-hidden="true"></i>
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
                 <span class="hidden sm:block text-[14px]">Help</span>
             </button>
-            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-5 sm:px-6 py-2.5 rounded-full text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-5 py-2.5 rounded-full text-[14px] shadow-sm hover:shadow-premium">
                 Sign In
             </a>
         </div>
@@ -151,371 +107,262 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
-        
-        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-8 self-start focus:outline-none focus:underline">
-            <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium mb-8 self-start">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
             Back to Home
         </a>
 
         <!-- PAGE TITLE -->
         <div class="text-center mb-10 opacity-0 animate-fade-in">
             <h1 class="text-[32px] sm:text-[38px] font-extrabold text-primary leading-tight tracking-tight mb-3">
-                Review Your Treatment Request
+                Patient Registration
             </h1>
             <p class="text-[15px] sm:text-[16px] text-gray-500 font-medium max-w-[600px] mx-auto">
-                Please review your information before submitting your request to MediBid.
+                Tell us your preferences so relevant healthcare providers can better understand your treatment needs.
             </p>
-            <div class="flex items-center justify-center gap-2 mt-4 text-[13.5px] text-[#0082CA] font-medium bg-[#F0F9FF] border border-[#BDE0FE] px-4 py-2 rounded-full inline-flex">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                You can edit any section before submitting.
-            </div>
         </div>
 
-        <!-- REGISTRATION PROGRESS -->
-        <div class="w-full max-w-[600px] mb-10 sm:mb-12 opacity-0 animate-fade-in" style="animation-delay: 0.1s;">
+        <!-- PROGRESS INDICATOR -->
+        <div class="w-full max-w-[640px] mb-10 sm:mb-12 opacity-0 animate-fade-in" style="animation-delay: 0.1s;">
             <div class="w-full flex items-center justify-between mb-8 pb-6 relative z-10 px-2 sm:px-4">
                 <div class="absolute left-2 right-2 top-[7px] h-[2px] bg-gray-200 -z-10"></div>
-                <!-- Progress Line: 80% filled for Step 5 -->
+                <!-- Progress Line: Step 5 is active (approx 80%) -->
                 <div class="absolute left-2 top-[7px] w-[80%] h-[2px] bg-secondary -z-10 transition-all duration-500"></div>
                 
                 <!-- Account (Completed) -->
-                <div class="flex flex-col items-center justify-start relative w-4">
+                <div class="flex flex-col items-center relative w-4">
                     <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
-                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Account</span>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Account</span>
                 </div>
                 <!-- Personal (Completed) -->
-                <div class="flex flex-col items-center justify-start relative w-4">
+                <div class="flex flex-col items-center relative w-4">
                     <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
-                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Personal</span>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Personal</span>
                 </div>
                 <!-- Medical (Completed) -->
-                <div class="flex flex-col items-center justify-start relative w-4">
+                <div class="flex flex-col items-center relative w-4">
                     <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
-                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Medical</span>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Medical</span>
                 </div>
                 <!-- Documents (Completed) -->
-                <div class="flex flex-col items-center justify-start relative w-4">
+                <div class="flex flex-col items-center relative w-4">
                     <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
-                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Documents</span>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Documents</span>
                 </div>
-                <!-- Review (Active) -->
-                <div class="flex flex-col items-center justify-start relative w-4">
+                <!-- Preferences (Active) -->
+                <div class="flex flex-col items-center relative w-4">
                     <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
-                    <span class="text-[10.5px] font-bold text-secondary uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Review</span>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Preferences</span>
                 </div>
                 <!-- Submit -->
-                <div class="flex flex-col items-center justify-start relative w-4">
+                <div class="flex flex-col items-center relative w-4">
                     <div class="w-4 h-4 rounded-full bg-white border-[3px] border-gray-200"></div>
-                    <span class="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider absolute top-5 whitespace-nowrap hidden sm:block">Submit</span>
+                    <span class="text-[10.5px] font-bold text-gray-400 uppercase absolute top-5 hidden sm:block">Submit</span>
                 </div>
             </div>
         </div>
 
-        <!-- MAIN REVIEW CARD -->
-        <div class="w-full max-w-[680px] opacity-0 animate-fade-in" style="animation-delay: 0.2s;">
-            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-6 sm:p-10 md:p-12 relative overflow-visible">
-                
-                <!-- Inner Badge: Step 5 of 6 -->
-                <div class="flex items-center justify-start mb-8">
-                    <div class="inline-flex items-center gap-1.5 bg-[#EAF5FB] text-[#02649B] font-bold px-3.5 py-1.5 rounded-lg text-[12px] uppercase tracking-widest border border-[#D5EBF7]">
-                        Step 5 of 6
-                    </div>
-                </div>
-
-                <!-- REQUEST HIGHLIGHT CARD -->
-                <div class="bg-gradient-to-br from-primary to-[#051024] rounded-[24px] p-6 sm:p-8 mb-10 shadow-glow text-white relative overflow-hidden">
-                    <!-- Background Decor -->
-                    <div class="absolute right-[-40px] top-[-40px] opacity-10 pointer-events-none">
-                        <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                        </svg>
-                    </div>
-                    
-                    <div class="flex items-center gap-3 mb-5 relative z-10">
-                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
-                            <i data-lucide="clipboard-check" class="w-5 h-5 text-white"></i>
-                        </div>
-                        <h3 class="text-[18px] sm:text-[20px] font-extrabold tracking-tight">Your Treatment Request</h3>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 relative z-10">
-                        <div class="flex flex-col">
-                            <span class="text-[13px] text-blue-200 font-medium mb-1">Treatment Needed</span>
-                            <span class="text-[15px] font-bold" id="summary-treatment">Cardiology / Heart Surgery</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[13px] text-blue-200 font-medium mb-1">Preferred Location</span>
-                            <span class="text-[15px] font-bold" id="summary-location">India, Thailand</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[13px] text-blue-200 font-medium mb-1">Treatment Timeframe</span>
-                            <span class="text-[15px] font-bold" id="summary-timeframe">Within 1-2 Months</span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[13px] text-blue-200 font-medium mb-1">Medical Documents</span>
-                            <span class="text-[15px] font-bold flex items-center gap-2">
-                                <i data-lucide="file-text" class="w-4 h-4 text-blue-300"></i>
-                                <span id="summary-docs">2 Files Uploaded</span>
-                            </span>
-                        </div>
-                    </div>
+        <!-- FORM CARD -->
+        <div class="w-full max-w-[640px] opacity-0 animate-fade-in" style="animation-delay: 0.2s;">
+            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-6 sm:p-10 relative">
+                <div class="inline-flex items-center gap-1.5 bg-[#EAF5FB] text-[#02649B] font-bold px-3.5 py-1.5 rounded-lg text-[12px] uppercase tracking-widest border border-[#D5EBF7] mb-8">
+                    Step 5 of 6
                 </div>
                 
-                <!-- ALL SECTIONS -->
-                <div class="flex flex-col gap-6">
-
-                    <!-- SECTION 1: PERSONAL DETAILS -->
-                    <div class="border border-gray-200 rounded-[24px] bg-white overflow-hidden summary-section">
-                        <div class="p-5 sm:p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onclick="this.parentElement.classList.toggle('summary-collapsed')">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 flex-shrink-0">
-                                    <i data-lucide="user" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
-                                </div>
-                                <h4 class="text-[16px] font-extrabold text-primary">Personal Details</h4>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <a href="{{ url_for('patient_registration_step2') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary" onclick="event.stopPropagation();">
-                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
-                                </a>
-                                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 chevron-icon"></i>
-                            </div>
-                        </div>
-                        <div class="summary-content bg-bgLight border-t border-gray-100">
-                            <div class="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Full Name</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Sarah Jenkins</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Date of Birth</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">14 May 1985 (39 years)</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Gender</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Female</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Nationality</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">American</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Location</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">New York, USA</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Contact</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">sarah.j@example.com<br>+1 555-0198</div>
-                                </div>
-                            </div>
-                        </div>
+                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-8">Treatment Preferences</h2>
+                
+                {% if error %}
+                <div class="mb-8 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <strong class="block font-bold mb-1">There was a problem:</strong>
+                        <p>{{ error }}</p>
                     </div>
-
-                    <!-- SECTION 2: MEDICAL INFORMATION -->
-                    <div class="border border-gray-200 rounded-[24px] bg-white overflow-hidden summary-section">
-                        <div class="p-5 sm:p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onclick="this.parentElement.classList.toggle('summary-collapsed')">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 flex-shrink-0">
-                                    <i data-lucide="activity" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
-                                </div>
-                                <h4 class="text-[16px] font-extrabold text-primary">Medical Information</h4>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <a href="{{ url_for('patient_registration_step3') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary" onclick="event.stopPropagation();">
-                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
-                                </a>
-                                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 chevron-icon"></i>
-                            </div>
-                        </div>
-                        <div class="summary-content bg-bgLight border-t border-gray-100">
-                            <div class="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
-                                <div class="sm:col-span-2">
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Primary Condition & Specialty</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Heart Disease (Cardiology)</div>
-                                </div>
-                                <div class="sm:col-span-2">
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Current Diagnosis / Symptoms</div>
-                                    <div class="text-[14px] text-gray-800 leading-relaxed bg-white border border-gray-200 p-3 rounded-xl mt-1">
-                                        Experiencing chest pain and shortness of breath during mild physical activity. Diagnosed with mild coronary artery blockage.
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Previous Treatments</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Medication therapy</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Allergies</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Penicillin</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 3: TREATMENT PREFERENCES -->
-                    <div class="border border-gray-200 rounded-[24px] bg-white overflow-hidden summary-section">
-                        <div class="p-5 sm:p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onclick="this.parentElement.classList.toggle('summary-collapsed')">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 flex-shrink-0">
-                                    <i data-lucide="heart-handshake" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
-                                </div>
-                                <h4 class="text-[16px] font-extrabold text-primary">Treatment Preferences</h4>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <a href="{{ url_for('patient_registration_step3') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary" onclick="event.stopPropagation();">
-                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
-                                </a>
-                                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 chevron-icon"></i>
-                            </div>
-                        </div>
-                        <div class="summary-content bg-bgLight border-t border-gray-100">
-                            <div class="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Location Preference</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Worldwide (Preferred: India, Thailand)</div>
-                                </div>
-                                <div>
-                                    <div class="text-[12px] text-gray-500 font-medium mb-0.5">Expected Timeframe</div>
-                                    <div class="text-[14.5px] text-gray-900 font-semibold">Within 1-2 Months</div>
-                                </div>
-                                <div class="sm:col-span-2">
-                                    <div class="text-[12px] text-gray-500 font-medium mb-2">Requested Assistance</div>
-                                    <div class="flex flex-wrap gap-2">
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-lg text-[13px] font-semibold text-gray-700 shadow-sm"><i data-lucide="check" class="w-3.5 h-3.5 text-green-600"></i> Visa Assistance</span>
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-lg text-[13px] font-semibold text-gray-700 shadow-sm"><i data-lucide="check" class="w-3.5 h-3.5 text-green-600"></i> Accommodation</span>
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-lg text-[13px] font-semibold text-gray-700 shadow-sm"><i data-lucide="check" class="w-3.5 h-3.5 text-green-600"></i> Airport Pickup</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 4: MEDICAL DOCUMENTS -->
-                    <div class="border border-gray-200 rounded-[24px] bg-white overflow-hidden summary-section">
-                        <div class="p-5 sm:p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors" onclick="this.parentElement.classList.toggle('summary-collapsed')">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 flex-shrink-0">
-                                    <i data-lucide="file-text" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
-                                </div>
-                                <h4 class="text-[16px] font-extrabold text-primary">Medical Documents</h4>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <a href="{{ url_for('patient_registration_step4') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary" onclick="event.stopPropagation();">
-                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Manage
-                                </a>
-                                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 chevron-icon"></i>
-                            </div>
-                        </div>
-                        <div class="summary-content bg-bgLight border-t border-gray-100">
-                            <div class="p-5 sm:p-6">
-                                <div class="flex flex-col gap-3">
-                                    <!-- Document 1 -->
-                                    <div class="flex items-center justify-between bg-white border border-gray-200 p-3.5 rounded-xl shadow-sm">
-                                        <div class="flex items-center gap-3">
-                                            <i data-lucide="file-text" class="w-5 h-5 text-red-500"></i>
-                                            <div class="flex flex-col">
-                                                <span class="text-[14px] font-bold text-gray-800">Latest_Blood_Test_Results.pdf</span>
-                                                <span class="text-[12px] text-gray-500">Laboratory Report • 2.4 MB</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Document 2 -->
-                                    <div class="flex items-center justify-between bg-white border border-gray-200 p-3.5 rounded-xl shadow-sm">
-                                        <div class="flex items-center gap-3">
-                                            <i data-lucide="image" class="w-5 h-5 text-blue-500"></i>
-                                            <div class="flex flex-col">
-                                                <span class="text-[14px] font-bold text-gray-800">Chest_XRay_Front.jpg</span>
-                                                <span class="text-[12px] text-gray-500">X-Ray • 4.1 MB</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
+                {% endif %}
 
-                <hr class="border-gray-100 my-10">
-
-                <!-- CONSENT & CONFIRMATION -->
-                <form id="submission-form" action="/patient-registration-success" method="POST" class="flex flex-col w-full">
+                <form action="{{ url_for('patient_registration_step5') }}" method="POST" class="flex flex-col gap-10">
                     
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
-                            <i data-lucide="check-square" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
-                        </div>
-                        <h3 class="text-[18px] font-extrabold text-primary">Consent & Confirmation</h3>
-                    </div>
-
+                    <!-- URGENCY SECTION -->
                     <div class="flex flex-col gap-5">
+                        <div>
+                            <h3 class="text-[16px] font-bold text-gray-800 mb-2">When are you hoping to receive treatment? <span class="text-red-500">*</span></h3>
+                            <div class="p-3 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+                                <i data-lucide="info" class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"></i>
+                                <p class="text-[13px] text-red-800 leading-relaxed font-medium">
+                                    <strong class="font-bold">MediBid is not an emergency service.</strong> If you are experiencing a medical emergency, please contact your local emergency services immediately.
+                                </p>
+                            </div>
+                        </div>
                         
-                        <!-- Checkbox 1 -->
-                        <label class="flex items-start gap-3.5 cursor-pointer group">
-                            <div class="relative flex items-center justify-center mt-0.5 flex-shrink-0">
-                                <input type="checkbox" id="consent-accurate" class="custom-checkbox sr-only consent-check" required>
-                                <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
-                                    <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <span class="text-[14px] font-medium text-gray-700 leading-relaxed select-none">
-                                I confirm that the information I have provided is accurate to the best of my knowledge.
-                            </span>
-                        </label>
+                        <div class="flex flex-col gap-3">
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-red-500 has-[:checked]:bg-red-50">
+                                <input type="radio" name="timeframe" value="As soon as possible" class="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300" required {% if preferences.get('timeframe') == 'As soon as possible' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">As soon as possible</span>
+                            </label>
+                            
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50">
+                                <input type="radio" name="timeframe" value="Within 1 week" class="w-4 h-4 text-orange-500 focus:ring-orange-500 border-gray-300" required {% if preferences.get('timeframe') == 'Within 1 week' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Within 1 week</span>
+                            </label>
 
-                        <!-- Checkbox 2 -->
-                        <label class="flex items-start gap-3.5 cursor-pointer group">
-                            <div class="relative flex items-center justify-center mt-0.5 flex-shrink-0">
-                                <input type="checkbox" id="consent-share" class="custom-checkbox sr-only consent-check" required>
-                                <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
-                                    <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <span class="text-[14px] font-medium text-gray-700 leading-relaxed select-none">
-                                I consent to MediBid securely sharing the necessary medical information and documents with relevant healthcare providers for the purpose of evaluating my treatment request and preparing Treatment Estimates & Proposals.
-                            </span>
-                        </label>
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50">
+                                <input type="radio" name="timeframe" value="Within 1 month" class="w-4 h-4 text-amber-500 focus:ring-amber-500 border-gray-300" required {% if preferences.get('timeframe') == 'Within 1 month' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Within 1 month</span>
+                            </label>
 
-                        <!-- Checkbox 3 -->
-                        <label class="flex items-start gap-3.5 cursor-pointer group">
-                            <div class="relative flex items-center justify-center mt-0.5 flex-shrink-0">
-                                <input type="checkbox" id="consent-terms" class="custom-checkbox sr-only consent-check" required>
-                                <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
-                                    <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <span class="text-[14px] font-medium text-gray-700 leading-relaxed select-none">
-                                I agree to MediBid's <a href="#" class="text-secondary font-bold hover:underline">Terms of Service</a> and <a href="#" class="text-secondary font-bold hover:underline">Privacy Policy</a>.
-                            </span>
-                        </label>
-                        
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <input type="radio" name="timeframe" value="Within 3 months" class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300" required {% if preferences.get('timeframe') == 'Within 3 months' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Within 3 months</span>
+                            </label>
+
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-teal-500 has-[:checked]:bg-teal-50">
+                                <input type="radio" name="timeframe" value="Flexible / Not sure" class="w-4 h-4 text-teal-600 focus:ring-teal-500 border-gray-300" required {% if preferences.get('timeframe') == 'Flexible / Not sure' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Flexible / Not sure</span>
+                            </label>
+                        </div>
                     </div>
 
-                    <!-- Validation Message -->
-                    <div id="validation-msg" class="hidden mt-4 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
-                        <i data-lucide="alert-circle" class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5"></i>
-                        <p class="text-[13.5px] text-red-700 font-medium">Please accept all consent checkboxes to submit your request.</p>
+                    <hr class="border-gray-100">
+
+                    <!-- LOCATION PREFERENCE -->
+                    <div class="flex flex-col gap-5">
+                        <div>
+                            <h3 class="text-[16px] font-bold text-gray-800 mb-1.5">Where would you prefer to receive treatment? <span class="text-red-500">*</span></h3>
+                        </div>
+                        
+                        <div class="flex flex-col gap-3">
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-secondary has-[:checked]:bg-blue-50">
+                                <input type="radio" name="location" value="Near me" class="w-4 h-4 text-secondary focus:ring-secondary border-gray-300" required onchange="toggleCountries()" {% if preferences.get('location_preference') == 'Near me' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Near me</span>
+                            </label>
+                            
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-secondary has-[:checked]:bg-blue-50">
+                                <input type="radio" name="location" value="My state / region" class="w-4 h-4 text-secondary focus:ring-secondary border-gray-300" required onchange="toggleCountries()" {% if preferences.get('location_preference') == 'My state / region' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">My state / region</span>
+                            </label>
+
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-secondary has-[:checked]:bg-blue-50">
+                                <input type="radio" name="location" value="Anywhere in my country" class="w-4 h-4 text-secondary focus:ring-secondary border-gray-300" required onchange="toggleCountries()" {% if preferences.get('location_preference') == 'Anywhere in my country' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Anywhere in my country</span>
+                            </label>
+
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-secondary has-[:checked]:bg-blue-50">
+                                <input type="radio" name="location" id="loc-specific" value="Specific countries" class="w-4 h-4 text-secondary focus:ring-secondary border-gray-300" required onchange="toggleCountries()" {% if preferences.get('location_preference') == 'Specific countries' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Specific countries</span>
+                            </label>
+                            
+                            <!-- Specific Countries Container -->
+                            <div id="specific-countries-container" class="hidden pl-8 pr-2 py-2 flex flex-col gap-2">
+                                <label class="text-[13px] font-semibold text-gray-600">Search and select preferred countries:</label>
+                                <div class="relative w-full sm:w-2/3" id="country-multiselect-component">
+                                    <!-- Selected Chips Container -->
+                                    <div id="selected-countries-wrapper" class="flex flex-wrap gap-2 mb-2 empty:hidden"></div>
+                                    
+                                    <!-- Search Input -->
+                                    <div class="relative">
+                                        <input type="text" id="country-search" autocomplete="off" placeholder="Type to search countries..." class="w-full bg-white border border-gray-200 text-gray-900 text-[14px] rounded-xl focus:ring-input-focus focus:border-secondary px-4 py-3 shadow-input outline-none transition-all">
+                                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute right-4 top-3.5 pointer-events-none"></i>
+                                    </div>
+                                    
+                                    <!-- Dropdown Results -->
+                                    <div id="country-dropdown" class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-dropdown max-h-[200px] overflow-y-auto hidden"></div>
+
+                                    <!-- Hidden inputs container for form submission -->
+                                    <div id="hidden-countries-inputs"></div>
+                                </div>
+                                <div id="country-validation-error" class="text-red-500 text-[13.5px] font-medium hidden mt-1 flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-4 h-4"></i> Please select at least one country.</div>
+                            </div>
+
+                            <label class="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors group has-[:checked]:border-secondary has-[:checked]:bg-blue-50">
+                                <input type="radio" name="location" value="Worldwide" class="w-4 h-4 text-secondary focus:ring-secondary border-gray-300" required onchange="toggleCountries()" {% if preferences.get('location_preference') == 'Worldwide' %}checked{% endif %}>
+                                <span class="ml-3 text-[14.5px] font-semibold text-gray-800">Worldwide / Open to all locations</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <!-- ASSISTANCE -->
+                    <div class="flex flex-col gap-5">
+                        <div>
+                            <h3 class="text-[16px] font-bold text-gray-800 mb-1.5">Do you need any additional assistance? <span class="text-gray-400 font-normal">(Optional)</span></h3>
+                            <p class="text-[13px] text-gray-500 font-medium">Availability of support services may vary by healthcare provider and destination.</p>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-3">
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="assistance" value="Visa assistance" class="pill-checkbox assistance-opt sr-only" {% if 'Visa assistance' in preferences.get('assistance', []) %}checked{% endif %}>
+                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                    Visa assistance
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="assistance" value="Accommodation assistance" class="pill-checkbox assistance-opt sr-only" {% if 'Accommodation assistance' in preferences.get('assistance', []) %}checked{% endif %}>
+                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                    Accommodation assistance
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="assistance" value="Airport pickup / transportation" class="pill-checkbox assistance-opt sr-only" {% if 'Airport pickup / transportation' in preferences.get('assistance', []) %}checked{% endif %}>
+                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                    Airport pickup / transportation
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="assistance" value="Language / interpreter assistance" class="pill-checkbox assistance-opt sr-only" {% if 'Language / interpreter assistance' in preferences.get('assistance', []) %}checked{% endif %}>
+                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                    Language / interpreter assistance
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="assistance" value="Financial assistance information" class="pill-checkbox assistance-opt sr-only" {% if 'Financial assistance information' in preferences.get('assistance', []) %}checked{% endif %}>
+                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                    Financial assistance information
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="assistance" value="None" id="assistance-none" class="pill-checkbox sr-only" {% if 'None' in preferences.get('assistance', []) %}checked{% endif %}>
+                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                    None
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <!-- ADDITIONAL PREFERENCES -->
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <h3 class="text-[16px] font-bold text-gray-800 mb-1.5">Anything else you would like healthcare providers to know? <span class="text-gray-400 font-normal">(Optional)</span></h3>
+                            <p class="text-[13px] text-gray-500 font-medium">Do not include passwords, financial account details, or unrelated sensitive information.</p>
+                        </div>
+                        
+                        <div class="relative">
+                            <textarea name="additional_notes" id="additional_notes" rows="4" maxlength="1000"
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all outline-none resize-y" 
+                                placeholder="Enter any additional preferences...">{{ preferences.get('additional_notes', '') }}</textarea>
+                            <div class="absolute bottom-3 right-4 flex items-center pointer-events-none">
+                                <span class="text-gray-400 font-medium text-[12px]" id="char-count">0</span>
+                                <span class="text-gray-400 font-medium text-[12px]">&nbsp;/ 1000</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Bottom Buttons -->
-                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 mt-10">
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 mt-6">
                         <a href="{{ url_for('patient_registration_step4') }}" 
                             class="px-6 py-4 rounded-full border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
                             Back
                         </a>
-                        
-                        <button type="submit" id="submit-btn" disabled
-                            class="submit-btn bg-primary hover:bg-blue-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-2 ml-auto">
-                            <span id="submit-text">Submit Treatment Request</span>
-                            <i data-lucide="check-circle" id="submit-icon" class="w-5 h-5"></i>
-                            <i data-lucide="loader-2" id="submit-loader" class="w-5 h-5 hidden animate-spin-custom"></i>
+                        <button type="submit"
+                            class="bg-primary hover:bg-blue-800 text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-2 ml-auto">
+                            <span>Save & Continue</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
                         </button>
                     </div>
-                    
+
                 </form>
             </main>
         </div>
@@ -539,58 +386,156 @@
     <script>
         lucide.createIcons();
 
-        // Consent Validation Logic
-        const consentChecks = document.querySelectorAll('.consent-check');
-        const submitBtn = document.getElementById('submit-btn');
-        const submitText = document.getElementById('submit-text');
-        const submitIcon = document.getElementById('submit-icon');
-        const submitLoader = document.getElementById('submit-loader');
-        const validationMsg = document.getElementById('validation-msg');
-        const form = document.getElementById('submission-form');
+        // Specific Countries Multiselect Logic
+        const specificRadio = document.getElementById('loc-specific');
+        const countriesContainer = document.getElementById('specific-countries-container');
+        const searchInput = document.getElementById('country-search');
+        const dropdown = document.getElementById('country-dropdown');
+        const chipsWrapper = document.getElementById('selected-countries-wrapper');
+        const hiddenInputsContainer = document.getElementById('hidden-countries-inputs');
+        const validationError = document.getElementById('country-validation-error');
+        
+        const allCountries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"];
+        
+        let selectedCountries = {{ preferences.get('specific_countries', []) | tojson | safe }};
+        if (!Array.isArray(selectedCountries)) selectedCountries = [];
 
-        function checkConsent() {
-            let allChecked = true;
-            consentChecks.forEach(cb => {
-                if (!cb.checked) allChecked = false;
-            });
+        function renderChips() {
+            chipsWrapper.innerHTML = '';
+            hiddenInputsContainer.innerHTML = '';
             
-            if (allChecked) {
-                submitBtn.removeAttribute('disabled');
-                validationMsg.classList.add('hidden');
+            selectedCountries.forEach(country => {
+                const chip = document.createElement('div');
+                chip.className = 'inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-900 px-3 py-1.5 rounded-lg text-[13px] font-semibold whitespace-normal';
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = country;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'text-blue-500 hover:text-red-500 focus:outline-none focus:text-red-500 transition-colors ml-1 p-0.5 rounded-md';
+                removeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+                
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedCountries = selectedCountries.filter(c => c !== country);
+                    renderChips();
+                    if (selectedCountries.length > 0) validationError.classList.add('hidden');
+                };
+                
+                chip.appendChild(textSpan);
+                chip.appendChild(removeBtn);
+                chipsWrapper.appendChild(chip);
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'countries';
+                hiddenInput.value = country;
+                hiddenInputsContainer.appendChild(hiddenInput);
+            });
+        }
+
+        function renderDropdown(query = '') {
+            dropdown.innerHTML = '';
+            const lowerQuery = query.toLowerCase();
+            const filtered = allCountries.filter(c => 
+                c.toLowerCase().includes(lowerQuery) && !selectedCountries.includes(c)
+            );
+            
+            if (filtered.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.className = 'px-4 py-3 text-[14px] text-gray-500 italic';
+                emptyMsg.textContent = 'No countries found.';
+                dropdown.appendChild(emptyMsg);
             } else {
-                submitBtn.setAttribute('disabled', 'true');
+                filtered.forEach(country => {
+                    const item = document.createElement('div');
+                    item.className = 'px-4 py-2.5 text-[14px] text-gray-800 cursor-pointer hover:bg-blue-50 hover:text-secondary font-medium transition-colors';
+                    item.textContent = country;
+                    item.onclick = () => {
+                        selectedCountries.push(country);
+                        searchInput.value = '';
+                        dropdown.classList.add('hidden');
+                        renderChips();
+                        validationError.classList.add('hidden');
+                        searchInput.focus();
+                    };
+                    dropdown.appendChild(item);
+                });
             }
         }
 
-        consentChecks.forEach(cb => {
-            cb.addEventListener('change', checkConsent);
+        searchInput.addEventListener('focus', () => {
+            renderDropdown(searchInput.value);
+            dropdown.classList.remove('hidden');
         });
 
-        // Form Submission Logic
-        form.addEventListener('submit', (e) => {
-            e.preventDefault(); // Prevent immediate redirect for frontend demo
-
-            // Check if backend route exists (Mock logic)
-            // Replace with actual Flask fetch/AJAX when ready.
-            
-            // 1. Show Loading State
-            submitBtn.setAttribute('disabled', 'true');
-            submitText.textContent = 'Submitting request...';
-            submitIcon.classList.add('hidden');
-            submitLoader.classList.remove('hidden');
-            
-            // 2. Simulate Backend processing time
-            setTimeout(() => {
-                // Developer Note: Redirect to actual Flask route here.
-                // window.location.href = "{{ url_for('patient_registration_success') }}";
-                
-                // For demo purposes, we redirect to a placeholder success page:
-                window.location.href = "{{ url_for('patient_registration_success') }}";
-            }, 2000);
+        searchInput.addEventListener('input', (e) => {
+            renderDropdown(e.target.value);
+            dropdown.classList.remove('hidden');
         });
 
-        // Developer Note: 
-        // Data Preservation loading logic will be handled by the Flask backend passing Jinja context.
+        document.addEventListener('click', (e) => {
+            if (!document.getElementById('country-multiselect-component').contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function toggleCountries() {
+            if (specificRadio.checked) {
+                countriesContainer.classList.remove('hidden');
+                renderChips();
+            } else {
+                countriesContainer.classList.add('hidden');
+                selectedCountries = [];
+                renderChips();
+                validationError.classList.add('hidden');
+            }
+        }
+        
+        // Form Validation Interceptor
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                if (specificRadio.checked && selectedCountries.length === 0) {
+                    e.preventDefault();
+                    validationError.classList.remove('hidden');
+                    countriesContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+        
+        // Run once on load to maintain state if re-rendered
+        toggleCountries();
+
+        // Assistance Checkboxes Logic
+        const noneCheckbox = document.getElementById('assistance-none');
+        const otherCheckboxes = document.querySelectorAll('.assistance-opt');
+
+        noneCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherCheckboxes.forEach(cb => cb.checked = false);
+            }
+        });
+
+        otherCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (this.checked) {
+                    noneCheckbox.checked = false;
+                }
+            });
+        });
+
+        // Textarea Character Counter
+        const textarea = document.getElementById('additional_notes');
+        const charCount = document.getElementById('char-count');
+        
+        function updateCharCount() {
+            charCount.textContent = textarea.value.length;
+        }
+        
+        textarea.addEventListener('input', updateCharCount);
+        updateCharCount(); // Initialize
     </script>
 </body>
 </html>

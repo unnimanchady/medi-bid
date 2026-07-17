@@ -97,6 +97,17 @@
         .unit-toggle:checked + div > div {
             transform: translateX(100%);
         }
+
+        /* Hide Number Spinners to prevent overlap */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
     </style>
 </head>
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
@@ -233,6 +244,16 @@
                 <!-- Heading -->
                 <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Medical Information</h2>
                 <p class="text-[15px] text-gray-500 mb-10 leading-relaxed">Help hospitals understand your condition so they can provide accurate treatment estimates.</p>
+                
+                {% if error %}
+                <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-bold">Validation Failed</p>
+                        <p>{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
                 
                 <!-- Form -->
                 <form action="{{ url_for('patient_registration_step3') }}" method="POST" class="flex flex-col w-full">
@@ -430,9 +451,9 @@
 
                     <div class="flex flex-col gap-6">
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="flex flex-col lg:flex-row gap-5">
                             <!-- Blood Group -->
-                            <div class="flex flex-col gap-1.5">
+                            <div class="flex flex-col gap-1.5 lg:w-[25%] shrink-0">
                                 <label for="blood-group" class="text-[14px] font-bold text-gray-800 ml-1">Blood Group</label>
                                 <div class="relative">
                                     <select id="blood-group" name="blood-group"
@@ -454,7 +475,7 @@
                             </div>
 
                             <!-- Height & Weight Toggle Wrapper -->
-                            <div class="flex flex-col gap-1.5 relative">
+                            <div class="flex flex-col gap-1.5 relative w-full lg:w-[75%]">
                                 <div class="flex items-center justify-between ml-1 mb-1 sm:mb-0 sm:absolute sm:right-0 sm:-top-7">
                                     <!-- Metric/Imperial Toggle -->
                                     <label class="flex items-center gap-2 cursor-pointer relative z-10">
@@ -471,7 +492,7 @@
                                 
                                 <div class="grid grid-cols-2 gap-3" id="vitals-metric">
                                     <div class="relative">
-                                        <input type="number" name="height-cm"
+                                        <input type="number" name="height-cm" id="height-cm" min="30" max="250" step="any"
                                             class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
                                             placeholder="Height">
                                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -479,7 +500,7 @@
                                         </div>
                                     </div>
                                     <div class="relative">
-                                        <input type="number" name="weight-kg"
+                                        <input type="number" name="weight-kg" id="weight-kg" min="1" max="500" step="any"
                                             class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
                                             placeholder="Weight">
                                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -488,25 +509,40 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-3 hidden" id="vitals-imperial">
-                                    <div class="flex gap-2">
-                                        <div class="relative w-1/2">
-                                            <input type="number" name="height-ft"
-                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-3.5 pr-6 shadow-input transition-all duration-200 outline-none text-center" 
-                                                placeholder="ft">
-                                        </div>
-                                        <div class="relative w-1/2">
-                                            <input type="number" name="height-in"
-                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-3.5 pr-6 shadow-input transition-all duration-200 outline-none text-center" 
-                                                placeholder="in">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 hidden mt-1" id="vitals-imperial">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label for="height-ft" class="text-[13px] font-semibold text-gray-600 ml-1">Height (feet)</label>
+                                        <div class="relative">
+                                            <input type="number" name="height-ft" id="height-ft" min="1" max="8" step="1"
+                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
+                                                placeholder="e.g. 5">
+                                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                                <span class="text-gray-400 font-medium text-[13px]">ft</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="relative">
-                                        <input type="number" name="weight-lbs"
-                                            class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
-                                            placeholder="Weight">
-                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                            <span class="text-gray-400 font-medium text-[13px]">lbs</span>
+                                    
+                                    <div class="flex flex-col gap-1.5">
+                                        <label for="height-in" class="text-[13px] font-semibold text-gray-600 ml-1">Height (inches)</label>
+                                        <div class="relative">
+                                            <input type="number" name="height-in" id="height-in" min="0" max="11" step="1"
+                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
+                                                placeholder="e.g. 9">
+                                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                                <span class="text-gray-400 font-medium text-[13px]">in</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col gap-1.5">
+                                        <label for="weight-lbs" class="text-[13px] font-semibold text-gray-600 ml-1">Weight (lbs)</label>
+                                        <div class="relative">
+                                            <input type="number" name="weight-lbs" id="weight-lbs" min="2" max="1102" step="any"
+                                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-12 shadow-input transition-all duration-200 outline-none" 
+                                                placeholder="e.g. 150">
+                                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                                <span class="text-gray-400 font-medium text-[13px]">lbs</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -889,6 +925,130 @@
                 });
             });
         });
+
+        // 5. Height/Weight Validation
+        const numberInputs = [
+            document.getElementById('height-cm'),
+            document.getElementById('weight-kg'),
+            document.getElementById('height-ft'),
+            document.getElementById('height-in'),
+            document.getElementById('weight-lbs')
+        ];
+
+        numberInputs.forEach(input => {
+            if (!input) return;
+            
+            const isWholeNumberOnly = input.id === 'height-ft' || input.id === 'height-in';
+
+            input.addEventListener('keydown', function(e) {
+                // Allow control keys (backspace, delete, tab, arrows, ctrl/cmd shortcuts)
+                if (e.key.length !== 1 || e.ctrlKey || e.metaKey) return;
+                
+                // Disallow minus, plus, e, E
+                if (['-', '+', 'e', 'E'].includes(e.key)) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Disallow decimal point for whole number fields
+                if (isWholeNumberOnly && e.key === '.') {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Disallow anything that is not a number or decimal point
+                if (!/[0-9.]/.test(e.key)) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Prevent multiple decimal points
+                if (e.key === '.' && this.value.includes('.')) {
+                    e.preventDefault();
+                    return;
+                }
+            });
+
+            input.addEventListener('paste', function(e) {
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                
+                if (isWholeNumberOnly) {
+                    if (/[eE\-\+\.a-zA-Z]/.test(pasteData)) {
+                        e.preventDefault();
+                    }
+                } else {
+                    // Check if pasted data contains invalid characters or multiple decimals
+                    if (/[eE\-\+a-zA-Z]/.test(pasteData) || (pasteData.match(/\./g) || []).length > 1) {
+                        e.preventDefault();
+                    }
+                }
+            });
+            
+            input.addEventListener('input', function(e) {
+                // Fallback sanitization for drag-and-drop or edge cases
+                if (isWholeNumberOnly) {
+                    let sanitized = this.value.replace(/[eE\-\+\.a-zA-Z]/g, '');
+                    if (this.value !== sanitized) {
+                        this.value = sanitized;
+                    }
+                } else {
+                    let sanitized = this.value.replace(/[eE\-\+a-zA-Z]/g, '');
+                    const parts = sanitized.split('.');
+                    if (parts.length > 2) {
+                        sanitized = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    if (this.value !== sanitized) {
+                        this.value = sanitized;
+                    }
+                }
+            });
+        });
+
+        function validateInput(input, min, max, errorMsg) {
+            if (!input) return;
+            input.addEventListener('input', function() {
+                this.setCustomValidity('');
+                if (this.value) {
+                    const val = parseFloat(this.value);
+                    if (val < min || val > max) {
+                        this.setCustomValidity(errorMsg);
+                    }
+                }
+            });
+        }
+
+        validateInput(document.getElementById('height-cm'), 30, 250, 'Please enter a height between 30 cm and 250 cm.');
+        validateInput(document.getElementById('weight-kg'), 1, 500, 'Please enter a weight between 1 kg and 500 kg.');
+        validateInput(document.getElementById('height-ft'), 1, 8, 'Please enter a valid height between 1 ft and approximately 8 ft 2 in.');
+        validateInput(document.getElementById('height-in'), 0, 11, 'Please enter a valid height between 1 ft and approximately 8 ft 2 in.');
+        validateInput(document.getElementById('weight-lbs'), 2, 1102.3, 'Please enter a weight between 2 lbs and 1102 lbs.');
+        
+        // Custom check for imperial height combining ft and inches
+        const heightFt = document.getElementById('height-ft');
+        const heightIn = document.getElementById('height-in');
+        function validateImperialHeight() {
+            if (!heightFt || !heightIn) return;
+            heightFt.setCustomValidity('');
+            heightIn.setCustomValidity('');
+            
+            const ft = parseFloat(heightFt.value) || 0;
+            const inches = parseFloat(heightIn.value) || 0;
+            
+            if (heightFt.value || heightIn.value) {
+                const totalInches = (ft * 12) + inches;
+                if (totalInches < 11.8 || totalInches > 98.4) {
+                    const msg = 'Please enter a valid height between 1 ft and approximately 8 ft 2 in.';
+                    if (heightFt.value) heightFt.setCustomValidity(msg);
+                    else heightIn.setCustomValidity(msg);
+                }
+            }
+        }
+        
+        if (heightFt && heightIn) {
+            heightFt.addEventListener('input', validateImperialHeight);
+            heightIn.addEventListener('input', validateImperialHeight);
+        }
+
     </script>
 </body>
 </html>

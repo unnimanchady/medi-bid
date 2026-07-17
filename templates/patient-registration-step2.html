@@ -579,6 +579,31 @@
                 // Focus styling is handled by CSS, no extra JS needed for basic accessibility
             });
         });
+
+        // Date of Birth Validation
+        const dobInput = document.getElementById('dob');
+        if (dobInput) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const maxDate = `${year}-${month}-${day}`;
+            const minDate = `${year - 120}-${month}-${day}`;
+            
+            dobInput.max = maxDate;
+            dobInput.min = minDate;
+            
+            dobInput.addEventListener('input', function() {
+                this.setCustomValidity('');
+                if (this.value) {
+                    if (this.value > maxDate) {
+                        this.setCustomValidity('Date of birth cannot be in the future.');
+                    } else if (this.value < minDate) {
+                        this.setCustomValidity('Please enter a valid date of birth.');
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>

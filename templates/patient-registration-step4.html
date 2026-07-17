@@ -244,18 +244,20 @@
                 <!-- Form -->
                 <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='{{ url_for('patient_registration_step5') }}';" class="flex flex-col w-full">
                     
-                    <!-- Conditional Guidance Card (Simulated) -->
-                    <div id="guidance-card" class="bg-[#F0F9FF] border border-[#BDE0FE] rounded-[20px] p-4 flex gap-3.5 mb-8 relative overflow-hidden group">
-                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm border border-[#E0F2FE] relative z-10">
-                            <i data-lucide="activity" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                    <!-- Conditional Guidance Card (Dynamic) -->
+                    {% if recommendation_title %}
+                    <div id="guidance-card" class="bg-teal-50 border border-teal-200 rounded-[20px] p-5 flex gap-4 mb-8 relative overflow-hidden group shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm border border-teal-100 relative z-10">
+                            <i data-lucide="info" class="w-5 h-5 text-teal-600 stroke-[2.5]"></i>
                         </div>
                         <div class="flex flex-col relative z-10">
-                            <span class="text-[14px] font-bold text-[#02649B]">Cardiology Recommendations</span>
-                            <span class="text-[13px] text-[#0369A1] leading-relaxed mt-0.5 pr-4">
-                                Helpful documents may include ECG, Echo reports, angiograms and previous cardiology reports.
+                            <span class="text-[16px] font-extrabold text-teal-900 mb-1">{{ recommendation_title }}</span>
+                            <span class="text-[14px] text-teal-800 leading-relaxed pr-4">
+                                {{ recommendation_text | safe }}
                             </span>
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- NO DOCUMENTS OPTION -->
                     <div class="mb-6 flex items-start">

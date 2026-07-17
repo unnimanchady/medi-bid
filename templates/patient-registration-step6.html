@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Step 6 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40',
+                        secondary: '#0082CA',
+                        textMain: '#111827',
+                        textMuted: '#4B5563',
+                        bgLight: '#F8F9FA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 1s ease-out forwards;
+        }
+        
+        .review-section {
+            break-inside: avoid;
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                </div>
+            </a>
+            <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Home
+            </a>
+        </div>
+        <div class="flex items-center gap-4 sm:gap-6">
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium">
+                <i data-lucide="globe" class="w-5 h-5"></i>
+                <span class="hidden sm:block text-[14px]">English</span>
+            </button>
+            <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                <span class="hidden sm:block text-[14px]">Help</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+        <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium mb-8 self-start">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to Home
+        </a>
+
+        <!-- PAGE TITLE -->
+        <div class="text-center mb-10 opacity-0 animate-fade-in">
+            <h1 class="text-[32px] sm:text-[38px] font-extrabold text-primary leading-tight tracking-tight mb-3">
+                Patient Registration
+            </h1>
+            <p class="text-[15px] sm:text-[16px] text-gray-500 font-medium max-w-[600px] mx-auto">
+                Review & Submit<br>
+                <span class="text-gray-400 text-[14px] mt-1 block">Please review your information before submitting your treatment request.</span>
+            </p>
+        </div>
+
+        <!-- PROGRESS INDICATOR -->
+        <div class="w-full max-w-[640px] mb-10 sm:mb-12 opacity-0 animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="w-full flex items-center justify-between mb-8 pb-6 relative z-10 px-2 sm:px-4">
+                <div class="absolute left-2 right-2 top-[7px] h-[2px] bg-gray-200 -z-10"></div>
+                <!-- Progress Line: Step 6 is active (100%) -->
+                <div class="absolute left-2 top-[7px] w-full h-[2px] bg-secondary -z-10 transition-all duration-500"></div>
+                
+                <div class="flex flex-col items-center relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Account</span>
+                </div>
+                <div class="flex flex-col items-center relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Personal</span>
+                </div>
+                <div class="flex flex-col items-center relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Medical</span>
+                </div>
+                <div class="flex flex-col items-center relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Documents</span>
+                </div>
+                <div class="flex flex-col items-center relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Preferences</span>
+                </div>
+                <div class="flex flex-col items-center relative w-4">
+                    <div class="w-4 h-4 rounded-full bg-secondary border-2 border-white ring-2 ring-secondary/20 shadow-sm"></div>
+                    <span class="text-[10.5px] font-bold text-secondary uppercase absolute top-5 hidden sm:block">Submit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM CARD -->
+        <div class="w-full max-w-[800px] opacity-0 animate-fade-in" style="animation-delay: 0.2s;">
+            
+            {% if error %}
+            <div class="mb-8 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3 shadow-sm">
+                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                <div>
+                    <strong class="block font-bold mb-1">There was a problem:</strong>
+                    <p>{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="flex flex-col gap-6">
+                <!-- ACCOUNT INFO -->
+                <div class="bg-white rounded-[24px] shadow-card border border-gray-100 p-6 sm:p-8 relative review-section">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                                <i data-lucide="user" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                            </div>
+                            <h2 class="text-[18px] font-extrabold text-primary">Account Information</h2>
+                        </div>
+                        <a href="{{ url_for('patient_registration_step1') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Email</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ user.email }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Phone Number</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ user.phone if user.phone else 'Not provided' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PERSONAL DETAILS -->
+                <div class="bg-white rounded-[24px] shadow-card border border-gray-100 p-6 sm:p-8 relative review-section">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                                <i data-lucide="info" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                            </div>
+                            <h2 class="text-[18px] font-extrabold text-primary">Personal Details</h2>
+                        </div>
+                        <a href="{{ url_for('patient_registration_step2') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Full Name</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.first_name }} {{ profile.last_name }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Date of Birth</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.date_of_birth.strftime('%B %d, %Y') if profile.date_of_birth else 'N/A' }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Gender</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.gender }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Nationality</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.nationality }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Residence</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.city }}, {{ profile.country_of_residence }}</span>
+                        </div>
+                        {% if profile.passport_number %}
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Passport Number</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.passport_number }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- MEDICAL INFORMATION -->
+                <div class="bg-white rounded-[24px] shadow-card border border-gray-100 p-6 sm:p-8 relative review-section">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                                <i data-lucide="activity" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                            </div>
+                            <h2 class="text-[18px] font-extrabold text-primary">Medical Information</h2>
+                        </div>
+                        <a href="{{ url_for('patient_registration_step3') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
+                        {% if specialty %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Specialty Required</span>
+                            <span class="text-[15px] font-bold text-secondary">{{ specialty }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if medical.get('condition') %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Medical Condition</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ medical.get('condition') }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if medical.get('diagnosis') %}
+                        <div class="col-span-1 sm:col-span-2 bg-gray-50 p-4 rounded-xl">
+                            <span class="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Diagnosis / Reason for Treatment</span>
+                            <p class="text-[14px] text-gray-800 leading-relaxed">{{ medical.get('diagnosis') }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if medical.get('symptoms') %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Symptoms</span>
+                            <p class="text-[14px] text-gray-800 leading-relaxed">{{ medical.get('symptoms') }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if medical.get('previous_treatments') %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Previous Treatments / Surgeries</span>
+                            <p class="text-[14px] text-gray-800 leading-relaxed">{{ medical.get('previous_treatments') }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if medical.get('medications') %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Current Medications</span>
+                            <p class="text-[14px] text-gray-800 leading-relaxed">{{ medical.get('medications') }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Blood Group</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ medical.get('blood_group') if medical.get('blood_group') else 'Not provided' }}</span>
+                        </div>
+                        
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Physical Metrics</span>
+                            <span class="text-[15px] font-medium text-gray-900">
+                                {% if medical.get('height_cm') %} {{ medical.get('height_cm') }} cm {% elif medical.get('height_ft') or medical.get('height_in') %} {{ medical.get('height_ft')|default('0', true) }} ft {{ medical.get('height_in')|default('0', true) }} in {% endif %}
+                                {% if (medical.get('height_cm') or medical.get('height_ft')) and (medical.get('weight_kg') or medical.get('weight_lbs')) %} | {% endif %}
+                                {% if medical.get('weight_kg') %} {{ medical.get('weight_kg') }} kg {% elif medical.get('weight_lbs') %} {{ medical.get('weight_lbs') }} lbs {% endif %}
+                            </span>
+                        </div>
+
+                        {% if medical.get('allergies') %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Allergies</span>
+                            <div class="flex flex-wrap gap-2">
+                                {% for allergy in medical.get('allergies') %}
+                                    <span class="inline-flex bg-red-50 text-red-700 border border-red-100 px-3 py-1 rounded-md text-[13px] font-medium">
+                                        {{ allergy }}{% if allergy == 'Other' and medical.get('allergy_other_text') %}: {{ medical.get('allergy_other_text') }}{% endif %}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if profile.pregnancy_status %}
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Pregnancy Status</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.pregnancy_status }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if medical.get('emergency_name') or medical.get('emergency_phone') %}
+                        <div class="col-span-1 sm:col-span-2 mt-2 pt-4 border-t border-gray-100">
+                            <span class="block text-[13px] font-bold text-gray-700 mb-3">Emergency Contact</span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Name & Relationship</span>
+                                    <span class="text-[14px] font-medium text-gray-900">
+                                        {{ medical.get('emergency_name') }}
+                                        {% if medical.get('emergency_relationship') %} ({{ medical.get('emergency_relationship') }}) {% endif %}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Phone Number</span>
+                                    <span class="text-[14px] font-medium text-gray-900">
+                                        {{ medical.get('emergency_country_code') }} {{ medical.get('emergency_phone') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- MEDICAL DOCUMENTS -->
+                <div class="bg-white rounded-[24px] shadow-card border border-gray-100 p-6 sm:p-8 relative review-section">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                                <i data-lucide="file-text" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                            </div>
+                            <h2 class="text-[18px] font-extrabold text-primary">Medical Documents</h2>
+                        </div>
+                        <a href="{{ url_for('patient_registration_step4') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                        </a>
+                    </div>
+                    <div class="p-5 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-[13.5px] text-blue-900 font-medium leading-relaxed">
+                            Medical document upload storage will be completed during the secure file-upload backend implementation.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TREATMENT PREFERENCES -->
+                <div class="bg-white rounded-[24px] shadow-card border border-gray-100 p-6 sm:p-8 relative review-section">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                                <i data-lucide="globe" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                            </div>
+                            <h2 class="text-[18px] font-extrabold text-primary">Treatment Preferences</h2>
+                        </div>
+                        <a href="{{ url_for('patient_registration_step5') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 gap-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Treatment Timeframe</span>
+                                <span class="text-[15px] font-medium text-gray-900">{{ preferences.get('timeframe') }}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Location Preference</span>
+                                <span class="text-[15px] font-medium text-gray-900">
+                                    {{ preferences.get('location_preference') }}
+                                    {% if preferences.get('location_preference') == 'Specific countries' and preferences.get('specific_countries') %}
+                                        <br><span class="text-[13px] text-gray-500">{{ preferences.get('specific_countries') | join(', ') }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Requested Assistance</span>
+                            <div class="flex flex-wrap gap-2">
+                                {% set assistance = preferences.get('assistance', []) %}
+                                {% if not assistance or 'None' in assistance %}
+                                    <span class="text-[14px] text-gray-500 italic">No additional assistance requested.</span>
+                                {% else %}
+                                    {% for item in assistance %}
+                                        <span class="inline-flex bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-md text-[13px] font-medium">
+                                            {{ item }}
+                                        </span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if preferences.get('additional_notes') %}
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <span class="block text-[12px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Additional Notes</span>
+                            <p class="text-[14px] text-gray-800 leading-relaxed">{{ preferences.get('additional_notes') }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONSENT AND SUBMIT -->
+            <form action="{{ url_for('patient_registration_step6') }}" method="POST" class="mt-10 mb-8 bg-white rounded-[24px] shadow-card border border-gray-100 p-6 sm:p-8">
+                
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100">
+                        <i data-lucide="check-square" class="w-4 h-4 text-secondary stroke-[2.5]"></i>
+                    </div>
+                    <h3 class="text-[18px] font-extrabold text-primary">Final Consent</h3>
+                </div>
+
+                <div class="flex flex-col gap-5 mb-8">
+                    <!-- Checkbox 1 -->
+                    <label class="flex items-start gap-3.5 cursor-pointer group">
+                        <div class="relative flex items-center justify-center mt-0.5 flex-shrink-0">
+                            <input type="checkbox" name="consent-accurate" value="yes" class="custom-checkbox sr-only consent-check" required>
+                            <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
+                                <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-[14px] font-medium text-gray-700 leading-relaxed select-none">
+                            I confirm that the information I have provided is accurate to the best of my knowledge.
+                        </span>
+                    </label>
+
+                    <!-- Checkbox 2 -->
+                    <label class="flex items-start gap-3.5 cursor-pointer group">
+                        <div class="relative flex items-center justify-center mt-0.5 flex-shrink-0">
+                            <input type="checkbox" name="consent-share" value="yes" class="custom-checkbox sr-only consent-check" required>
+                            <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
+                                <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-[14px] font-medium text-gray-700 leading-relaxed select-none">
+                            I consent to MediBid processing my information and medical data for the purpose of facilitating my treatment request in accordance with the <a href="#" class="text-secondary font-bold hover:underline">Privacy Policy</a> and <a href="#" class="text-secondary font-bold hover:underline">Terms of Service</a>.
+                        </span>
+                    </label>
+
+                    <!-- Checkbox 3 -->
+                    <label class="flex items-start gap-3.5 cursor-pointer group">
+                        <div class="relative flex items-center justify-center mt-0.5 flex-shrink-0">
+                            <input type="checkbox" name="consent-neutrality" value="yes" class="custom-checkbox sr-only consent-check" required>
+                            <div class="w-5 h-5 border-2 border-gray-300 rounded-[6px] bg-white transition-colors flex items-center justify-center group-hover:border-secondary">
+                                <svg class="w-3 h-3 text-white opacity-0 transform scale-50 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <span class="text-[14px] font-medium text-gray-700 leading-relaxed select-none">
+                            I understand that MediBid is a healthcare marketplace and does not provide medical advice, diagnose conditions, guarantee treatment outcomes, or recommend a particular hospital.
+                        </span>
+                    </label>
+                </div>
+                
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl flex items-start gap-3 mb-8">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[13px] text-gray-600 font-medium leading-relaxed">
+                        <strong class="font-bold text-gray-800">MediBid Neutrality Notice:</strong> MediBid does not recommend or rank hospitals solely based on price. Patients can compare participating healthcare providers based on available information, treatment estimates, services and other relevant factors.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+                    <button type="submit" id="submit-btn" disabled
+                        class="bg-primary hover:bg-blue-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:transform-none text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 w-full">
+                        <span id="submit-text">Submit Treatment Request</span>
+                        <i data-lucide="check-circle" id="submit-icon" class="w-5 h-5"></i>
+                        <i data-lucide="loader-2" id="submit-loader" class="w-5 h-5 hidden animate-spin"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="mb-8 w-full max-w-[640px] flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-5 sm:gap-6 text-[13px] text-gray-500 font-medium">
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Contact Support</a>
+            </div>
+            <div class="text-[12px] text-gray-400 font-medium flex flex-col items-center gap-1.5 mt-1">
+                <span>&copy; 2026 MediBid</span>
+                <span class="text-secondary/80 font-semibold tracking-wider uppercase text-[10px]">Healthcare Without Borders</span>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Consent Validation Logic for Submit Button UI styling
+        const consentChecks = document.querySelectorAll('.consent-check');
+        const submitBtn = document.getElementById('submit-btn');
+
+        function checkConsent() {
+            let allChecked = true;
+            consentChecks.forEach(cb => {
+                if (!cb.checked) allChecked = false;
+            });
+            
+            if (allChecked) {
+                submitBtn.removeAttribute('disabled');
+            } else {
+                submitBtn.setAttribute('disabled', 'true');
+            }
+        }
+
+        consentChecks.forEach(cb => {
+            cb.addEventListener('change', checkConsent);
+        });
+
+        // Initialize state on page load (handles bfcache or pre-checked states if any)
+        checkConsent();
+
+        // Form Submission visual state
+        const form = document.querySelector('form');
+        form.addEventListener('submit', () => {
+            const submitText = document.getElementById('submit-text');
+            const submitIcon = document.getElementById('submit-icon');
+            const submitLoader = document.getElementById('submit-loader');
+            
+            submitBtn.setAttribute('disabled', 'true');
+            submitText.textContent = 'Submitting...';
+            submitIcon.classList.add('hidden');
+            submitLoader.classList.remove('hidden');
+        });
+        
+        // Custom checkmark CSS handling for the custom checkboxes
+        const css = `
+            .custom-checkbox:checked + div {
+                background-color: #0082CA;
+                border-color: #0082CA;
+            }
+            .custom-checkbox:checked + div svg {
+                opacity: 1;
+                transform: scale(1);
+            }
+            .custom-checkbox:focus-visible + div {
+                outline: 2px solid #0082CA;
+                outline-offset: 2px;
+            }
+        `;
+        const style = document.createElement('style');
+        style.appendChild(document.createTextNode(css));
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

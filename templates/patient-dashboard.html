@@ -38,8 +38,6 @@
                         lavenderAccent: '#8B5CF6',
                         softAmber: '#FFFBEB',
                         amberAccent: '#D97706',
-                        softPeach: '#FFF7ED',
-                        peachAccent: '#EA580C',
                         softGreen: '#F0FDF4',
                         greenAccent: '#15803D',
                     },
@@ -48,10 +46,9 @@
                     },
                     boxShadow: {
                         'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
                         'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
                         'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
-                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
+                        'glow': '0 20px 40px -10px rgba(0,130,202,0.15)',
                     }
                 }
             }
@@ -73,21 +70,16 @@
         .stagger-1 { animation-delay: 0.1s; }
         .stagger-2 { animation-delay: 0.2s; }
         .stagger-3 { animation-delay: 0.3s; }
-        .stagger-4 { animation-delay: 0.4s; }
         
-        /* Mobile menu transition */
-        #mobile-menu {
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
+        /* Drawer transitions */
+        .drawer-overlay {
+            transition: opacity 0.3s ease-in-out;
         }
-        #mobile-menu.open {
-            max-height: 400px;
-            opacity: 1;
+        .drawer-menu {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Profile dropdown transition */
+        /* Profile dropdown */
         #profile-dropdown {
             transition: opacity 0.2s ease, transform 0.2s ease;
             opacity: 0;
@@ -99,542 +91,493 @@
             transform: scale(1);
             pointer-events: auto;
         }
-        
-        /* Timeline styling */
-        .timeline-line {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            right: 14px;
-            height: 2px;
-            background-color: #E5E7EB;
-            z-index: 0;
+
+        /* Custom Scrollbar for Sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
         }
-        .timeline-line-active {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            height: 2px;
-            background-color: #0082CA;
-            z-index: 1;
-            transition: width 0.5s ease;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
-<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white relative">
+<body class="bg-bgLight text-textMain min-h-screen flex selection:bg-secondary selection:text-white">
 
-    <!-- AUTHENTICATED HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center gap-6">
-            <!-- Logo -->
-            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
-                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
+    <!-- DESKTOP SIDEBAR (Left Navigation) -->
+    <aside class="hidden md:flex flex-col w-64 lg:w-[280px] bg-[#051126] min-h-screen sticky top-0 flex-shrink-0 z-40 border-r border-gray-800 shadow-xl">
+        <!-- Logo Area -->
+        <div class="h-[70px] lg:h-[80px] flex items-center px-6 lg:px-8 border-b border-white/5">
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 lg:w-8 lg:h-8 flex-shrink-0">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.2" stroke="#0082CA" stroke-width="2"/>
                     <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
                     <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
-                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
+                    <circle cx="10" cy="22" r="8" fill="#0082CA"/>
                     <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
                 <div class="flex flex-col">
-                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
-                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
+                    <span class="text-[20px] font-extrabold text-white leading-none tracking-tight">MediBid</span>
+                    <span class="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5">Patient Portal</span>
                 </div>
             </a>
-            
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex items-center gap-1 ml-6">
-                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
-                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
-            </nav>
         </div>
-
-        <div class="flex items-center gap-3 sm:gap-5">
-            <!-- Notifications Bell -->
-            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
-                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
-                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-            </button>
-
-            <!-- Profile Dropdown Trigger -->
-            <div class="relative">
-                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
-                        SJ
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
-                </button>
-                
-                <!-- Profile Dropdown Menu -->
-                <div id="profile-dropdown" class="absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
-                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
-                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
-                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
-                    </div>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="shield" class="w-4 h-4 text-textMuted"></i> Privacy Settings</a>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i> Help & Support</a>
-                    <div class="h-[1px] bg-gray-100 my-1"></div>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
-                </div>
-            </div>
-
-            <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
-                <i data-lucide="menu" class="w-6 h-6"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- MOBILE NAVIGATION (Hidden by default) -->
-    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm">
-        <nav class="flex flex-col p-4 gap-1">
-            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</a>
-            <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5 text-textMuted"></i> My Requests</a>
-            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
-            <a href="#" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="bell" class="w-5 h-5 text-textMuted"></i> Notifications <span class="ml-auto bg-red-500 text-white text-[11px] px-2 py-0.5 rounded-full font-bold">2</span></a>
-        </nav>
-    </div>
-
-    <!-- MAIN DASHBOARD CONTENT -->
-    <main class="flex-grow w-full max-w-[1200px] mx-auto py-6 sm:py-10 px-4 sm:px-6 lg:px-8 flex flex-col gap-8">
         
-        <!-- WELCOME SECTION -->
-        <div class="flex flex-col gap-1 opacity-0 animate-fade-in">
-            <!-- Jinja placeholder: Welcome back, [patient.first_name | default('')] -->
-            <h1 class="text-[24px] sm:text-[28px] font-extrabold text-primary tracking-tight">Welcome back, Sarah</h1>
-            <p class="text-[14px] sm:text-[15px] text-textMuted font-medium">Track your treatment requests and stay updated with healthcare provider responses.</p>
-        </div>
-
-        <!-- ACTION REQUIRED (CONDITIONAL) -->
-        <!-- Developer Note: Only render this section if there are active actions required -->
-        <div class="bg-softPeach border border-orange-100 rounded-[20px] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-0 animate-fade-in stagger-1 shadow-sm">
-            <div class="flex items-start sm:items-center gap-3.5">
-                <div class="w-10 h-10 rounded-full bg-white border border-orange-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 sm:mt-0">
-                    <i data-lucide="alert-circle" class="w-5 h-5 text-peachAccent"></i>
+        <!-- Navigation Links -->
+        <nav class="flex-grow py-6 px-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mb-1">Main Menu</p>
+            
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-secondary/15 text-white font-bold transition-all border border-secondary/20 shadow-sm">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-secondary"></i> Dashboard
+            </a>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="file-text" class="w-5 h-5"></i> My Requests
                 </div>
-                <div class="flex flex-col">
-                    <h3 class="text-[15px] font-bold text-textMain">Action Required</h3>
-                    <p class="text-[14px] text-textMain/80 mt-0.5">Apollo Hospitals requested a recent MRI scan to finalize your Treatment Estimate.</p>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="building-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Hospital Responses
+            </a>
+            
+            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Compare Proposals
+            </a>
+            
+            <a href="{{ url_for('patient_secure_messages') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="message-square" class="w-5 h-5 group-hover:text-white transition-colors"></i> Messages
+            </a>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left mt-1">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="folder" class="w-5 h-5"></i> Medical Documents
                 </div>
-            </div>
-            <button class="bg-white border border-gray-200 hover:border-peachAccent hover:text-peachAccent text-textMain font-bold px-5 py-2.5 rounded-full text-[13.5px] transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap self-start sm:self-auto focus:outline-none focus:ring-2 focus:ring-peachAccent">
-                Upload Requested Document
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="bell" class="w-5 h-5"></i> Notifications
+                </div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mt-6 mb-1">Account</p>
+            
+            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="user" class="w-5 h-5 group-hover:text-white transition-colors"></i> Profile & Settings
+            </a>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i> Help & Support
+                </div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+        </nav>
+        
+        <!-- Bottom Action -->
+        <div class="p-4 border-t border-white/5 bg-white/[0.02]">
+            <button disabled title="Secure logout requires backend implementation" class="w-full flex items-center justify-between bg-white/5 text-white/50 px-4 py-3.5 rounded-xl transition-all font-medium text-[14px] cursor-not-allowed">
+                <div class="flex items-center gap-3"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</div>
+                <span class="text-[9px] font-extrabold bg-white/10 px-2 py-0.5 rounded-md uppercase">Soon</span>
             </button>
         </div>
+    </aside>
 
-        <!-- PRIMARY DASHBOARD SUMMARY (4 CARDS) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 opacity-0 animate-fade-in stagger-1">
-            
-            <!-- Card 1: Active Requests -->
-            <div class="bg-softBlue rounded-[24px] border border-blue-50 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center text-secondary shadow-sm">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[28px] font-extrabold text-primary leading-none">1</span>
-                </div>
-                <div>
-                    <h3 class="text-[14px] font-bold text-primary/70 mb-2">Active Requests</h3>
-                    <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13px] font-semibold text-secondary hover:underline flex items-center gap-1 group-hover:gap-1.5 transition-all">View Requests <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
-                </div>
-            </div>
-
-            <!-- Card 2: Hospital Responses -->
-            <div class="bg-softTeal rounded-[24px] border border-teal-50 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center text-tealAccent shadow-sm">
-                        <i data-lucide="building-2" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col items-end gap-1">
-                        <span class="text-[28px] font-extrabold text-primary leading-none">3</span>
-                        <span class="text-[10px] font-bold bg-white text-tealAccent px-2 py-0.5 rounded-full shadow-sm border border-teal-50">2 New</span>
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-[14px] font-bold text-primary/70 mb-2">Hospital Responses</h3>
-                    <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13px] font-semibold text-tealAccent hover:underline flex items-center gap-1 group-hover:gap-1.5 transition-all">View Responses <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
-                </div>
-            </div>
-
-            <!-- Card 3: Unread Messages -->
-            <div class="bg-softLavender rounded-[24px] border border-purple-50 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center text-lavenderAccent shadow-sm">
-                        <i data-lucide="message-square" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[28px] font-extrabold text-primary leading-none">4</span>
-                </div>
-                <div>
-                    <h3 class="text-[14px] font-bold text-primary/70 mb-2">Unread Messages</h3>
-                    <a href="{{ url_for('patient_secure_messages') }}" class="text-[13px] font-semibold text-lavenderAccent hover:underline flex items-center gap-1 group-hover:gap-1.5 transition-all">View Messages <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
-                </div>
-            </div>
-
-            <!-- Card 4: Notifications -->
-            <div class="bg-softAmber rounded-[24px] border border-amber-50 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/80 flex items-center justify-center text-amberAccent shadow-sm">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[28px] font-extrabold text-primary leading-none">2</span>
-                </div>
-                <div>
-                    <h3 class="text-[14px] font-bold text-primary/70 mb-2">Notifications</h3>
-                    <a href="#" class="text-[13px] font-semibold text-amberAccent hover:underline flex items-center gap-1 group-hover:gap-1.5 transition-all">View Notifications <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
-                </div>
-            </div>
-
+    <!-- MOBILE DRAWER & BACKDROP -->
+    <div id="mobile-overlay" class="drawer-overlay fixed inset-0 bg-primary/80 backdrop-blur-sm z-40 opacity-0 pointer-events-none md:hidden"></div>
+    
+    <aside id="mobile-drawer" class="drawer-menu fixed top-0 bottom-0 left-0 w-[280px] bg-[#051126] z-50 transform -translate-x-full flex flex-col shadow-2xl md:hidden overflow-y-auto custom-scrollbar border-r border-gray-800">
+        <!-- Close Button & Logo -->
+        <div class="h-[70px] flex items-center justify-between px-6 border-b border-white/5">
+            <span class="text-[20px] font-extrabold text-white tracking-tight">MediBid</span>
+            <button id="close-drawer-btn" class="p-2 text-white/60 hover:text-white bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
         </div>
-
-        <div class="flex flex-col lg:flex-row gap-8 opacity-0 animate-fade-in stagger-2">
+        
+        <!-- Drawer Navigation Links (Same as Desktop) -->
+        <nav class="flex-grow py-6 px-4 flex flex-col gap-2">
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mb-1">Main Menu</p>
             
-            <!-- LEFT COLUMN (Requests & Responses) -->
-            <div class="flex-grow flex flex-col gap-8 lg:w-2/3">
-                
-                <!-- ACTIVE TREATMENT REQUESTS -->
-                <section class="flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Active Treatment Requests</h2>
-                        <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13.5px] font-semibold text-textMuted hover:text-secondary hidden sm:block">View All History</a>
-                    </div>
-                    
-                    <!-- EMPTY STATE (Hidden by default, shown when no requests exist) -->
-                    <!-- To view this, add class 'hidden' to the request-card below and remove 'hidden' here -->
-                    <div id="empty-requests-state" class="hidden bg-white rounded-[24px] border border-gray-200 border-dashed p-8 sm:p-12 flex flex-col items-center justify-center text-center shadow-sm">
-                        <div class="w-16 h-16 rounded-full bg-softBlue flex items-center justify-center mb-4">
-                            <i data-lucide="file-plus" class="w-8 h-8 text-secondary"></i>
-                        </div>
-                        <h3 class="text-[18px] font-bold text-textMain mb-2">You haven't created a treatment request yet.</h3>
-                        <p class="text-[14px] text-textMuted max-w-[400px] mb-6 leading-relaxed">
-                            Create a treatment request to connect with relevant healthcare providers and explore treatment options globally.
-                        </p>
-                        <a href="{{ url_for('patient_registration_step1') }}" class="bg-primary hover:bg-blue-800 text-white font-bold px-6 py-3 rounded-full text-[14px] transition-shadow shadow-glow hover:-translate-y-0.5 inline-block">
-                            Create Treatment Request
-                        </a>
-                    </div>
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-secondary/15 text-white font-bold transition-all border border-secondary/20 shadow-sm">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-secondary"></i> Dashboard
+            </a>
+            
+            <button disabled class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 bg-transparent transition-all cursor-not-allowed text-left">
+                <div class="flex items-center gap-3 font-medium"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="building-2" class="w-5 h-5"></i> Hospital Responses
+            </a>
+            
+            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Compare Proposals
+            </a>
+            
+            <a href="{{ url_for('patient_secure_messages') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="message-square" class="w-5 h-5"></i> Messages
+            </a>
+            
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mt-6 mb-1">Account</p>
+            
+            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i> Profile & Settings
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-white/5 bg-white/[0.02]">
+            <button disabled class="w-full flex items-center justify-between bg-white/5 text-white/50 px-4 py-3.5 rounded-xl transition-all font-medium text-[14px] cursor-not-allowed">
+                <div class="flex items-center gap-3"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</div>
+            </button>
+        </div>
+    </aside>
 
-                    <!-- SINGLE REQUEST CARD -->
-                    <div class="request-card bg-white rounded-[24px] border border-gray-200 border-t-4 border-t-softBlue shadow-sm overflow-hidden flex flex-col relative hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                        <!-- Top Header Section -->
-                        <div class="p-5 sm:p-6 border-b border-gray-50 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                            <div class="flex flex-col gap-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-[11px] font-bold text-textMuted tracking-widest uppercase font-mono">MB-2026-8A39C2</span>
-                                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                    <span class="text-[12px] text-textMuted font-medium">Submitted on Jul 14, 2026</span>
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-grow flex flex-col min-w-0 bg-bgLight relative">
+        
+        <!-- TOP HEADER -->
+        <header class="bg-white border-b border-gray-200 h-[70px] lg:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
+            
+            <!-- Mobile Header Left -->
+            <div class="flex items-center md:hidden">
+                <button id="open-drawer-btn" class="p-2 -ml-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center gap-2 ml-2">
+                    <span class="text-[18px] font-extrabold text-primary tracking-tight">MediBid</span>
+                </div>
+            </div>
+            
+            <!-- Desktop Header Left (Optional Breadcrumbs/Title) -->
+            <div class="hidden md:flex items-center">
+                <h2 class="text-[16px] font-bold text-primary">Patient Dashboard</h2>
+            </div>
+            
+            <!-- Header Right -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                
+                <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center gap-2.5 focus:outline-none hover:bg-gray-50 p-1.5 sm:pr-3 rounded-full transition-colors border border-transparent hover:border-gray-200">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-softBlue border border-blue-100 flex items-center justify-center text-secondary font-extrabold text-[12px] sm:text-[13px] uppercase shadow-sm">
+                            {{ profile.first_name[0] }}{{ profile.last_name[0] }}
+                        </div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="text-[13px] font-bold text-textMain leading-none">{{ profile.first_name }}</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                    </button>
+                    
+                    <div id="profile-dropdown" class="absolute right-0 top-[110%] w-64 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                        <div class="px-4 py-3 border-b border-gray-50 mb-1 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-extrabold text-[14px] uppercase shadow-sm">
+                                {{ profile.first_name[0] }}{{ profile.last_name[0] }}
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <p class="text-[14px] font-bold text-textMain truncate">{{ profile.first_name }} {{ profile.last_name }}</p>
+                                <p class="text-[12px] text-textMuted truncate">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> Profile Details</a>
+                        <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
+                        <div class="h-[1px] bg-gray-100 my-1"></div>
+                        <button disabled class="w-full flex items-center gap-3 px-4 py-2.5 text-[14px] font-medium text-gray-400 bg-transparent cursor-not-allowed transition-colors text-left"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- DASHBOARD MAIN CONTENT -->
+        <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-[1400px] w-full mx-auto">
+            
+            <!-- TOP / WELCOME SECTION -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 opacity-0 animate-fade-in">
+                <div class="flex flex-col">
+                    <h1 class="text-[26px] sm:text-[30px] font-extrabold text-primary tracking-tight">Welcome back, {{ profile.first_name }}</h1>
+                    <p class="text-[14px] sm:text-[15px] text-textMuted font-medium mt-1">Track your treatment requests and stay updated with healthcare provider responses.</p>
+                </div>
+                
+                <!-- Action CTA -->
+                <button disabled title="New Treatment Request flow requires implementation" class="bg-gray-100 text-gray-400 font-bold px-6 py-3.5 rounded-full shadow-sm cursor-not-allowed flex items-center gap-2 self-start sm:self-auto whitespace-nowrap transition-colors border border-gray-200">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Start New Request 
+                    <span class="text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-md ml-1 font-extrabold tracking-wider">SOON</span>
+                </button>
+            </div>
+            
+            <!-- PRIMARY DASHBOARD SUMMARY (4 CARDS) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 opacity-0 animate-fade-in stagger-1">
+                
+                <!-- Card 1: Active Requests -->
+                <div class="bg-white rounded-[24px] border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden relative">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity z-0"></div>
+                    <div class="relative z-10 flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-softBlue border border-blue-100 flex items-center justify-center text-secondary shadow-sm">
+                            <i data-lucide="file-text" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[36px] font-extrabold text-primary leading-none">{{ '1' if has_temporary_request else '0' }}</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-bold text-primary mb-2">Active Requests</h3>
+                        <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 flex items-center gap-1 group-hover:gap-1.5 transition-all">View Requests <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Hospital Responses -->
+                <div class="bg-white rounded-[24px] border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden relative">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-teal-50 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity z-0"></div>
+                    <div class="relative z-10 flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-softTeal border border-teal-100 flex items-center justify-center text-tealAccent shadow-sm">
+                            <i data-lucide="building-2" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[36px] font-extrabold text-primary leading-none">0</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-bold text-primary mb-2">Hospital Responses</h3>
+                        <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13px] font-bold text-tealAccent hover:text-teal-700 flex items-center gap-1 group-hover:gap-1.5 transition-all">View Responses <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 3: Unread Messages -->
+                <div class="bg-white rounded-[24px] border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden relative">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-purple-50 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity z-0"></div>
+                    <div class="relative z-10 flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-softLavender border border-purple-100 flex items-center justify-center text-lavenderAccent shadow-sm">
+                            <i data-lucide="message-square" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[36px] font-extrabold text-primary leading-none">0</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-bold text-primary mb-2">Unread Messages</h3>
+                        <a href="{{ url_for('patient_secure_messages') }}" class="text-[13px] font-bold text-lavenderAccent hover:text-purple-700 flex items-center gap-1 group-hover:gap-1.5 transition-all">View Messages <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 4: Notifications -->
+                <div class="bg-white rounded-[24px] border border-gray-200 p-5 sm:p-6 shadow-sm hover:shadow-card hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden relative">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity z-0"></div>
+                    <div class="relative z-10 flex justify-between items-start mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-softAmber border border-amber-100 flex items-center justify-center text-amberAccent shadow-sm">
+                            <i data-lucide="bell" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[36px] font-extrabold text-primary leading-none">0</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-[15px] font-bold text-primary mb-2">Notifications</h3>
+                        <span class="text-[13px] font-bold text-amberAccent flex items-center gap-1 opacity-70">Up to date</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MAIN GRID CONTENT -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 opacity-0 animate-fade-in stagger-2">
+                
+                <!-- LEFT COLUMN (Wider) -->
+                <div class="xl:col-span-2 flex flex-col gap-8">
+                    
+                    <!-- TREATMENT REQUESTS -->
+                    <section class="flex flex-col">
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Active Treatment Requests</h2>
+                        </div>
+                        
+                        {% if has_temporary_request %}
+                        <!-- TEMPORARY REQUEST CARD (Before permanent DB implementation) -->
+                        <div class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden flex flex-col relative hover:shadow-card transition-all duration-300">
+                            <!-- Header -->
+                            <div class="p-5 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-gray-50/50">
+                                <div class="flex flex-col gap-1.5">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[11px] font-bold text-textMuted tracking-widest uppercase font-mono bg-gray-100 px-2 py-0.5 rounded-md">Pending Record</span>
+                                    </div>
+                                    <h3 class="text-[18px] font-bold text-textMain">{{ temporary_specialty if temporary_specialty else 'New Treatment Request' }}</h3>
+                                    <p class="text-[14px] text-textMuted">Information submitted and awaiting permanent marketplace allocation.</p>
                                 </div>
-                                <h3 class="text-[18px] font-bold text-textMain">Cardiology / Heart Surgery</h3>
-                                <p class="text-[14px] text-textMuted line-clamp-1 mt-0.5">Coronary artery blockage requiring surgical intervention.</p>
+                                
+                                <div class="flex items-center gap-2 bg-softBlue border border-blue-100 text-secondary px-3 py-1.5 rounded-xl flex-shrink-0 self-start shadow-sm">
+                                    <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
+                                    <span class="text-[12.5px] font-bold">Processing</span>
+                                </div>
                             </div>
                             
-                            <!-- Status Badge -->
-                            <div class="flex items-center gap-2 bg-softGreen border border-green-100 text-greenAccent px-3 py-1.5 rounded-lg flex-shrink-0 self-start shadow-sm">
-                                <span class="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-                                <span class="text-[12.5px] font-bold">Responses Received</span>
-                            </div>
-                        </div>
-
-                        <!-- Info Grid -->
-                        <div class="p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-softBlue/30">
-                            <div class="flex items-start gap-2.5">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-secondary/60 mt-0.5"></i>
-                                <div>
-                                    <p class="text-[12px] text-textMuted font-medium mb-0.5">Preferred Location</p>
-                                    <p class="text-[13.5px] font-semibold text-textMain">India, Thailand</p>
+                            <div class="p-5 sm:p-6 bg-white flex items-start gap-4">
+                                <div class="w-12 h-12 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0 border border-blue-50">
+                                    <i data-lucide="info" class="w-5 h-5 text-secondary"></i>
                                 </div>
-                            </div>
-                            <div class="flex items-start gap-2.5">
-                                <i data-lucide="building-2" class="w-4 h-4 text-secondary/60 mt-0.5"></i>
-                                <div>
-                                    <p class="text-[12px] text-textMuted font-medium mb-0.5">Hospital Responses</p>
-                                    <p class="text-[13.5px] font-semibold text-textMain">3 Responses (2 New)</p>
+                                <div class="flex flex-col">
+                                    <p class="text-[14px] text-textMain font-medium leading-relaxed">Your registration and treatment preferences have been temporarily saved securely in your session. The permanent backend record will be created during the database implementation phase.</p>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Progress Timeline -->
-                        <div class="px-5 sm:px-6 pt-5 pb-2 relative overflow-x-auto">
-                            <div class="min-w-[400px] relative">
-                                <div class="timeline-line"></div>
-                                <div class="timeline-line-active" style="width: 75%;"></div>
-                                
-                                <div class="flex justify-between relative z-10">
-                                    <!-- Step 1 -->
-                                    <div class="flex flex-col items-center w-1/5">
-                                        <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
-                                            <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
-                                        </div>
-                                        <span class="text-[10.5px] font-bold text-textMain mt-2 text-center leading-tight">Submitted</span>
-                                    </div>
-                                    <!-- Step 2 -->
-                                    <div class="flex flex-col items-center w-1/5">
-                                        <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
-                                            <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
-                                        </div>
-                                        <span class="text-[10.5px] font-bold text-textMain mt-2 text-center leading-tight">Matching</span>
-                                    </div>
-                                    <!-- Step 3 -->
-                                    <div class="flex flex-col items-center w-1/5">
-                                        <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
-                                            <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
-                                        </div>
-                                        <span class="text-[10.5px] font-bold text-textMain mt-2 text-center leading-tight">Responses</span>
-                                    </div>
-                                    <!-- Step 4 (Current) -->
-                                    <div class="flex flex-col items-center w-1/5">
-                                        <div class="w-7 h-7 rounded-full bg-white border-[3px] border-secondary ring-4 ring-blue-50 flex items-center justify-center shadow-sm relative">
-                                            <div class="w-2 h-2 rounded-full bg-secondary"></div>
-                                        </div>
-                                        <span class="text-[10.5px] font-extrabold text-secondary mt-2 text-center leading-tight">Review Options</span>
-                                    </div>
-                                    <!-- Step 5 -->
-                                    <div class="flex flex-col items-center w-1/5">
-                                        <div class="w-7 h-7 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"></div>
-                                        <span class="text-[10.5px] font-bold text-gray-400 mt-2 text-center leading-tight">Provider Selected</span>
-                                    </div>
-                                </div>
+                        {% else %}
+                        <!-- EMPTY STATE -->
+                        <div class="bg-white rounded-[24px] border border-gray-200 border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center shadow-sm">
+                            <div class="w-20 h-20 rounded-full bg-softBlue flex items-center justify-center mb-5 border-[6px] border-white shadow-sm ring-1 ring-gray-100">
+                                <i data-lucide="file-plus" class="w-8 h-8 text-secondary"></i>
                             </div>
+                            <h3 class="text-[20px] font-extrabold text-primary mb-2">No treatment requests yet</h3>
+                            <p class="text-[14.5px] text-textMuted max-w-[450px] mb-8 leading-relaxed font-medium">
+                                Create a treatment request to connect with relevant healthcare providers and explore treatment options globally.
+                            </p>
+                            <button disabled class="bg-primary/50 text-white font-bold px-8 py-3.5 rounded-full text-[14.5px] cursor-not-allowed shadow-sm flex items-center gap-2">
+                                Create Treatment Request <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold ml-1">SOON</span>
+                            </button>
                         </div>
+                        {% endif %}
+                    </section>
 
-                        <!-- Card Actions -->
-                        <div class="p-4 sm:p-5 border-t border-gray-50 flex flex-wrap gap-3 mt-4 items-center">
-                            <a href="#" class="px-5 py-2.5 rounded-full border border-gray-200 text-textMain font-bold hover:bg-gray-50 text-[13.5px] transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200 text-center flex-grow sm:flex-grow-0">
-                                View Request
-                            </a>
-                            <a href="{{ url_for('patient_hospital_responses') }}" class="px-5 py-2.5 rounded-full bg-primary hover:bg-blue-800 text-white font-bold text-[13.5px] transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-primary text-center flex-grow sm:flex-grow-0 flex items-center justify-center gap-2">
-                                View Responses
-                                <span class="bg-white text-primary text-[10px] px-1.5 py-0.5 rounded-md leading-none font-bold shadow-sm">2 NEW</span>
-                            </a>
-                            <span class="text-[12px] text-textMuted ml-auto hidden sm:block">Updated 2 hours ago</span>
+                    <!-- HOSPITAL RESPONSES -->
+                    <section class="flex flex-col">
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Recent Hospital Responses</h2>
                         </div>
-                    </div>
-                </section>
-
-                <!-- RECENT HOSPITAL RESPONSES PREVIEW -->
-                <section class="flex flex-col">
-                    <div class="flex items-center justify-between mb-4 mt-2">
-                        <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Recent Hospital Responses</h2>
-                    </div>
-
-                    <div class="flex flex-col gap-4">
                         
-                        <!-- Response 1 -->
-                        <div class="bg-white border border-gray-200 rounded-[20px] p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-teal-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-xl bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="building" class="w-6 h-6 text-tealAccent"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <div class="flex items-center gap-2 mb-0.5">
-                                        <h4 class="text-[15px] font-bold text-textMain">Apollo Hospitals</h4>
-                                        <i data-lucide="badge-check" class="w-4 h-4 text-blue-500" title="Verified Hospital"></i>
-                                    </div>
-                                    <span class="text-[13px] text-textMuted mb-2">New Delhi, India</span>
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md">Received: Today</span>
-                                        <span class="text-[12px] font-bold text-textMain bg-white border border-gray-200 px-2.5 py-1 rounded-md shadow-sm">Est: $8,500 - $10,000</span>
-                                    </div>
-                                </div>
+                        <!-- CLEAN EMPTY STATE -->
+                        <div class="bg-white rounded-[24px] border border-gray-200 p-8 sm:p-10 flex flex-col items-center justify-center text-center shadow-sm">
+                            <div class="w-16 h-16 rounded-full bg-softTeal flex items-center justify-center mb-4">
+                                <i data-lucide="building" class="w-7 h-7 text-tealAccent opacity-70"></i>
                             </div>
-                            <a href="#" class="px-5 py-2.5 rounded-full border border-teal-200 text-tealAccent hover:bg-softTeal font-bold text-[13px] transition-colors text-center focus:outline-none focus:ring-2 focus:ring-tealAccent whitespace-nowrap">
-                                View Proposal
-                            </a>
+                            <h3 class="text-[16px] font-bold text-primary mb-1">No hospital responses yet</h3>
+                            <p class="text-[14px] text-textMuted max-w-[400px] leading-relaxed font-medium">
+                                Responses will appear here after eligible participating healthcare providers review and respond to your active treatment requests.
+                            </p>
                         </div>
+                    </section>
 
-                        <!-- Response 2 -->
-                        <div class="bg-white border border-gray-200 rounded-[20px] p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-teal-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 opacity-90">
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-xl bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="building" class="w-6 h-6 text-tealAccent"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <div class="flex items-center gap-2 mb-0.5">
-                                        <h4 class="text-[15px] font-bold text-textMain">Bumrungrad International</h4>
-                                        <i data-lucide="badge-check" class="w-4 h-4 text-blue-500" title="Verified Hospital"></i>
-                                    </div>
-                                    <span class="text-[13px] text-textMuted mb-2">Bangkok, Thailand</span>
-                                    <div class="flex flex-wrap items-center gap-3">
-                                        <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md">Received: Yesterday</span>
-                                        <span class="text-[12px] font-bold text-textMain bg-white border border-gray-200 px-2.5 py-1 rounded-md shadow-sm">Est: $12,000 - $14,000</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="#" class="px-5 py-2.5 rounded-full border border-gray-200 text-textMuted hover:bg-gray-50 hover:text-textMain font-bold text-[13px] transition-colors text-center focus:outline-none focus:ring-2 focus:ring-gray-300 whitespace-nowrap">
-                                View Proposal
-                            </a>
-                        </div>
-
-                    </div>
-                </section>
-
-            </div>
-
-            <!-- RIGHT COLUMN (Notifications & Quick Actions) -->
-            <div class="flex-grow flex flex-col gap-8 lg:w-1/3">
+                </div>
                 
-                <!-- NOTIFICATIONS SECTION -->
-                <section class="bg-white rounded-[24px] border border-gray-200 p-6 shadow-sm">
-                    <div class="flex items-center justify-between mb-5 border-b border-gray-50 pb-4">
-                        <h2 class="text-[17px] font-extrabold text-primary">Recent Updates</h2>
-                        <a href="#" class="text-[13px] font-semibold text-secondary hover:underline">View All</a>
-                    </div>
+                <!-- RIGHT COLUMN (Narrower) -->
+                <div class="xl:col-span-1 flex flex-col gap-8">
                     
-                    <div class="flex flex-col gap-5">
+                    <!-- NOTIFICATIONS -->
+                    <section class="bg-white rounded-[24px] border border-gray-200 p-6 sm:p-8 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-[17px] font-extrabold text-primary">Recent Updates</h2>
+                        </div>
                         
-                        <!-- Notification 1 (Unread, Teal/Response) -->
-                        <div class="flex items-start gap-3 relative p-2 -mx-2 bg-softTeal/40 rounded-xl transition-colors">
-                            <div class="absolute -left-1 top-4 w-1.5 h-1.5 bg-tealAccent rounded-full"></div>
-                            <div class="w-8 h-8 rounded-full bg-softTeal flex items-center justify-center flex-shrink-0 text-tealAccent ml-2 shadow-sm border border-teal-50">
-                                <i data-lucide="file-check" class="w-4 h-4"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] text-textMain font-medium leading-snug">Apollo Hospitals submitted a new Treatment Estimate.</p>
-                                <span class="text-[11px] text-textMuted mt-1">2 hours ago</span>
-                            </div>
+                        <!-- EMPTY STATE -->
+                        <div class="flex flex-col items-center justify-center text-center py-6">
+                            <i data-lucide="bell-off" class="w-10 h-10 text-gray-300 mb-3"></i>
+                            <p class="text-[14px] font-medium text-textMuted">You're all caught up.</p>
+                            <p class="text-[13px] text-gray-400 mt-1">No new notifications.</p>
                         </div>
-
-                        <!-- Notification 2 (Unread, Lavender/Message) -->
-                        <div class="flex items-start gap-3 relative p-2 -mx-2 bg-softLavender/40 rounded-xl transition-colors">
-                            <div class="absolute -left-1 top-4 w-1.5 h-1.5 bg-lavenderAccent rounded-full"></div>
-                            <div class="w-8 h-8 rounded-full bg-softLavender flex items-center justify-center flex-shrink-0 text-lavenderAccent ml-2 shadow-sm border border-purple-50">
-                                <i data-lucide="message-square" class="w-4 h-4"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] text-textMain font-medium leading-snug">You have a new message regarding your request.</p>
-                                <span class="text-[11px] text-textMuted mt-1">5 hours ago</span>
-                            </div>
-                        </div>
-
-                        <!-- Notification 3 (Read, Blue/Status) -->
-                        <div class="flex items-start gap-3 opacity-80 p-2 -mx-2">
-                            <div class="w-8 h-8 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0 text-secondary ml-2 border border-blue-50">
-                                <i data-lucide="activity" class="w-4 h-4"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] text-textMain leading-snug">Your treatment request status was updated to 'Responses Received'.</p>
-                                <span class="text-[11px] text-textMuted mt-1">Yesterday</span>
-                            </div>
-                        </div>
-
-                        <!-- Notification 4 (Read, Green/Doc) -->
-                        <div class="flex items-start gap-3 opacity-80 p-2 -mx-2">
-                            <div class="w-8 h-8 rounded-full bg-softGreen flex items-center justify-center flex-shrink-0 text-greenAccent ml-2 border border-green-50">
-                                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] text-textMain leading-snug">Medical documents successfully uploaded.</p>
-                                <span class="text-[11px] text-textMuted mt-1">Jul 14, 2026</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </section>
-
-                <!-- QUICK ACTIONS -->
-                <section class="bg-white rounded-[24px] border border-gray-200 p-6 shadow-sm">
-                    <h2 class="text-[17px] font-extrabold text-primary mb-5">Quick Actions</h2>
+                    </section>
                     
-                    <div class="flex flex-col gap-3">
-                        <a href="{{ url_for('patient_registration_step1') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-softBlue flex items-center justify-center">
-                                    <i data-lucide="plus-circle" class="w-4 h-4 text-secondary"></i>
-                                </div>
-                                <span class="text-[14px] font-bold text-textMain">Start New Request</span>
-                            </div>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-secondary transition-colors"></i>
-                        </a>
+                    <!-- QUICK ACTIONS -->
+                    <section class="bg-white rounded-[24px] border border-gray-200 p-6 sm:p-8 shadow-sm">
+                        <h2 class="text-[17px] font-extrabold text-primary mb-5">Quick Actions</h2>
                         
-                        <a href="#" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-teal-200 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-softTeal flex items-center justify-center">
-                                    <i data-lucide="folder-plus" class="w-4 h-4 text-tealAccent"></i>
+                        <div class="flex flex-col gap-3">
+                            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all duration-200 group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-softBlue flex items-center justify-center group-hover:bg-secondary transition-colors">
+                                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-secondary group-hover:text-white transition-colors"></i>
+                                    </div>
+                                    <span class="text-[14px] font-bold text-textMain">Compare Responses</span>
                                 </div>
-                                <span class="text-[14px] font-bold text-textMain">Manage Documents</span>
-                            </div>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-tealAccent transition-colors"></i>
-                        </a>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-secondary transition-colors"></i>
+                            </a>
 
-                        <a href="#" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-purple-200 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-softLavender flex items-center justify-center">
-                                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-lavenderAccent"></i>
+                            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-gray-200 transition-colors">
+                                        <i data-lucide="user" class="w-4 h-4 text-textMuted group-hover:text-textMain transition-colors"></i>
+                                    </div>
+                                    <span class="text-[14px] font-bold text-textMain">Update Profile</span>
                                 </div>
-                                <span class="text-[14px] font-bold text-textMain">Compare Responses</span>
-                            </div>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-lavenderAccent transition-colors"></i>
-                        </a>
-
-                        <a href="#" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
-                                    <i data-lucide="user" class="w-4 h-4 text-textMuted"></i>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-textMain transition-colors"></i>
+                            </a>
+                            
+                            <button disabled class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 opacity-60 cursor-not-allowed">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                                        <i data-lucide="folder-plus" class="w-4 h-4 text-gray-400"></i>
+                                    </div>
+                                    <span class="text-[14px] font-bold text-gray-400">Manage Documents</span>
                                 </div>
-                                <span class="text-[14px] font-bold text-textMain">Update Profile</span>
-                            </div>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-textMuted transition-colors"></i>
-                        </a>
+                                <span class="text-[9px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-bold">SOON</span>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            
+            <!-- FOOTER -->
+            <footer class="mt-8 border-t border-gray-200 pt-6 pb-2">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[14px] font-extrabold text-primary">MediBid</span>
+                        <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
                     </div>
-                </section>
-
-            </div>
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="mt-auto border-t border-gray-200 bg-white py-6 mt-10">
-        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
-                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
-            </div>
-            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
-            </div>
-        </div>
-    </footer>
+                    <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
+                        <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                        <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                    </div>
+                </div>
+            </footer>
+            
+        </main>
+    </div>
 
     <!-- Scripts -->
     <script>
         lucide.createIcons();
 
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
+        // Drawer Elements
+        const openDrawerBtn = document.getElementById('open-drawer-btn');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('mobile-overlay');
         
-        if (mobileMenuBtn && mobileMenu) {
-            mobileMenuBtn.addEventListener('click', () => {
-                const isOpen = mobileMenu.classList.contains('open');
-                if (isOpen) {
-                    mobileMenu.classList.remove('open');
-                } else {
-                    mobileMenu.classList.add('open');
-                    // Close profile dropdown if open
-                    document.getElementById('profile-dropdown').classList.remove('open');
-                }
-            });
+        function openDrawer() {
+            mobileDrawer.classList.remove('-translate-x-full');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+        
+        function closeDrawer() {
+            mobileDrawer.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            overlay.classList.remove('opacity-100');
+            document.body.style.overflow = '';
         }
 
-        // Profile Dropdown Toggle
+        if (openDrawerBtn) openDrawerBtn.addEventListener('click', openDrawer);
+        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        
+        // Escape key to close drawer
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !mobileDrawer.classList.contains('-translate-x-full')) {
+                closeDrawer();
+            }
+        });
+
+        // Desktop Profile Dropdown
         const profileBtn = document.getElementById('profile-btn');
         const profileDropdown = document.getElementById('profile-dropdown');
 
         if (profileBtn && profileDropdown) {
             profileBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const isOpen = profileDropdown.classList.contains('open');
-                if (isOpen) {
-                    profileDropdown.classList.remove('open');
-                } else {
-                    profileDropdown.classList.add('open');
-                    // Close mobile menu if open
-                    document.getElementById('mobile-menu').classList.remove('open');
-                }
+                profileDropdown.classList.toggle('open');
             });
         }
 
