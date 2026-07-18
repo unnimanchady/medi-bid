@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who is this treatment for? - MediBid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["\"Plus Jakarta Sans\"", "sans-serif"] },
+                    colors: {
+                        primary: "#0B1D40",
+                        secondary: "#0082CA",
+                        bgLight: "#F8FAFC",
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bgLight font-sans text-primary min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="max-w-md w-full bg-white p-8 rounded-[24px] shadow-sm border border-gray-100">
+        <h2 class="text-2xl font-extrabold mb-6 text-center tracking-tight">Who is this treatment request for?</h2>
+        
+        <form action="{{ url_for('patient_registration_who') }}" method="POST" class="flex flex-col gap-4">
+            
+            {% for profile in profiles %}
+            <label class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors">
+                <input type="radio" name="profile_id" value="{{ profile.id }}" required class="w-5 h-5 text-secondary border-gray-300 focus:ring-secondary">
+                <div class="flex flex-col">
+                    <span class="font-bold text-gray-900">{{ profile.first_name }} {{ profile.last_name }}</span>
+                    <span class="text-sm text-gray-500">{{ profile.relationship_type }}</span>
+                </div>
+            </label>
+            {% endfor %}
+            
+            <label class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors">
+                <input type="radio" name="profile_id" value="new" required class="w-5 h-5 mt-1 text-secondary border-gray-300 focus:ring-secondary" id="radio-new">
+                <div class="flex flex-col w-full">
+                    <span class="font-bold text-gray-900 mb-2">Someone else</span>
+                    <select name="relationship" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-secondary" onclick="document.getElementById('radio-new').checked = true;">
+                        <option value="Self">Myself</option>
+                        <option value="Parent/Guardian">My Child</option>
+                        <option value="Child">My Parent</option>
+                        <option value="Spouse/Partner">My Spouse/Partner</option>
+                        <option value="Authorized Representative">Authorized Representative</option>
+                    </select>
+                </div>
+            </label>
+
+            <button type="submit" class="mt-4 w-full bg-secondary text-white font-bold py-3.5 rounded-xl hover:bg-blue-600 transition-colors">Continue</button>
+        </form>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

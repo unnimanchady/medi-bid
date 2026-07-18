@@ -331,11 +331,15 @@
                         <div class="w-12 h-12 rounded-[14px] bg-softBlue border border-blue-100 flex items-center justify-center text-secondary shadow-sm">
                             <i data-lucide="file-text" class="w-6 h-6"></i>
                         </div>
-                        <span class="text-[36px] font-extrabold text-primary leading-none">{{ '1' if has_temporary_request else '0' }}</span>
+                        <span class="text-[36px] font-extrabold text-primary leading-none">{{ active_requests|length }}</span>
                     </div>
                     <div class="relative z-10">
                         <h3 class="text-[15px] font-bold text-primary mb-2">Active Requests</h3>
-                        <a href="{{ url_for('patient_hospital_responses') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 flex items-center gap-1 group-hover:gap-1.5 transition-all">View Requests <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                        {% if active_requests %}
+                        <a href="{{ url_for('patient_request_details', reference_id=active_requests[0].reference_id) }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 flex items-center gap-1 group-hover:gap-1.5 transition-all">View Requests <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                        {% else %}
+                        <a href="#" class="text-[13px] font-bold text-gray-400 flex items-center gap-1 cursor-not-allowed">View Requests <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -395,36 +399,47 @@
                     <section class="flex flex-col">
                         <div class="flex items-center justify-between mb-5">
                             <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Active Treatment Requests</h2>
+                            <a href="{{ url_for('patient_registration_who') }}" class="bg-secondary text-white font-bold px-5 py-2.5 rounded-xl text-[14px] hover:bg-blue-600 hover:shadow-sm transition-all flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Start New Treatment Request
+                            </a>
                         </div>
                         
-                        {% if has_temporary_request %}
-                        <!-- TEMPORARY REQUEST CARD (Before permanent DB implementation) -->
-                        <div class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden flex flex-col relative hover:shadow-card transition-all duration-300">
+                        {% if active_requests %}
+                        {% for req in active_requests %}
+                        <!-- ACTUAL REQUEST CARD -->
+                        <div class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden flex flex-col relative hover:shadow-card transition-all duration-300 mb-6">
                             <!-- Header -->
                             <div class="p-5 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-start justify-between gap-4 bg-gray-50/50">
                                 <div class="flex flex-col gap-1.5">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[11px] font-bold text-textMuted tracking-widest uppercase font-mono bg-gray-100 px-2 py-0.5 rounded-md">Pending Record</span>
+                                        <span class="text-[11px] font-bold text-textMuted tracking-widest uppercase font-mono bg-gray-100 px-2 py-0.5 rounded-md">{{ req.reference_id }}</span>
+                                        <span class="text-[11px] font-bold text-secondary tracking-widest uppercase font-mono bg-softBlue px-2 py-0.5 rounded-md">{{ req.created_at.strftime('%d %b %Y') }}</span>
                                     </div>
-                                    <h3 class="text-[18px] font-bold text-textMain">{{ temporary_specialty if temporary_specialty else 'New Treatment Request' }}</h3>
-                                    <p class="text-[14px] text-textMuted">Information submitted and awaiting permanent marketplace allocation.</p>
+                                    <h3 class="text-[18px] font-bold text-textMain">{{ req.specialty if req.specialty else 'New Treatment Request' }}</h3>
+                                    <p class="text-[14px] text-textMuted">{{ req.condition if req.condition else 'Awaiting details.' }}</p>
                                 </div>
                                 
                                 <div class="flex items-center gap-2 bg-softBlue border border-blue-100 text-secondary px-3 py-1.5 rounded-xl flex-shrink-0 self-start shadow-sm">
                                     <i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>
-                                    <span class="text-[12.5px] font-bold">Processing</span>
+                                    <span class="text-[12.5px] font-bold">{{ req.status }}</span>
                                 </div>
                             </div>
                             
-                            <div class="p-5 sm:p-6 bg-white flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0 border border-blue-50">
-                                    <i data-lucide="info" class="w-5 h-5 text-secondary"></i>
+                            <div class="p-5 sm:p-6 bg-white flex items-start justify-between gap-4">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0 border border-blue-50">
+                                        <i data-lucide="file-text" class="w-5 h-5 text-secondary"></i>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <p class="text-[14px] text-textMain font-medium leading-relaxed">Your request has been successfully saved and is currently active. Hospitals will review and send their proposals.</p>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col">
-                                    <p class="text-[14px] text-textMain font-medium leading-relaxed">Your registration and treatment preferences have been temporarily saved securely in your session. The permanent backend record will be created during the database implementation phase.</p>
-                                </div>
+                                <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="bg-white border border-gray-200 text-primary font-bold px-4 py-2.5 rounded-xl text-[13px] hover:bg-gray-50 hover:shadow-sm transition-all whitespace-nowrap self-center flex items-center gap-2">
+                                    View Details
+                                </a>
                             </div>
                         </div>
+                        {% endfor %}
                         {% else %}
                         <!-- EMPTY STATE -->
                         <div class="bg-white rounded-[24px] border border-gray-200 border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center shadow-sm">
@@ -435,9 +450,9 @@
                             <p class="text-[14.5px] text-textMuted max-w-[450px] mb-8 leading-relaxed font-medium">
                                 Create a treatment request to connect with relevant healthcare providers and explore treatment options globally.
                             </p>
-                            <button disabled class="bg-primary/50 text-white font-bold px-8 py-3.5 rounded-full text-[14.5px] cursor-not-allowed shadow-sm flex items-center gap-2">
-                                Create Treatment Request <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-md font-extrabold ml-1">SOON</span>
-                            </button>
+                            <a href="{{ url_for('patient_registration_who') }}" class="bg-secondary text-white font-bold px-8 py-3.5 rounded-full text-[14.5px] hover:bg-blue-600 shadow-sm flex items-center gap-2 transition-all">
+                                Create Treatment Request
+                            </a>
                         </div>
                         {% endif %}
                     </section>

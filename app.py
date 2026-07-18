@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_migrate import Migrate
 from config import Config
-from models import db, User, PatientProfile
+from models import db, User, PatientProfile, TreatmentRequest
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 import re
+import uuid
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -79,13 +80,34 @@ def patient_registration_step1():
                     # Store user ID in session securely
                     session['registration_user_id'] = current_user.id
                     
-                    return redirect(url_for("patient_registration_step2"))
+                    return redirect(url_for("patient_registration_who"))
                 except Exception as e:
                     db.session.rollback()
                     error = "An error occurred during registration. Please try again."
 
     return render_template("patient-registration-step1.html", error=error)
 
+
+@app.route("/patient/register/who", methods=["GET", "POST"])
+def patient_registration_who():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+    
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    
+    if request.method == "POST":
+        selected_profile_id = request.form.get("profile_id")
+        if selected_profile_id == "new":
+            session['new_profile_relationship'] = request.form.get("relationship", "Self")
+            return redirect(url_for('patient_registration_step2'))
+        else:
+            profile = next((p for p in profiles if str(p.id) == str(selected_profile_id)), None)
+            if profile:
+                session['active_patient_profile_id'] = profile.id
+                return redirect(url_for('patient_registration_step3'))
+            
+    return render_template("patient-registration-who.html", profiles=profiles)
 
 @app.route("/patient/register/step-2", methods=["GET", "POST"])
 def patient_registration_step2():
@@ -133,32 +155,27 @@ def patient_registration_step2():
             
             if not error:
                 try:
-                    # Check for existing profile
-                    profile = PatientProfile.query.filter_by(user_id=user_id).first()
-                    if profile:
-                        profile.first_name = first_name
-                        profile.last_name = last_name
-                        profile.date_of_birth = dob
-                        profile.gender = gender
-                        profile.nationality = nationality
-                        profile.country_of_residence = residence
-                        profile.city = city
-                        profile.passport_number = passport if passport else None
-                    else:
-                        profile = PatientProfile(
-                            user_id=user_id,
-                            first_name=first_name,
-                            last_name=last_name,
-                            date_of_birth=dob,
-                            gender=gender,
-                            nationality=nationality,
-                            country_of_residence=residence,
-                            city=city,
-                            passport_number=passport if passport else None
-                        )
-                        db.session.add(profile)
-                        
+                    import uuid
+                    new_id = f"MB-P-{uuid.uuid4().hex[:6].upper()}"
+                    relationship = session.pop('new_profile_relationship', 'Self')
+                    
+                    new_profile = PatientProfile(
+                        user_id=user_id, # Keep for backwards compatibility
+                        patient_id=new_id,
+                        relationship_type=relationship,
+                        first_name=first_name,
+                        last_name=last_name,
+                        date_of_birth=dob,
+                        gender=gender,
+                        nationality=nationality,
+                        country_of_residence=residence,
+                        city=city,
+                        passport_number=passport if passport else None
+                    )
+                    db.session.add(new_profile)
                     db.session.commit()
+                    
+                    session['active_patient_profile_id'] = new_profile.id
                     return redirect(url_for("patient_registration_step3"))
                 except Exception as e:
                     db.session.rollback()
@@ -193,11 +210,19 @@ def patient_registration_step3():
         session.pop('registration_user_id', None)
         return redirect(url_for('patient_registration_step1'))
 
-    profile = PatientProfile.query.filter_by(user_id=user_id).first()
-    if not profile:
-        return redirect(url_for('patient_registration_step2'))
+    active_profile_id = session.get('active_patient_profile_id')
+    if active_profile_id:
+        profile = PatientProfile.query.filter_by(id=active_profile_id, user_id=user_id).first()
+        if not profile:
+            return redirect(url_for('patient_registration_who'))
+    else:
+        profile = PatientProfile.query.filter_by(user_id=user_id).first()
+        if not profile:
+            return redirect(url_for('patient_registration_who'))
 
     show_pregnancy = is_pregnancy_applicable(profile)
+    
+    error = request.args.get('error')
 
     if request.method == "POST":
         specialty = request.form.get("specialty", "").strip()
@@ -314,7 +339,7 @@ def patient_registration_step4():
 
 @app.route("/patient/register/step-5", methods=["GET", "POST"])
 def patient_registration_step5():
-    error = None
+    error = request.args.get('error')
     
     if request.method == "POST":
         timeframe = request.form.get("timeframe")
@@ -362,18 +387,23 @@ def patient_registration_step6():
         return redirect(url_for('patient_registration_step1'))
         
     user = User.query.get(user_id)
-    profile = PatientProfile.query.filter_by(user_id=user_id).first()
+    active_profile_id = session.get('active_patient_profile_id')
+    if active_profile_id:
+        profile = PatientProfile.query.filter_by(id=active_profile_id, user_id=user_id).first()
+    else:
+        profile = PatientProfile.query.filter_by(user_id=user_id).first()
     
-    if not user or not profile:
-        return redirect(url_for('patient_registration_step1'))
-        
+    specialty = session.get('registration_specialty')
+    medical = session.get('registration_medical')
     preferences = session.get('registration_preferences')
-    if not preferences:
-        return redirect(url_for('patient_registration_step5'))
-        
-    medical = session.get('registration_medical', {})
-    specialty = session.get('registration_specialty', '')
     
+    if not specialty or not medical or not preferences:
+        error_msg = "Some information from your treatment request is missing. Please review the highlighted steps before submitting again."
+        if not specialty or not medical:
+            return redirect(url_for('patient_registration_step3', error=error_msg))
+        else:
+            return redirect(url_for('patient_registration_step5', error=error_msg))
+            
     error = None
     if request.method == "POST":
         consent_accurate = request.form.get("consent-accurate")
@@ -383,10 +413,63 @@ def patient_registration_step6():
         if not consent_accurate or not consent_share or not consent_neutrality:
             error = "Please accept all required consent checkboxes to submit your request."
         else:
-            # Validated successfully. 
-            # TODO: Create the permanent TreatmentRequest database record here in the future.
-            session['registration_complete'] = True
-            return redirect(url_for('patient_registration_success'))
+            try:
+                # Parse numeric values
+                def parse_float(val):
+                    try:
+                        return float(val) if val else None
+                    except ValueError:
+                        return None
+                
+                while True:
+                    reference_id = f"TR-{uuid.uuid4().hex[:10].upper()}"
+                    existing = TreatmentRequest.query.filter_by(reference_id=reference_id).first()
+                    if not existing:
+                        break
+                
+                        
+                new_request = TreatmentRequest(
+                    reference_id=reference_id,
+                    patient_profile_id=profile.id,
+                    status="Active",
+                    specialty=specialty,
+                    condition=medical.get('condition'),
+                    diagnosis=medical.get('diagnosis'),
+                    symptoms=medical.get('symptoms'),
+                    previous_treatments=medical.get('previous_treatments'),
+                    medications=medical.get('medications'),
+                    allergies=", ".join(medical.get('allergies', [])) if medical.get('allergies') else None,
+                    allergy_other_text=medical.get('allergy_other_text'),
+                    blood_group=medical.get('blood_group'),
+                    height_cm=parse_float(medical.get('height_cm')),
+                    weight_kg=parse_float(medical.get('weight_kg')),
+                    height_ft=parse_float(medical.get('height_ft')),
+                    height_in=parse_float(medical.get('height_in')),
+                    weight_lbs=parse_float(medical.get('weight_lbs')),
+                    emergency_name=medical.get('emergency_name'),
+                    emergency_relationship=medical.get('emergency_relationship'),
+                    emergency_country_code=medical.get('emergency_country_code'),
+                    emergency_phone=medical.get('emergency_phone'),
+                    timeframe=preferences.get('timeframe'),
+                    location_preference=preferences.get('location_preference'),
+                    specific_countries=preferences.get('specific_countries'),
+                    assistance_required=preferences.get('assistance'),
+                    additional_notes=preferences.get('additional_notes')
+                )
+                
+                db.session.add(new_request)
+                db.session.commit()
+                
+                session.pop('registration_specialty', None)
+                session.pop('registration_medical', None)
+                session.pop('registration_preferences', None)
+                
+                session['last_request_reference'] = reference_id
+                
+                return redirect(url_for('patient_registration_success'))
+            except Exception as e:
+                db.session.rollback()
+                error = "An error occurred while saving your request. Please try again."
             
     return render_template(
         "patient-registration-step6.html", 
@@ -401,7 +484,10 @@ def patient_registration_step6():
 
 @app.route("/patient/register/success")
 def patient_registration_success():
-    return render_template("patient-registration-success.html")
+    reference_id = session.get('last_request_reference')
+    if not reference_id:
+        return redirect(url_for('patient_dashboard'))
+    return render_template("patient-registration-success.html", reference_id=reference_id)
 
 
 # =========================================================
@@ -415,26 +501,45 @@ def patient_dashboard():
         return redirect(url_for('patient_registration_step1'))
         
     user = User.query.get(user_id)
-    profile = PatientProfile.query.filter_by(user_id=user_id).first()
     
-    if not user or not profile:
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    if not user or not profiles:
         return redirect(url_for('patient_registration_step1'))
         
-    has_temporary_request = session.get('registration_complete', False)
-    temporary_specialty = session.get('registration_specialty', '')
+    profile_ids = [p.id for p in profiles]
+    profile = next((p for p in profiles if p.relationship_type == 'Self'), None)
+    if not profile and profiles:
+        profile = profiles[0]
+        
+    active_requests = TreatmentRequest.query.filter(
+        TreatmentRequest.patient_profile_id.in_(profile_ids)
+    ).order_by(TreatmentRequest.created_at.desc()).all()
     
     return render_template(
         "patient-dashboard.html",
         user=user,
         profile=profile,
-        has_temporary_request=has_temporary_request,
-        temporary_specialty=temporary_specialty
+        active_requests=active_requests,
+        profiles=profiles
     )
 
 
-@app.route("/patient/requests/details")
-def patient_request_details():
-    return render_template("patient-request-details.html")
+@app.route("/patient/requests/details/<string:reference_id>")
+def patient_request_details(reference_id):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    
+    profile = PatientProfile.query.filter_by(id=req.patient_profile_id, user_id=user_id).first()
+    
+    if not profile:
+        from flask import abort
+        abort(403)
+        
+    user = User.query.get(user_id)
+    return render_template("patient-request-details.html", request=req, profile=profile, user=user)
 
 
 # =========================================================

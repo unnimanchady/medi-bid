@@ -169,15 +169,21 @@
             <!-- Profile Dropdown Trigger -->
             <div class="relative">
                 <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
+                        {% if profile %}{{ profile.first_name[0] }}{{ profile.last_name[0] }}{% else %}U{% endif %}
+                    </div>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
                 </button>
                 
                 <!-- Profile Dropdown Menu -->
                 <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
                     <div class="px-4 py-3 border-b border-gray-50 mb-1">
-                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
-                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
+                        <p class="text-[14px] font-bold text-textMain truncate">
+                            {% if profile %}{{ profile.first_name }} {{ profile.last_name }}{% else %}User{% endif %}
+                        </p>
+                        <p class="text-[12px] text-textMuted truncate">
+                            {% if user %}{{ user.email }}{% else %}Unknown{% endif %}
+                        </p>
                     </div>
                     <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
                     <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
@@ -232,20 +238,18 @@
                 <div class="flex flex-col gap-1">
                     <h1 class="text-[22px] sm:text-[26px] font-extrabold text-primary tracking-tight">Treatment Request</h1>
                     <div class="flex items-center gap-3 mt-1 font-mono">
-                        <span class="text-[13px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-md border border-gray-100">MB-2026-8A39C2</span>
+                        <span class="text-[13px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-md border border-gray-100">{{ request.reference_id }}</span>
                     </div>
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-4 text-[13px] text-textMuted">
-                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> Submitted: Jul 14, 2026</span>
-                        <span class="hidden sm:block text-gray-300">•</span>
-                        <span class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Last Updated: 2 hours ago</span>
+                        <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> Submitted: {{ request.created_at.strftime('%b %d, %Y') }}</span>
                     </div>
                 </div>
                 
                 <div class="flex flex-col items-start md:items-end gap-2 shrink-0">
                     <span class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Current Status</span>
-                    <div class="flex items-center gap-2 bg-softTeal border border-teal-100 text-tealAccent px-4 py-2 rounded-xl shadow-sm">
-                        <span class="w-2.5 h-2.5 rounded-full bg-tealAccent animate-pulse"></span>
-                        <span class="text-[14px] font-bold">Responses Received</span>
+                    <div class="flex items-center gap-2 bg-softBlue border border-blue-100 text-secondary px-4 py-2 rounded-xl shadow-sm">
+                        <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+                        <span class="text-[14px] font-bold">{{ request.status }}</span>
                     </div>
                 </div>
             </div>
@@ -254,38 +258,21 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 sm:p-8 bg-softBlue/30">
                 <div class="flex flex-col gap-1">
                     <span class="text-[12px] text-textMuted font-medium">Specialty</span>
-                    <span class="text-[14px] font-bold text-textMain">Cardiology / Heart Surgery</span>
+                    <span class="text-[14px] font-bold text-textMain">{{ request.specialty if request.specialty else 'Not specified' }}</span>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-[12px] text-textMuted font-medium">Condition</span>
-                    <span class="text-[14px] font-bold text-textMain truncate" title="Coronary artery blockage requiring surgical intervention.">Coronary artery blockage</span>
+                    <span class="text-[14px] font-bold text-textMain truncate" title="{{ request.condition }}">{{ request.condition if request.condition else 'Not specified' }}</span>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-[12px] text-textMuted font-medium">Preferred Location</span>
-                    <span class="text-[14px] font-bold text-textMain">India, Thailand</span>
+                    <span class="text-[14px] font-bold text-textMain">{{ request.location_preference if request.location_preference else 'Not specified' }}</span>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-[12px] text-textMuted font-medium">Timeframe</span>
-                    <span class="text-[14px] font-bold text-textMain">As soon as possible</span>
+                    <span class="text-[14px] font-bold text-textMain">{{ request.timeframe if request.timeframe else 'Not specified' }}</span>
                 </div>
             </div>
-        </div>
-
-        <!-- ACTION REQUIRED (CONDITIONAL) -->
-        <!-- Hidden if not applicable. Using soft peach design. -->
-        <div class="bg-softPeach border border-orange-100 rounded-[24px] p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm opacity-0 animate-fade-in stagger-1">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-full bg-white border border-orange-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-                    <i data-lucide="alert-circle" class="w-6 h-6 text-peachAccent"></i>
-                </div>
-                <div class="flex flex-col">
-                    <h3 class="text-[16px] font-bold text-textMain">Action Required</h3>
-                    <p class="text-[14px] text-textMain/80 mt-1 leading-relaxed max-w-[500px]">Apollo Hospitals has requested a recent MRI scan to finalize their Treatment Estimate and provide an accurate proposal.</p>
-                </div>
-            </div>
-            <button class="bg-white border border-gray-200 hover:border-peachAccent hover:text-peachAccent text-textMain font-bold px-6 py-3 rounded-full text-[14px] transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-peachAccent self-start sm:self-auto">
-                Upload Document
-            </button>
         </div>
 
         <!-- TWO COLUMN LAYOUT -->
@@ -302,38 +289,32 @@
                     <div class="relative overflow-x-auto pb-4">
                         <div class="min-w-[500px] relative">
                             <div class="progress-line"></div>
-                            <div class="progress-line-active" style="width: 75%;"></div>
+                            <div class="progress-line-active" style="width: 20%;"></div>
                             
                             <div class="flex justify-between relative z-10">
-                                <!-- Stage 1 -->
+                                <!-- Stage 1 (Current) -->
                                 <div class="flex flex-col items-center w-1/5 relative group">
-                                    <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
-                                        <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
-                                    </div>
-                                    <span class="text-[11px] font-bold text-textMain mt-3 text-center leading-tight">Request Submitted</span>
-                                </div>
-                                <!-- Stage 2 -->
-                                <div class="flex flex-col items-center w-1/5 relative">
-                                    <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
-                                        <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
-                                    </div>
-                                    <span class="text-[11px] font-bold text-textMain mt-3 text-center leading-tight">Request Reviewed</span>
-                                </div>
-                                <!-- Stage 3 -->
-                                <div class="flex flex-col items-center w-1/5 relative">
-                                    <div class="w-7 h-7 rounded-full bg-softGreen border-2 border-white ring-2 ring-green-100 flex items-center justify-center shadow-sm">
-                                        <i data-lucide="check" class="w-3.5 h-3.5 text-greenAccent"></i>
-                                    </div>
-                                    <span class="text-[11px] font-bold text-textMain mt-3 text-center leading-tight">Matched with Hospitals</span>
-                                </div>
-                                <!-- Stage 4 (Current) -->
-                                <div class="flex flex-col items-center w-1/5 relative">
                                     <div class="w-7 h-7 rounded-full bg-white border-[3px] border-secondary ring-4 ring-blue-50 flex items-center justify-center shadow-sm">
                                         <div class="w-2 h-2 rounded-full bg-secondary"></div>
                                     </div>
-                                    <span class="text-[11px] font-extrabold text-secondary mt-3 text-center leading-tight">Responses Received</span>
+                                    <span class="text-[11px] font-extrabold text-secondary mt-3 text-center leading-tight">Request Submitted</span>
                                 </div>
-                                <!-- Stage 5 (Future) -->
+                                <!-- Stage 2 -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"></div>
+                                    <span class="text-[11px] font-bold text-gray-400 mt-3 text-center leading-tight">Request Reviewed</span>
+                                </div>
+                                <!-- Stage 3 -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"></div>
+                                    <span class="text-[11px] font-bold text-gray-400 mt-3 text-center leading-tight">Matched with Hospitals</span>
+                                </div>
+                                <!-- Stage 4 -->
+                                <div class="flex flex-col items-center w-1/5 relative">
+                                    <div class="w-7 h-7 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"></div>
+                                    <span class="text-[11px] font-bold text-gray-400 mt-3 text-center leading-tight">Responses Received</span>
+                                </div>
+                                <!-- Stage 5 -->
                                 <div class="flex flex-col items-center w-1/5 relative">
                                     <div class="w-7 h-7 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"></div>
                                     <span class="text-[11px] font-bold text-gray-400 mt-3 text-center leading-tight">Provider Selected</span>
@@ -349,89 +330,33 @@
                         <div class="flex flex-col">
                             <h2 class="text-[20px] font-extrabold text-primary">Matched Healthcare Providers</h2>
                             <p class="text-[13.5px] text-textMuted mt-1 leading-relaxed max-w-[500px]">
-                                Your request is matched with relevant providers based on your medical needs and selected locations.
+                                Your request will be matched with relevant providers based on your medical needs and selected locations.
                             </p>
                         </div>
                         <div class="flex items-center gap-4 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm flex-shrink-0 self-start sm:self-auto">
                             <div class="flex flex-col items-center">
                                 <span class="text-[11px] text-textMuted font-bold uppercase">Matched</span>
-                                <span class="text-[16px] font-extrabold text-primary">12</span>
+                                <span class="text-[16px] font-extrabold text-primary">0</span>
                             </div>
                             <div class="w-[1px] h-8 bg-gray-200"></div>
                             <div class="flex flex-col items-center">
                                 <span class="text-[11px] text-textMuted font-bold uppercase">Responses</span>
-                                <span class="text-[16px] font-extrabold text-secondary">3</span>
+                                <span class="text-[16px] font-extrabold text-secondary">0</span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Compare Responses Button (Conditional) -->
-                    <div class="bg-softLavender/50 border border-purple-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="bar-chart-2" class="w-5 h-5 text-lavenderAccent"></i>
-                            <span class="text-[14px] font-bold text-textMain">You have 3 hospital responses available to compare.</span>
-                        </div>
-                        <a href="#" class="bg-white border border-gray-200 text-textMain font-bold px-5 py-2.5 rounded-full text-[13.5px] transition-all hover:border-lavenderAccent hover:text-lavenderAccent shadow-sm whitespace-nowrap text-center">
-                            Compare Responses
-                        </a>
                     </div>
 
                     <h3 class="text-[16px] font-extrabold text-primary mt-4">Hospital Responses</h3>
                     
-                    <!-- Response 1 -->
-                    <div class="bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-teal-200 hover:shadow-md transition-all">
-                        <div class="flex items-start gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="building" class="w-7 h-7 text-tealAccent"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <div class="flex items-center gap-2 mb-0.5">
-                                    <h4 class="text-[16px] font-bold text-textMain">Apollo Hospitals</h4>
-                                    <i data-lucide="badge-check" class="w-4 h-4 text-blue-500" title="Verified Hospital"></i>
-                                </div>
-                                <span class="text-[13.5px] text-textMuted mb-2">New Delhi, India</span>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-[11px] font-bold text-gray-600 bg-gray-50 border border-gray-100 px-2 py-0.5 rounded uppercase">New</span>
-                                    <span class="text-[11px] font-bold text-textMain bg-softTeal/50 border border-teal-50 px-2 py-0.5 rounded shadow-sm">Est: $8,500 - $10,000</span>
-                                </div>
-                            </div>
+                    <!-- Empty State for Responses -->
+                    <div class="bg-bgLight border border-gray-200 rounded-[20px] p-8 sm:p-12 shadow-sm flex flex-col items-center text-center">
+                        <div class="w-16 h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center mb-4 shadow-sm">
+                            <i data-lucide="clock" class="w-8 h-8 text-gray-400"></i>
                         </div>
-                        <div class="flex flex-col gap-2 w-full sm:w-auto">
-                            <a href="#" class="w-full sm:w-auto px-5 py-2.5 rounded-full border border-teal-200 text-tealAccent hover:bg-softTeal font-bold text-[13px] transition-colors text-center focus:outline-none focus:ring-2 focus:ring-tealAccent whitespace-nowrap">
-                                View Proposal
-                            </a>
-                            <a href="#" class="w-full sm:w-auto px-5 py-2 text-center text-[12px] font-semibold text-textMuted hover:text-primary transition-colors">
-                                View Profile
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Response 2 -->
-                    <div class="bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-5 hover:border-teal-200 hover:shadow-md transition-all">
-                        <div class="flex items-start gap-4">
-                            <div class="w-14 h-14 rounded-2xl bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="building" class="w-7 h-7 text-tealAccent"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <div class="flex items-center gap-2 mb-0.5">
-                                    <h4 class="text-[16px] font-bold text-textMain">Bumrungrad International</h4>
-                                    <i data-lucide="badge-check" class="w-4 h-4 text-blue-500" title="Verified Hospital"></i>
-                                </div>
-                                <span class="text-[13.5px] text-textMuted mb-2">Bangkok, Thailand</span>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded uppercase">Viewed</span>
-                                    <span class="text-[11px] font-bold text-textMain bg-softTeal/50 border border-teal-50 px-2 py-0.5 rounded shadow-sm">Est: $12,000 - $14,000</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-2 w-full sm:w-auto">
-                            <a href="#" class="w-full sm:w-auto px-5 py-2.5 rounded-full border border-gray-200 text-textMuted hover:border-gray-300 hover:text-textMain font-bold text-[13px] transition-colors text-center whitespace-nowrap">
-                                View Proposal
-                            </a>
-                            <a href="#" class="w-full sm:w-auto px-5 py-2 text-center text-[12px] font-semibold text-textMuted hover:text-primary transition-colors">
-                                View Profile
-                            </a>
-                        </div>
+                        <h4 class="text-[16px] font-bold text-textMain mb-2">No hospital responses received yet</h4>
+                        <p class="text-[14px] text-textMuted max-w-[400px]">
+                            We are currently matching your request with our network of healthcare providers. You will be notified as soon as proposals arrive.
+                        </p>
                     </div>
                 </section>
 
@@ -449,25 +374,43 @@
                         <div class="flex flex-col gap-1.5">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Primary Health Concern</span>
                             <p class="text-[14px] text-textMain font-medium leading-relaxed bg-bgLight p-3 rounded-xl border border-gray-100">
-                                Severe chest pain and shortness of breath leading to diagnosis of multiple coronary artery blockages.
+                                {{ request.condition if request.condition else 'Not provided' }}
                             </p>
                         </div>
 
                         <div class="flex flex-col gap-1.5">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Diagnosis</span>
                             <p class="text-[14px] text-textMain font-medium leading-relaxed bg-bgLight p-3 rounded-xl border border-gray-100">
-                                Coronary Artery Disease (CAD). Recommended for CABG (Coronary Artery Bypass Grafting).
+                                {{ request.diagnosis if request.diagnosis else 'Not provided' }}
                             </p>
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Duration of Condition</span>
-                            <p class="text-[14px] text-textMain font-medium">Diagnosed 3 weeks ago.</p>
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Symptoms</span>
+                            <p class="text-[14px] text-textMain font-medium">
+                                {{ request.symptoms if request.symptoms else 'Not provided' }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Previous Treatments</span>
+                            <p class="text-[14px] text-textMain font-medium">
+                                {{ request.previous_treatments if request.previous_treatments else 'Not provided' }}
+                            </p>
                         </div>
 
                         <div class="flex flex-col gap-1.5">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Current Medications</span>
-                            <p class="text-[14px] text-textMain font-medium">Aspirin, Atorvastatin, Metoprolol.</p>
+                            <p class="text-[14px] text-textMain font-medium">
+                                {{ request.medications if request.medications else 'Not provided' }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Allergies</span>
+                            <p class="text-[14px] text-textMain font-medium">
+                                {{ request.allergies if request.allergies else 'Not provided' }}
+                            </p>
                         </div>
 
                     </div>
@@ -483,23 +426,32 @@
                         <div class="flex flex-col gap-2">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Search Scope</span>
                             <div class="flex items-center gap-2 text-[14px] font-medium text-textMain">
-                                <i data-lucide="globe" class="w-4 h-4 text-textMuted"></i> Selected Countries
+                                <i data-lucide="globe" class="w-4 h-4 text-textMuted"></i> {{ request.location_preference if request.location_preference else 'Not specified' }}
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-2">
-                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Travel Willingness</span>
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Specific Countries</span>
                             <div class="flex items-center gap-2 text-[14px] font-medium text-textMain">
-                                <i data-lucide="plane" class="w-4 h-4 text-textMuted"></i> Willing to travel internationally
+                                <i data-lucide="map-pin" class="w-4 h-4 text-textMuted"></i> 
+                                {% if request.specific_countries %}
+                                    {{ request.specific_countries|join(', ') }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
                             </div>
                         </div>
 
                         <div class="flex flex-col gap-2 sm:col-span-2 mt-2">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide mb-1">Required Assistance</span>
                             <div class="flex flex-wrap gap-2">
-                                <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">Visa Assistance</span>
-                                <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">Airport Pickup</span>
-                                <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">Accommodation</span>
+                                {% if request.assistance_required %}
+                                    {% for item in request.assistance_required %}
+                                    <span class="bg-softBlue text-secondary font-semibold px-3 py-1.5 rounded-lg text-[13px] border border-blue-100 shadow-sm">{{ item }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-[13px] text-textMuted font-medium">None requested</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -515,58 +467,11 @@
                     </div>
                     <div class="p-6 sm:p-8 flex flex-col gap-4">
                         
-                        <!-- Document Row 1 -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-bgLight border border-gray-200 rounded-xl gap-4 hover:border-blue-200 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-lg bg-softBlue flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="file-text" class="w-5 h-5 text-secondary"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[14px] font-bold text-textMain line-clamp-1">Cardiology_Report_DrSingh.pdf</span>
-                                    <div class="flex items-center gap-3 text-[12px] text-textMuted mt-0.5">
-                                        <span>Diagnostic Report</span>
-                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                        <span>2.4 MB</span>
-                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                        <span>Jul 14, 2026</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 self-start sm:self-auto">
-                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="View">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </button>
-                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="Download">
-                                    <i data-lucide="download" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Document Row 2 -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-bgLight border border-gray-200 rounded-xl gap-4 hover:border-blue-200 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-lg bg-softTeal flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="image" class="w-5 h-5 text-tealAccent"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[14px] font-bold text-textMain line-clamp-1">Angiogram_Scan_Results.jpg</span>
-                                    <div class="flex items-center gap-3 text-[12px] text-textMuted mt-0.5">
-                                        <span>Imaging / Scans</span>
-                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                        <span>5.1 MB</span>
-                                        <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                                        <span>Jul 14, 2026</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 self-start sm:self-auto">
-                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="View">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </button>
-                                <button class="p-2 text-textMuted hover:text-primary bg-white border border-gray-200 rounded-lg shadow-sm transition-colors" title="Download">
-                                    <i data-lucide="download" class="w-4 h-4"></i>
-                                </button>
-                            </div>
+                        <!-- Empty State for Documents -->
+                        <div class="bg-bgLight border border-gray-200 rounded-[16px] p-6 text-center shadow-sm">
+                            <i data-lucide="file-x" class="w-8 h-8 text-gray-400 mx-auto mb-3"></i>
+                            <h4 class="text-[15px] font-bold text-textMain">No documents available</h4>
+                            <p class="text-[13.5px] text-textMuted mt-1">No medical documents are available for this request yet.</p>
                         </div>
 
                     </div>
@@ -616,47 +521,12 @@
                         
                         <!-- Activity 1 -->
                         <div class="flex items-start gap-4 relative z-10">
-                            <div class="w-10 h-10 rounded-full bg-softTeal border border-teal-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-                                <i data-lucide="building-2" class="w-4 h-4 text-tealAccent"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Hospital Response Received</p>
-                                <p class="text-[13px] text-textMuted leading-snug mt-0.5">Apollo Hospitals submitted a proposal.</p>
-                                <span class="text-[11px] font-medium text-gray-400 mt-1">Today, 09:30 AM</span>
-                            </div>
-                        </div>
-
-                        <!-- Activity 2 -->
-                        <div class="flex items-start gap-4 relative z-10">
-                            <div class="w-10 h-10 rounded-full bg-softBlue border border-blue-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-                                <i data-lucide="activity" class="w-4 h-4 text-secondary"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Matched with Hospitals</p>
-                                <p class="text-[13px] text-textMuted leading-snug mt-0.5">Request shared with 12 relevant providers.</p>
-                                <span class="text-[11px] font-medium text-gray-400 mt-1">Jul 15, 2026, 08:15 AM</span>
-                            </div>
-                        </div>
-
-                        <!-- Activity 3 -->
-                        <div class="flex items-start gap-4 relative z-10 opacity-70">
-                            <div class="w-10 h-10 rounded-full bg-softGreen border border-green-50 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-                                <i data-lucide="check" class="w-4 h-4 text-greenAccent"></i>
-                            </div>
-                            <div class="flex flex-col">
-                                <p class="text-[13.5px] font-semibold text-textMain leading-snug">Request Reviewed</p>
-                                <span class="text-[11px] font-medium text-gray-400 mt-1">Jul 14, 2026, 02:40 PM</span>
-                            </div>
-                        </div>
-
-                        <!-- Activity 4 -->
-                        <div class="flex items-start gap-4 relative z-10 opacity-70">
                             <div class="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
                                 <i data-lucide="file-plus" class="w-4 h-4 text-textMuted"></i>
                             </div>
                             <div class="flex flex-col">
                                 <p class="text-[13.5px] font-semibold text-textMain leading-snug">Request Submitted</p>
-                                <span class="text-[11px] font-medium text-gray-400 mt-1">Jul 14, 2026, 11:20 AM</span>
+                                <span class="text-[11px] font-medium text-gray-400 mt-1">{{ request.created_at.strftime('%b %d, %Y, %I:%M %p') }}</span>
                             </div>
                         </div>
                         
