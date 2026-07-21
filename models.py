@@ -18,11 +18,35 @@ class User(db.Model):
     )
     
     phone = db.Column(
-    db.String(30),
-    unique=True,
-    nullable=True,
-    index=True
-)
+        db.String(30),
+        unique=True,
+        nullable=True,
+        index=True
+    )
+    
+    first_name = db.Column(
+        db.String(100),
+        nullable=False,
+        server_default=''
+    )
+    
+    last_name = db.Column(
+        db.String(100),
+        nullable=False,
+        server_default=''
+    )
+    
+    country_of_residence = db.Column(
+        db.String(100),
+        nullable=False,
+        server_default=''
+    )
+    
+    preferred_language = db.Column(
+        db.String(50),
+        nullable=False,
+        server_default='English'
+    )
 
     password_hash = db.Column(
         db.String(255),
@@ -130,6 +154,9 @@ class PatientProfile(db.Model):
         db.String(20),
         nullable=True
     )
+    
+    allergies = db.Column(db.JSON, nullable=True)
+    allergy_other_text = db.Column(db.String(255), nullable=True)
 
     created_at = db.Column(
         db.DateTime(timezone=True),
@@ -192,6 +219,14 @@ class TreatmentRequest(db.Model):
     height_ft = db.Column(db.Float, nullable=True)
     height_in = db.Column(db.Float, nullable=True)
     weight_lbs = db.Column(db.Float, nullable=True)
+    
+    weight_change_type = db.Column(db.String(50), nullable=True)
+    weight_change_amount = db.Column(db.String(100), nullable=True)
+    weight_change_amount_unit = db.Column(db.String(20), nullable=True)
+    weight_change_period = db.Column(db.String(100), nullable=True)
+    weight_change_period_unit = db.Column(db.String(20), nullable=True)
+    current_weight = db.Column(db.Float, nullable=True)
+    current_weight_unit = db.Column(db.String(20), nullable=True)
 
     emergency_name = db.Column(db.String(100), nullable=True)
     emergency_relationship = db.Column(db.String(50), nullable=True)
@@ -215,3 +250,45 @@ class TreatmentRequest(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc)
     )
+
+class MedicalDocument(db.Model):
+    __tablename__ = "medical_documents"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    original_filename = db.Column(db.String(255), nullable=False)
+    storage_filename = db.Column(db.String(255), nullable=False, unique=True)
+    document_type = db.Column(db.String(100), nullable=False)
+    mime_type = db.Column(db.String(100), nullable=False)
+    file_size = db.Column(db.Integer, nullable=False)
+    
+    uploaded_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    
+    patient_profile_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patient_profiles.id"),
+        nullable=False,
+        index=True
+    )
+    
+    treatment_request_id = db.Column(
+        db.Integer,
+        db.ForeignKey("treatment_requests.id"),
+        nullable=True,
+        index=True
+    )
+    
+    uploaded_by_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
+
+    patient_profile = db.relationship("PatientProfile", backref=db.backref("medical_documents", cascade="all, delete-orphan"))
+    treatment_request = db.relationship("TreatmentRequest", backref=db.backref("medical_documents", cascade="all, delete-orphan"))
+    uploaded_by = db.relationship("User", backref=db.backref("uploaded_documents", cascade="all, delete-orphan"))

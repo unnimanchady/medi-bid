@@ -242,7 +242,7 @@
                 </div>
                 
                 <!-- Form -->
-                <form action="#" method="POST" onsubmit="event.preventDefault(); window.location.href='{{ url_for('patient_registration_step5') }}';" class="flex flex-col w-full">
+                <form id="upload-form" class="flex flex-col w-full">
                     
                     <!-- Conditional Guidance Card (Dynamic) -->
                     {% if recommendation_title %}
@@ -504,7 +504,7 @@
                     </div>
                     <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-gray-100 pt-3 sm:pt-0 mt-1 sm:mt-0">
                         <div class="relative w-[180px] sm:w-[200px]">
-                            <select class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[13px] font-medium rounded-xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-2 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                            <select class="document-type-select w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[13px] font-medium rounded-xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-3 py-2 shadow-input transition-all duration-200 outline-none cursor-pointer" data-index="${index}">
                                 <option value="" disabled selected>Select Document Type</option>
                                 <option value="Medical Report">Medical Report</option>
                                 <option value="Doctor's Prescription">Doctor's Prescription</option>
@@ -567,6 +567,45 @@
                 uploadSection.classList.remove('upload-disabled');
                 fileInput.disabled = false;
                 document.getElementById('guidance-card').style.opacity = '1';
+            }
+        });
+
+        // Form submission
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Uploading...';
+            lucide.createIcons();
+            
+            try {
+                const selects = document.querySelectorAll('.document-type-select');
+                for(let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    const docType = selects[i] ? selects[i].value : 'Other Medical Document';
+                    
+                    const fd = new FormData();
+                    fd.append('document', file);
+                    if(docType) fd.append('document_type', docType);
+                    
+                    const res = await fetch("{{ url_for('upload_document') }}", {
+                        method: 'POST',
+                        body: fd
+                    });
+                    
+                    if(!res.ok) {
+                        console.error('Failed to upload', file.name);
+                    }
+                }
+                
+                window.location.href = "{{ url_for('patient_registration_step5') }}";
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred during upload.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Save & Continue <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>';
+                lucide.createIcons();
             }
         });
 

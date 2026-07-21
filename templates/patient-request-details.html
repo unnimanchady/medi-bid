@@ -170,7 +170,7 @@
             <div class="relative">
                 <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
                     <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
-                        {% if profile %}{{ profile.first_name[0] }}{{ profile.last_name[0] }}{% else %}U{% endif %}
+                        {% if profile %}{{ profile.first_name[0]|title}}{{ profile.last_name[0]|title}}{% else %}U{% endif %}
                     </div>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
                 </button>
@@ -179,7 +179,7 @@
                 <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
                     <div class="px-4 py-3 border-b border-gray-50 mb-1">
                         <p class="text-[14px] font-bold text-textMain truncate">
-                            {% if profile %}{{ profile.first_name }} {{ profile.last_name }}{% else %}User{% endif %}
+                            {% if profile %}{{ profile.first_name|title}} {{ profile.last_name|title}}{% else %}User{% endif %}
                         </p>
                         <p class="text-[12px] text-textMuted truncate">
                             {% if user %}{{ user.email }}{% else %}Unknown{% endif %}
@@ -360,6 +360,29 @@
                     </div>
                 </section>
 
+                <!-- PATIENT DETAILS -->
+                <section class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden mt-2">
+                    <div class="p-6 sm:p-8 border-b border-gray-100">
+                        <h2 class="text-[18px] font-extrabold text-primary">Patient Details</h2>
+                    </div>
+                    <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Patient</span>
+                            <p class="text-[14px] text-textMain font-medium">
+                                {{ request.patient_profile.first_name|title}} {{ request.patient_profile.last_name|title}}
+                            </p>
+                        </div>
+                        {% if request.patient_profile.relationship_type and request.patient_profile.relationship_type.lower() not in ['self', 'myself'] %}
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Relationship to account holder</span>
+                            <p class="text-[14px] text-textMain font-medium">
+                                {{ request.patient_profile.relationship_type }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
                 <!-- MEDICAL INFORMATION -->
                 <section class="bg-white rounded-[24px] border border-gray-200 shadow-sm overflow-hidden mt-2">
                     <div class="p-6 sm:p-8 border-b border-gray-100 flex items-center justify-between">
@@ -409,8 +432,74 @@
                         <div class="flex flex-col gap-1.5">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Allergies</span>
                             <p class="text-[14px] text-textMain font-medium">
-                                {{ request.allergies if request.allergies else 'Not provided' }}
+                                {% set display_allergies = [] %}
+                                {% if request.allergies %}
+                                    {% if request.allergies is string %}
+                                        {% set _ = display_allergies.append(request.allergies) %}
+                                    {% else %}
+                                        {% for a in request.allergies %}
+                                            {% if a != 'Other' %}
+                                                {% set _ = display_allergies.append(a) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                                {% if request.allergy_other_text %}
+                                    {% set _ = display_allergies.append(request.allergy_other_text) %}
+                                {% endif %}
+                                
+                                {% if display_allergies %}
+                                    {{ display_allergies | join(', ') }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
                             </p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5 md:col-span-2">
+                            <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Weight Information</span>
+                            <div class="text-[14px] text-textMain font-medium space-y-1.5 bg-bgLight p-3 rounded-xl border border-gray-100">
+                                {% if request.weight_kg or request.weight_lbs or request.weight_change_type %}
+                                    {% if request.weight_kg or request.weight_lbs %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-textMuted w-48">Weight from Previous Request:</span>
+                                            <span>
+                                                {% if request.weight_kg %}{{ request.weight_kg }} kg{% endif %}
+                                                {% if request.weight_kg and request.weight_lbs %} / {% endif %}
+                                                {% if request.weight_lbs %}{{ request.weight_lbs }} lbs{% endif %}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                    {% if request.weight_change_type %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-textMuted w-48">Weight Change:</span>
+                                            <span>{{ request.weight_change_type }}</span>
+                                        </div>
+                                        {% if request.weight_change_type != 'No significant change' %}
+                                            {% if request.weight_change_amount %}
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-textMuted w-48">Approximate Change:</span>
+                                                    <span>{{ request.weight_change_amount }} {% if request.weight_change_amount_unit %}{{ request.weight_change_amount_unit }}{% endif %}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if request.current_weight %}
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-textMuted w-48">Current Weight:</span>
+                                                    <span>{{ request.current_weight }} {% if request.current_weight_unit %}{{ request.current_weight_unit }}{% endif %}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if request.weight_change_period %}
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-textMuted w-48">Period:</span>
+                                                    <span>{{ request.weight_change_period }} {% if request.weight_change_period_unit %}{{ request.weight_change_period_unit }}{% endif %}</span>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                    <p>Not provided</p>
+                                {% endif %}
+                            </div>
                         </div>
 
                     </div>
@@ -466,14 +555,33 @@
                         </button>
                     </div>
                     <div class="p-6 sm:p-8 flex flex-col gap-4">
-                        
-                        <!-- Empty State for Documents -->
-                        <div class="bg-bgLight border border-gray-200 rounded-[16px] p-6 text-center shadow-sm">
-                            <i data-lucide="file-x" class="w-8 h-8 text-gray-400 mx-auto mb-3"></i>
-                            <h4 class="text-[15px] font-bold text-textMain">No documents available</h4>
-                            <p class="text-[13.5px] text-textMuted mt-1">No medical documents are available for this request yet.</p>
-                        </div>
-
+                        {% if request.medical_documents %}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for doc in request.medical_documents %}
+                                <a href="{{ url_for('download_document', doc_id=doc.id) }}" target="_blank" class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-md transition-all group">
+                                    <div class="flex items-center gap-4 overflow-hidden">
+                                        <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
+                                            <i data-lucide="file-text" class="w-6 h-6 text-secondary"></i>
+                                        </div>
+                                        <div class="flex flex-col truncate">
+                                            <span class="text-[14.5px] font-bold text-gray-800 truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</span>
+                                            <span class="text-[12.5px] font-medium text-gray-500">{{ doc.document_type }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors flex-shrink-0">
+                                        <i data-lucide="download" class="w-4 h-4 text-gray-500 group-hover:text-secondary"></i>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <!-- Empty State for Documents -->
+                            <div class="bg-bgLight border border-gray-200 rounded-[16px] p-6 text-center shadow-sm">
+                                <i data-lucide="file-x" class="w-8 h-8 text-gray-400 mx-auto mb-3"></i>
+                                <h4 class="text-[15px] font-bold text-textMain">No documents available</h4>
+                                <p class="text-[13.5px] text-textMuted mt-1">No medical documents are available for this request yet.</p>
+                            </div>
+                        {% endif %}
                     </div>
                 </section>
 

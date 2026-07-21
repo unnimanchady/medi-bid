@@ -232,8 +232,12 @@
                 </div>
                 
                 <!-- Heading -->
-                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Personal Information</h2>
-                <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">Please provide your personal details.</p>
+                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">
+                    {% if is_self %}Personal Information{% else %}Patient Information{% endif %}
+                </h2>
+                <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">
+                    {% if is_self %}Please provide your personal details.{% else %}Please provide the patient's personal details.{% endif %}
+                </p>
                 
                 {% if error %}
                 <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
@@ -274,13 +278,13 @@
                             <label for="first-name" class="text-[14px] font-bold text-gray-800 ml-1">First Name <span class="text-red-500" aria-hidden="true">*</span></label>
                             <input type="text" id="first-name" name="first-name" required aria-required="true"
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
-                                placeholder="John" value="{{ request.form.get('first-name', '') }}">
+                                placeholder="John" value="{{ request.form.get('first-name', default_first_name|default('')) }}">
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label for="last-name" class="text-[14px] font-bold text-gray-800 ml-1">Last Name <span class="text-red-500" aria-hidden="true">*</span></label>
                             <input type="text" id="last-name" name="last-name" required aria-required="true"
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
-                                placeholder="Doe" value="{{ request.form.get('last-name', '') }}">
+                                placeholder="Doe" value="{{ request.form.get('last-name', default_last_name|default('')) }}">
                         </div>
                     </div>
 
@@ -359,14 +363,14 @@
                             <div class="relative">
                                 <select id="residence" name="residence" required aria-required="true"
                                     class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
-                                    <option value="" disabled selected>Select</option>
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="IN">India</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="FR">France</option>
-                                    <option value="NG">Nigeria</option>
-                                    <option value="PH">Philippines</option>
+                                    <option value="" disabled {% if not request.form.get('residence', default_residence|default('')) %}selected{% endif %}>Select</option>
+                                    <option value="US" {% if request.form.get('residence', default_residence|default('')) == 'US' %}selected{% endif %}>United States</option>
+                                    <option value="UK" {% if request.form.get('residence', default_residence|default('')) == 'UK' %}selected{% endif %}>United Kingdom</option>
+                                    <option value="IN" {% if request.form.get('residence', default_residence|default('')) == 'IN' %}selected{% endif %}>India</option>
+                                    <option value="CA" {% if request.form.get('residence', default_residence|default('')) == 'CA' %}selected{% endif %}>Canada</option>
+                                    <option value="FR" {% if request.form.get('residence', default_residence|default('')) == 'FR' %}selected{% endif %}>France</option>
+                                    <option value="NG" {% if request.form.get('residence', default_residence|default('')) == 'NG' %}selected{% endif %}>Nigeria</option>
+                                    <option value="PH" {% if request.form.get('residence', default_residence|default('')) == 'PH' %}selected{% endif %}>Philippines</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                     <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
@@ -588,7 +592,7 @@
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             const maxDate = `${year}-${month}-${day}`;
-            const minDate = `${year - 120}-${month}-${day}`;
+            const minDate = '1900-01-01';
             
             dobInput.max = maxDate;
             dobInput.min = minDate;
@@ -599,7 +603,7 @@
                     if (this.value > maxDate) {
                         this.setCustomValidity('Date of birth cannot be in the future.');
                     } else if (this.value < minDate) {
-                        this.setCustomValidity('Please enter a valid date of birth.');
+                        this.setCustomValidity('Date of birth cannot be before 1900.');
                     }
                 }
             });

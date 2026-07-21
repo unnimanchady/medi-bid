@@ -193,14 +193,14 @@
                             </div>
                             <h2 class="text-[18px] font-extrabold text-primary">Personal Details</h2>
                         </div>
-                        <a href="{{ url_for('patient_registration_step2') }}" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
-                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
+                        <a href="{{ url_for('patient_profile_settings') }}" target="_blank" class="text-[13px] font-bold text-secondary hover:text-blue-800 transition-colors flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Edit Patient Profile
                         </a>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
                         <div>
                             <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Full Name</span>
-                            <span class="text-[15px] font-medium text-gray-900">{{ profile.first_name }} {{ profile.last_name }}</span>
+                            <span class="text-[15px] font-medium text-gray-900">{{ profile.first_name|title}} {{ profile.last_name|title}}</span>
                         </div>
                         <div>
                             <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Date of Birth</span>
@@ -291,12 +291,35 @@
                         
                         <div>
                             <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Physical Metrics</span>
-                            <span class="text-[15px] font-medium text-gray-900">
+                            <span class="text-[15px] font-medium text-gray-900 block">
                                 {% if medical.get('height_cm') %} {{ medical.get('height_cm') }} cm {% elif medical.get('height_ft') or medical.get('height_in') %} {{ medical.get('height_ft')|default('0', true) }} ft {{ medical.get('height_in')|default('0', true) }} in {% endif %}
-                                {% if (medical.get('height_cm') or medical.get('height_ft')) and (medical.get('weight_kg') or medical.get('weight_lbs')) %} | {% endif %}
-                                {% if medical.get('weight_kg') %} {{ medical.get('weight_kg') }} kg {% elif medical.get('weight_lbs') %} {{ medical.get('weight_lbs') }} lbs {% endif %}
+                                {% if (medical.get('height_cm') or medical.get('height_ft')) and (not medical.get('weight_change_type')) and (medical.get('weight_kg') or medical.get('weight_lbs')) %} | {% endif %}
+                                {% if not medical.get('weight_change_type') %}
+                                    {% if medical.get('weight_kg') %} {{ medical.get('weight_kg') }} kg {% elif medical.get('weight_lbs') %} {{ medical.get('weight_lbs') }} lbs {% endif %}
+                                {% endif %}
                             </span>
                         </div>
+
+                        {% if medical.get('weight_change_type') %}
+                        <div class="col-span-1 sm:col-span-2">
+                            <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Weight Information</span>
+                            <div class="mt-2 text-[14px] text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <p><span class="font-semibold text-gray-600">Weight from Previous Request:</span> {% if medical.get('weight_kg') %}{{ medical.get('weight_kg') }} kg{% elif medical.get('weight_lbs') %}{{ medical.get('weight_lbs') }} lbs{% endif %}</p>
+                                <p><span class="font-semibold text-gray-600">Weight Change:</span> {{ medical.get('weight_change_type') }}</p>
+                                {% if medical.get('weight_change_type') != 'No significant change' %}
+                                    {% if medical.get('weight_change_amount') %}
+                                    <p><span class="font-semibold text-gray-600">Approximate Change:</span> {{ medical.get('weight_change_amount') }} {% if medical.get('weight_change_amount_unit') %}{{ medical.get('weight_change_amount_unit') }}{% endif %}</p>
+                                    {% endif %}
+                                    {% if medical.get('current_weight') %}
+                                    <p><span class="font-semibold text-gray-600">Current Weight:</span> {{ medical.get('current_weight') }} {% if medical.get('current_weight_unit') %}{{ medical.get('current_weight_unit') }}{% endif %}</p>
+                                    {% endif %}
+                                    {% if medical.get('weight_change_period') %}
+                                    <p class="sm:col-span-2"><span class="font-semibold text-gray-600">Period:</span> {{ medical.get('weight_change_period') }} {% if medical.get('weight_change_period_unit') %}{{ medical.get('weight_change_period_unit') }}{% endif %}</p>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
 
                         {% if medical.get('allergies') %}
                         <div class="col-span-1 sm:col-span-2">
@@ -354,12 +377,28 @@
                             <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Edit
                         </a>
                     </div>
-                    <div class="p-5 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3">
-                        <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
-                        <p class="text-[13.5px] text-blue-900 font-medium leading-relaxed">
-                            Medical document upload storage will be completed during the secure file-upload backend implementation.
+                    {% if pending_docs %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {% for doc in pending_docs %}
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                            <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 flex-shrink-0">
+                                <i data-lucide="file-text" class="w-5 h-5 text-secondary"></i>
+                            </div>
+                            <div class="flex flex-col overflow-hidden">
+                                <span class="text-[14px] font-bold text-gray-800 truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</span>
+                                <span class="text-[12px] font-medium text-gray-500">{{ doc.document_type }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-5 bg-gray-50 border border-gray-100 rounded-xl flex items-start gap-3">
+                        <i data-lucide="file-x" class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-[13.5px] text-gray-500 font-medium leading-relaxed">
+                            No medical documents uploaded for this request.
                         </p>
                     </div>
+                    {% endif %}
                 </div>
 
                 <!-- TREATMENT PREFERENCES -->

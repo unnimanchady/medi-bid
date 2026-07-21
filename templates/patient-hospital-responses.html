@@ -181,15 +181,17 @@
             <!-- Profile Dropdown Trigger -->
             <div class="relative">
                 <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
+                        {% if profile %}{{ profile.first_name[0]|title}}{{ profile.last_name[0]|title}}{% else %}U{% endif %}
+                    </div>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
                 </button>
                 
                 <!-- Profile Dropdown Menu -->
                 <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
                     <div class="px-4 py-3 border-b border-gray-50 mb-1">
-                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
-                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
+                        <p class="text-[14px] font-bold text-textMain truncate">{% if profile %}{{ profile.first_name|title}} {{ profile.last_name|title}}{% else %}User{% endif %}</p>
+                        <p class="text-[12px] text-textMuted truncate">{% if user %}{{ user.email }}{% else %}Unknown{% endif %}</p>
                     </div>
                     <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
                     <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
@@ -227,15 +229,23 @@
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
                 <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors hidden sm:inline">My Requests</a>
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
-                <a href="{{ url_for('patient_request_details') }}" class="hover:text-primary transition-colors truncate">Request Details</a>
+                {% if request and request.reference_id %}
+                <a href="{{ url_for('patient_request_details', reference_id=request.reference_id) }}" class="hover:text-primary transition-colors truncate">Request Details</a>
+                {% else %}
+                <span class="text-gray-400 truncate cursor-not-allowed" title="No request selected">Request Details</span>
+                {% endif %}
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
                 <span class="text-textMain font-bold truncate">Hospital Responses</span>
             </nav>
-            <a href="{{ url_for('patient_request_details') }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex-shrink-0">
+            {% if request and request.reference_id %}
+            <a href="{{ url_for('patient_request_details', reference_id=request.reference_id) }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex-shrink-0">
+            {% else %}
+            <button disabled class="flex items-center gap-1.5 text-[13px] font-semibold text-gray-400 cursor-not-allowed focus:outline-none flex-shrink-0" title="No request selected">
+            {% endif %}
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Back to Details</span>
                 <span class="sm:hidden">Back</span>
-            </a>
+            {% if request and request.reference_id %}</a>{% else %}</button>{% endif %}
         </div>
 
         <!-- HEADER CONTEXT -->
@@ -244,17 +254,23 @@
             <p class="text-[14px] sm:text-[15px] text-textMuted">Review Treatment Estimates & Proposals submitted by healthcare providers for your treatment request.</p>
             
             <div class="mt-3 bg-white border border-gray-200 rounded-[16px] p-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 shadow-sm">
+                {% if request %}
                 <div class="flex items-center gap-2 font-mono">
-                    <span class="text-[12px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">MB-2026-8A39C2</span>
+                    <span class="text-[12px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">{{ request.reference_id }}</span>
                 </div>
                 <div class="w-[1px] h-6 bg-gray-200 hidden sm:block"></div>
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">
-                    <span class="font-bold text-textMain flex items-center gap-1.5"><i data-lucide="activity" class="w-4 h-4 text-textMuted"></i> Cardiology</span>
+                    <span class="font-bold text-textMain flex items-center gap-1.5"><i data-lucide="activity" class="w-4 h-4 text-textMuted"></i> {{ request.specialty if request.specialty else 'Not specified' }}</span>
                     <span class="text-gray-300 hidden sm:inline">•</span>
-                    <span class="text-textMuted truncate max-w-[200px]" title="Coronary artery blockage">Coronary artery blockage</span>
+                    <span class="text-textMuted truncate max-w-[200px]" title="{{ request.condition }}">{{ request.condition if request.condition else 'Not specified' }}</span>
                     <span class="text-gray-300 hidden sm:inline">•</span>
-                    <span class="text-textMuted flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4 text-textMuted"></i> India, Thailand</span>
+                    <span class="text-textMuted flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4 text-textMuted"></i> {{ request.location_preference if request.location_preference else 'Not specified' }}</span>
                 </div>
+                {% else %}
+                <div class="flex items-center gap-2">
+                    <span class="text-[13px] text-textMuted font-medium">No active treatment request found.</span>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -265,15 +281,15 @@
             <div class="flex gap-3 overflow-x-auto pb-2 md:pb-0 hide-scrollbar w-full md:w-auto">
                 <div class="bg-softTeal border border-teal-50 rounded-[16px] p-4 flex flex-col justify-center min-w-[120px] flex-1">
                     <span class="text-[12px] font-bold text-tealAccent uppercase tracking-wide mb-1">Responses</span>
-                    <span class="text-[24px] font-extrabold text-primary leading-none">3</span>
+                    <span class="text-[24px] font-extrabold text-primary leading-none">{{ responses|length }}</span>
                 </div>
                 <div class="bg-softBlue border border-blue-50 rounded-[16px] p-4 flex flex-col justify-center min-w-[120px] flex-1">
                     <span class="text-[12px] font-bold text-secondary uppercase tracking-wide mb-1">New</span>
-                    <span class="text-[24px] font-extrabold text-primary leading-none">2</span>
+                    <span class="text-[24px] font-extrabold text-primary leading-none">0</span>
                 </div>
                 <div class="bg-softLavender border border-purple-50 rounded-[16px] p-4 flex flex-col justify-center min-w-[120px] flex-1">
                     <span class="text-[12px] font-bold text-lavenderAccent uppercase tracking-wide mb-1">Shortlisted</span>
-                    <span class="text-[24px] font-extrabold text-primary leading-none">1</span>
+                    <span class="text-[24px] font-extrabold text-primary leading-none">0</span>
                 </div>
             </div>
 
@@ -292,6 +308,7 @@
         </div>
 
         <!-- CONTROLS (Sort/Filter) -->
+        {% if responses %}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2 opacity-0 animate-fade-in stagger-3">
             <h2 class="text-[18px] font-extrabold text-primary">Treatment Estimates & Proposals</h2>
             
@@ -311,265 +328,31 @@
                 </button>
             </div>
         </div>
+        {% endif %}
 
         <!-- HOSPITAL RESPONSE LIST -->
         <div class="flex flex-col gap-6 opacity-0 animate-fade-in stagger-3">
-            
-            <!-- RESPONSE CARD 1 (New) -->
-            <div class="bg-white border-2 border-blue-100 rounded-[24px] p-5 sm:p-6 shadow-card hover:shadow-floating transition-shadow flex flex-col gap-5 relative group">
-                <!-- Checkbox for comparison -->
-                <div class="absolute top-6 right-6 z-10 flex items-center gap-2">
-                    <label for="compare-1" class="text-[12px] font-bold text-textMuted cursor-pointer hidden sm:block">Select to Compare</label>
-                    <input type="checkbox" id="compare-1" class="compare-checkbox compare-toggle" value="hospital_1">
-                </div>
-                
-                <!-- Identity & Header -->
-                <div class="flex items-start gap-4 pr-12 sm:pr-40">
-                    <div class="w-16 h-16 rounded-2xl bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
-                        <!-- Placeholder Logo -->
-                        <i data-lucide="building" class="w-8 h-8 text-tealAccent opacity-50"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-[18px] font-bold text-textMain">Apollo Hospitals</h3>
-                            <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-2 py-0.5 rounded uppercase text-[10px] font-bold tracking-wider">
-                                <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 text-[13.5px] text-textMuted mb-2">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            New Delhi, India
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-[11px] font-bold text-white bg-secondary px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wide">New</span>
-                            <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5"></i> JCI Accredited</span>
-                            <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md">Received: Today, 09:30 AM</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full h-[1px] bg-gray-100"></div>
-
-                <!-- Proposal Summary Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 bg-softBlue/30 p-5 rounded-2xl border border-blue-50/50">
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Relevant Specialty</span>
-                        <span class="text-[14px] font-semibold text-textMain flex items-center gap-1.5">
-                            <i data-lucide="heart-pulse" class="w-4 h-4 text-secondary opacity-70"></i> Cardiology
-                        </span>
-                        <span class="text-[12px] text-textMuted mt-1">Dr. Amit Singh (15+ yrs exp)</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Proposed Treatment</span>
-                        <span class="text-[14px] font-semibold text-textMain line-clamp-2" title="CABG (Coronary Artery Bypass Grafting) - Minimally Invasive">CABG (Coronary Artery Bypass Grafting) - Minimally Invasive</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide flex items-center gap-1">
-                            Estimated Cost
-                            <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400 cursor-help" title="Treatment costs are estimates and may change based on medical evaluation and clinical factors."></i>
-                        </span>
-                        <span class="text-[16px] font-extrabold text-primary">$8,500 – $10,000</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Expected Stay</span>
-                        <span class="text-[14px] font-medium text-textMain">Hospital: <span class="font-bold">5–7 days</span></span>
-                        <span class="text-[13px] text-textMuted">Total in India: 14–21 days</span>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mt-1">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="#" class="bg-primary hover:bg-blue-800 text-white font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-all shadow-glow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary flex items-center gap-2 text-center justify-center w-full sm:w-auto">
-                            View Treatment Proposal
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                        <a href="{{ url_for('patient_hospital_profile') }}" class="bg-white border border-gray-200 text-textMain hover:border-gray-300 font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-all shadow-sm text-center w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-gray-300">
-                            View Hospital Profile
-                        </a>
-                        <!-- Optional Message -->
-                        <button class="text-textMuted hover:text-secondary font-semibold text-[13px] flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors focus:outline-none hidden md:flex">
-                            <i data-lucide="message-circle" class="w-4 h-4"></i> Message
-                        </button>
-                    </div>
-                    <!-- Shortlist Toggle (Demo) -->
-                    <button class="shortlist-btn text-textMuted hover:text-lavenderAccent font-bold text-[13px] flex items-center gap-2 bg-gray-50 border border-gray-100 hover:border-purple-100 px-4 py-2 rounded-xl transition-colors focus:outline-none w-full sm:w-auto justify-center">
-                        <i data-lucide="star" class="w-4 h-4"></i> Shortlist
-                    </button>
-                </div>
-            </div>
-
-            <!-- RESPONSE CARD 2 (Viewed, Shortlisted) -->
-            <div class="bg-softLavender/20 border border-purple-100 rounded-[24px] p-5 sm:p-6 shadow-sm hover:shadow-card transition-shadow flex flex-col gap-5 relative group">
-                <!-- Checkbox for comparison -->
-                <div class="absolute top-6 right-6 z-10 flex items-center gap-2">
-                    <label for="compare-2" class="text-[12px] font-bold text-textMuted cursor-pointer hidden sm:block">Select to Compare</label>
-                    <input type="checkbox" id="compare-2" class="compare-checkbox compare-toggle" value="hospital_2">
-                </div>
-                
-                <!-- Identity & Header -->
-                <div class="flex items-start gap-4 pr-12 sm:pr-40">
-                    <div class="w-16 h-16 rounded-2xl bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
-                        <i data-lucide="building" class="w-8 h-8 text-tealAccent opacity-50"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-[18px] font-bold text-textMain">Bumrungrad International</h3>
-                            <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-2 py-0.5 rounded uppercase text-[10px] font-bold tracking-wider">
-                                <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 text-[13.5px] text-textMuted mb-2">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            Bangkok, Thailand
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-[11px] font-bold text-gray-600 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md uppercase tracking-wide">Viewed</span>
-                            <span class="text-[11px] font-bold text-lavenderAccent bg-softLavender border border-purple-100 px-2.5 py-1 rounded-md uppercase tracking-wide flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-lavenderAccent"></i> Shortlisted</span>
-                            <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5"></i> JCI Accredited</span>
-                            <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md">Received: Yesterday</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full h-[1px] bg-gray-100"></div>
-
-                <!-- Proposal Summary Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 bg-white p-5 rounded-2xl border border-gray-100">
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Relevant Specialty</span>
-                        <span class="text-[14px] font-semibold text-textMain flex items-center gap-1.5">
-                            <i data-lucide="heart-pulse" class="w-4 h-4 text-secondary opacity-70"></i> Heart Center
-                        </span>
-                        <span class="text-[12px] text-textMuted mt-1">Multidisciplinary Team</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Proposed Treatment</span>
-                        <span class="text-[14px] font-semibold text-textMain line-clamp-2" title="Traditional CABG procedure with comprehensive cardiac rehab">Traditional CABG with Rehab</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide flex items-center gap-1">
-                            Estimated Cost
-                            <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400 cursor-help" title="Treatment costs are estimates and may change based on medical evaluation and clinical factors."></i>
-                        </span>
-                        <span class="text-[16px] font-extrabold text-primary">$12,000 – $14,000</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Expected Stay</span>
-                        <span class="text-[14px] font-medium text-textMain">Hospital: <span class="font-bold">7–10 days</span></span>
-                        <span class="text-[13px] text-textMuted">Total in Thailand: 21 days</span>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mt-1">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="#" class="bg-white border border-gray-200 hover:border-secondary hover:text-secondary text-textMain font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-all shadow-sm text-center w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-secondary">
-                            View Treatment Proposal
-                        </a>
-                        <a href="{{ url_for('patient_hospital_profile') }}" class="bg-white border border-gray-200 text-textMuted hover:border-gray-300 hover:text-textMain font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-all shadow-sm text-center w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-gray-300">
-                            View Hospital Profile
-                        </a>
-                    </div>
-                    <!-- Shortlist Toggle (Active State) -->
-                    <button class="shortlist-btn text-lavenderAccent font-bold text-[13px] flex items-center gap-2 bg-softLavender border border-purple-100 px-4 py-2 rounded-xl transition-colors focus:outline-none w-full sm:w-auto justify-center">
-                        <i data-lucide="star" class="w-4 h-4 fill-lavenderAccent"></i> Shortlisted
-                    </button>
-                </div>
-            </div>
-
-            <!-- RESPONSE CARD 3 (Viewed) -->
-            <div class="bg-white border border-gray-200 rounded-[24px] p-5 sm:p-6 shadow-sm hover:shadow-card transition-shadow flex flex-col gap-5 relative group opacity-95">
-                <!-- Checkbox for comparison -->
-                <div class="absolute top-6 right-6 z-10 flex items-center gap-2">
-                    <label for="compare-3" class="text-[12px] font-bold text-textMuted cursor-pointer hidden sm:block">Select to Compare</label>
-                    <input type="checkbox" id="compare-3" class="compare-checkbox compare-toggle" value="hospital_3">
-                </div>
-                
-                <!-- Identity & Header -->
-                <div class="flex items-start gap-4 pr-12 sm:pr-40">
-                    <div class="w-16 h-16 rounded-2xl bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
-                        <i data-lucide="building" class="w-8 h-8 text-tealAccent opacity-50"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h3 class="text-[18px] font-bold text-textMain">Fortis Escorts Heart Institute</h3>
-                            <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-2 py-0.5 rounded uppercase text-[10px] font-bold tracking-wider">
-                                <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 text-[13.5px] text-textMuted mb-2">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            New Delhi, India
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-[11px] font-bold text-gray-500 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md uppercase tracking-wide">Viewed</span>
-                            <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5"></i> NABH Accredited</span>
-                            <span class="text-[12px] font-medium text-textMuted bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-md">Received: Jul 13, 2026</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="w-full h-[1px] bg-gray-100"></div>
-
-                <!-- Proposal Summary Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Relevant Specialty</span>
-                        <span class="text-[14px] font-semibold text-textMain flex items-center gap-1.5">
-                            <i data-lucide="heart-pulse" class="w-4 h-4 text-secondary opacity-70"></i> Cardiac Surgery
-                        </span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Proposed Treatment</span>
-                        <span class="text-[14px] font-semibold text-textMain line-clamp-2">Beating Heart CABG Surgery</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide flex items-center gap-1">
-                            Estimated Cost
-                            <i data-lucide="info" class="w-3.5 h-3.5 text-gray-400 cursor-help" title="Treatment costs are estimates and may change based on medical evaluation and clinical factors."></i>
-                        </span>
-                        <span class="text-[16px] font-extrabold text-primary">$7,800 – $9,200</span>
-                    </div>
-                    <div class="flex flex-col gap-1.5 md:col-span-1">
-                        <span class="text-[12px] font-bold text-textMuted uppercase tracking-wide">Expected Stay</span>
-                        <span class="text-[14px] font-medium text-textMain">Hospital: <span class="font-bold">6–8 days</span></span>
-                        <span class="text-[13px] text-textMuted">Total in India: 14–18 days</span>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mt-1">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <a href="#" class="bg-white border border-gray-200 hover:border-secondary hover:text-secondary text-textMain font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-all shadow-sm text-center w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-secondary">
-                            View Treatment Proposal
-                        </a>
-                        <a href="{{ url_for('patient_hospital_profile') }}" class="bg-white border border-gray-200 text-textMuted hover:border-gray-300 hover:text-textMain font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-all shadow-sm text-center w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-gray-300">
-                            View Hospital Profile
-                        </a>
-                    </div>
-                    <!-- Shortlist Toggle (Inactive) -->
-                    <button class="shortlist-btn text-textMuted hover:text-lavenderAccent font-bold text-[13px] flex items-center gap-2 bg-gray-50 border border-gray-100 hover:border-purple-100 px-4 py-2 rounded-xl transition-colors focus:outline-none w-full sm:w-auto justify-center">
-                        <i data-lucide="star" class="w-4 h-4"></i> Shortlist
-                    </button>
-                </div>
-            </div>
-
-            <!-- Developer Note: Un-comment to see No Responses State
+            {% if responses %}
+                {% for response in responses %}
+                    <!-- Render response -->
+                {% endfor %}
+            {% else %}
+            <!-- No Responses State -->
             <div class="bg-white border-2 border-gray-100 border-dashed rounded-[24px] p-10 sm:p-14 flex flex-col items-center justify-center text-center">
                 <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
                     <i data-lucide="clock" class="w-8 h-8 text-gray-400"></i>
                 </div>
-                <h3 class="text-[18px] font-bold text-textMain mb-2">No Hospital Responses Yet</h3>
+                <h3 class="text-[18px] font-bold text-textMain mb-2">No hospital responses yet.</h3>
                 <p class="text-[14px] text-textMuted max-w-[450px] mb-6 leading-relaxed">
-                    Relevant healthcare providers may review your treatment request and respond based on their expertise, availability and the information provided.
+                    Your treatment request is being matched with relevant healthcare providers. You will be notified when a hospital submits a Treatment Estimate &amp; Proposal.
                 </p>
-                <a href="{{ url_for('patient_request_details') }}" class="bg-white border border-gray-200 text-textMain hover:bg-gray-50 font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-shadow shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-300">
+                {% if request and request.reference_id %}
+                <a href="{{ url_for('patient_request_details', reference_id=request.reference_id) }}" class="bg-white border border-gray-200 text-textMain hover:bg-gray-50 font-bold px-6 py-2.5 rounded-full text-[13.5px] transition-shadow shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-300">
                     View Treatment Request
                 </a>
+                {% endif %}
             </div>
-            -->
-
+            {% endif %}
         </div>
 
     </main>
@@ -589,6 +372,7 @@
         </div>
     </footer>
 
+    {% if responses %}
     <!-- STICKY COMPARE ACTION BAR -->
     <div id="compare-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] py-4 px-4 sm:px-6">
         <div class="max-w-[1000px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -611,6 +395,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Scripts -->
     <script>

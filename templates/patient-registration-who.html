@@ -26,35 +26,97 @@
     <div class="max-w-md w-full bg-white p-8 rounded-[24px] shadow-sm border border-gray-100">
         <h2 class="text-2xl font-extrabold mb-6 text-center tracking-tight">Who is this treatment request for?</h2>
         
-        <form action="{{ url_for('patient_registration_who') }}" method="POST" class="flex flex-col gap-4">
+        <form action="{{ url_for('patient_registration_who') }}" method="POST" class="flex flex-col gap-4" id="registration-form">
             
-            {% for profile in profiles %}
-            <label class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors">
-                <input type="radio" name="profile_id" value="{{ profile.id }}" required class="w-5 h-5 text-secondary border-gray-300 focus:ring-secondary">
+            {% if error %}
+            <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-2 border border-red-200">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Myself Option -->
+            <label class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors" onclick="hideDropdown()">
+                <input type="radio" name="profile_id" value="{{ self_profile.id if self_profile else 'new_self' }}" required class="w-5 h-5 text-secondary border-gray-300 focus:ring-secondary" checked>
                 <div class="flex flex-col">
-                    <span class="font-bold text-gray-900">{{ profile.first_name }} {{ profile.last_name }}</span>
+                    <span class="font-bold text-gray-900">Myself</span>
+                    {% if self_profile %}
+                    <span class="text-sm text-gray-500">Continue as {{ self_profile.first_name|title}} {{ self_profile.last_name|title}}</span>
+                    {% else %}
+                    <span class="text-sm text-gray-500">Create a profile for yourself</span>
+                    {% endif %}
+                </div>
+            </label>
+
+            <!-- Existing Other Profiles -->
+            {% for profile in other_profiles %}
+            <label class="flex items-center gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors" onclick="hideDropdown()">
+                <input type="radio" name="profile_id" value="{{ profile.id }}" class="w-5 h-5 text-secondary border-gray-300 focus:ring-secondary">
+                <div class="flex flex-col">
+                    <span class="font-bold text-gray-900">{{ profile.first_name|title}} {{ profile.last_name|title}}</span>
                     <span class="text-sm text-gray-500">{{ profile.relationship_type }}</span>
                 </div>
             </label>
             {% endfor %}
             
-            <label class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors">
-                <input type="radio" name="profile_id" value="new" required class="w-5 h-5 mt-1 text-secondary border-gray-300 focus:ring-secondary" id="radio-new">
+            <!-- Someone else Option -->
+            <label class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-secondary transition-colors" onclick="showDropdown()">
+                <input type="radio" name="profile_id" value="new_other" required class="w-5 h-5 mt-1 text-secondary border-gray-300 focus:ring-secondary" id="radio-other">
                 <div class="flex flex-col w-full">
                     <span class="font-bold text-gray-900 mb-2">Someone else</span>
-                    <select name="relationship" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-secondary" onclick="document.getElementById('radio-new').checked = true;">
-                        <option value="Self">Myself</option>
-                        <option value="Parent/Guardian">My Child</option>
-                        <option value="Child">My Parent</option>
-                        <option value="Spouse/Partner">My Spouse/Partner</option>
-                        <option value="Authorized Representative">Authorized Representative</option>
-                    </select>
+                    <div id="relationship-dropdown-container" class="hidden">
+                        <label class="block text-sm text-gray-700 mb-1">Relationship to you</label>
+                        <select name="relationship" id="relationship-select" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-secondary">
+                            <option value="">Select relationship...</option>
+                            <option value="Child">Child</option>
+                            <option value="Spouse / Partner">Spouse / Partner</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Relative">Relative</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <p id="relationship-error" class="text-red-500 text-xs mt-1 hidden">Please select a relationship.</p>
+                    </div>
                 </div>
             </label>
 
             <button type="submit" class="mt-4 w-full bg-secondary text-white font-bold py-3.5 rounded-xl hover:bg-blue-600 transition-colors">Continue</button>
         </form>
     </div>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+        
+        function hideDropdown() {
+            document.getElementById('relationship-dropdown-container').classList.add('hidden');
+            document.getElementById('relationship-select').required = false;
+            document.getElementById('relationship-error').classList.add('hidden');
+        }
+
+        function showDropdown() {
+            document.getElementById('relationship-dropdown-container').classList.remove('hidden');
+            document.getElementById('relationship-select').required = true;
+            document.getElementById('radio-other').checked = true;
+        }
+
+        // Initialize state based on which radio is selected
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('radio-other').checked) {
+                showDropdown();
+            }
+        });
+
+        // Add front-end validation
+        document.getElementById('registration-form').addEventListener('submit', function(e) {
+            if (document.getElementById('radio-other').checked) {
+                const select = document.getElementById('relationship-select');
+                if (!select.value) {
+                    e.preventDefault();
+                    document.getElementById('relationship-error').classList.remove('hidden');
+                } else {
+                    document.getElementById('relationship-error').classList.add('hidden');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
