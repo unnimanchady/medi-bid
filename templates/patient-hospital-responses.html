@@ -333,9 +333,45 @@
         <!-- HOSPITAL RESPONSE LIST -->
         <div class="flex flex-col gap-6 opacity-0 animate-fade-in stagger-3">
             {% if responses %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for response in responses %}
                     <!-- Render response -->
+                    <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden hover:shadow-card hover:border-blue-200 transition-all flex flex-col">
+                        <div class="p-6 flex-grow">
+                            <h3 class="font-bold text-textMain text-[16px] mb-1">{{ response.hospital.display_name or response.hospital.legal_name }}</h3>
+                            <p class="text-[13px] text-textMuted flex items-center gap-1.5 mb-4">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> {{ response.hospital.city }}, {{ response.hospital.country }}
+                            </p>
+                            
+                            <div class="space-y-3 mb-5">
+                                <div class="flex justify-between items-center text-[13px] border-b border-gray-100 pb-2">
+                                    <span class="text-textMuted font-medium">Estimated Cost</span>
+                                    <span class="font-bold text-primary">{{ response.currency }} {{ "{:,.0f}".format(response.estimated_cost_min) }} - {{ "{:,.0f}".format(response.estimated_cost_max) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[13px] border-b border-gray-100 pb-2">
+                                    <span class="text-textMuted font-medium">Duration</span>
+                                    <span class="font-bold text-primary">{{ response.estimated_duration_value }} {{ response.estimated_duration_unit }}s</span>
+                                </div>
+                                <div class="flex justify-between items-center text-[13px] border-b border-gray-100 pb-2">
+                                    <span class="text-textMuted font-medium">Submitted</span>
+                                    <span class="font-bold text-primary">{{ response.submitted_at.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                {% if response.valid_until %}
+                                <div class="flex justify-between items-center text-[13px] pb-2">
+                                    <span class="text-textMuted font-medium">Valid Until</span>
+                                    <span class="font-bold text-amber-600">{{ response.valid_until.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                            <a href="{{ url_for('patient_treatment_proposal_details', proposal_id=response.id) }}" class="flex-grow inline-flex items-center justify-center bg-secondary hover:bg-blue-600 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary group text-[13px]">
+                                View Full Proposal <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                            </a>
+                        </div>
+                    </div>
                 {% endfor %}
+                </div>
             {% else %}
             <!-- No Responses State -->
             <div class="bg-white border-2 border-gray-100 border-dashed rounded-[24px] p-10 sm:p-14 flex flex-col items-center justify-center text-center">

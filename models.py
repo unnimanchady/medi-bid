@@ -520,3 +520,54 @@ class HospitalUser(db.Model):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc)
     )
+
+class TreatmentProposal(db.Model):
+    __tablename__ = "treatment_proposals"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    
+    treatment_request_id = db.Column(db.Integer, db.ForeignKey('treatment_requests.id'), nullable=False, index=True)
+    treatment_request = db.relationship('TreatmentRequest', backref=db.backref('proposals', cascade='all, delete-orphan'))
+    
+    hospital_id = db.Column(db.Integer, db.ForeignKey('hospitals.id'), nullable=False, index=True)
+    hospital = db.relationship('Hospital', backref=db.backref('proposals', cascade='all, delete-orphan'))
+    
+    status = db.Column(db.String(20), nullable=False, default="draft", index=True)
+    
+    proposed_treatment = db.Column(db.String(255), nullable=True)
+    treatment_plan = db.Column(db.Text, nullable=True)
+    specialty = db.Column(db.String(100), nullable=True)
+    lead_doctor = db.Column(db.String(100), nullable=True)
+    
+    estimated_duration_value = db.Column(db.Integer, nullable=True)
+    estimated_duration_unit = db.Column(db.String(20), nullable=True)
+    
+    hospital_stay_nights = db.Column(db.Integer, nullable=True)
+    recovery_stay_days = db.Column(db.Integer, nullable=True)
+    
+    currency = db.Column(db.String(10), nullable=True)
+    estimated_cost_min = db.Column(db.Numeric(12, 2), nullable=True)
+    estimated_cost_max = db.Column(db.Numeric(12, 2), nullable=True)
+    
+    inclusions = db.Column(db.Text, nullable=True)
+    exclusions = db.Column(db.Text, nullable=True)
+    
+    requirements = db.Column(db.Text, nullable=True)
+    additional_notes = db.Column(db.Text, nullable=True)
+    valid_until = db.Column(db.Date, nullable=True)
+    
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    submitted_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
+
+class CostLineItem(db.Model):
+    __tablename__ = "cost_line_items"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    
+    proposal_id = db.Column(db.Integer, db.ForeignKey('treatment_proposals.id'), nullable=False, index=True)
+    proposal = db.relationship('TreatmentProposal', backref=db.backref('line_items', cascade='all, delete-orphan', lazy=True))
+    
+    description = db.Column(db.String(255), nullable=False)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)

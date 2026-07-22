@@ -342,8 +342,8 @@
                         <i data-lucide="building-2" class="w-5 h-5"></i>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-[20px] font-extrabold text-primary leading-none">0</span>
-                        <span class="text-[13px] font-bold text-textMuted">Responses <span class="text-[9px] bg-gray-100 text-gray-500 px-1 rounded ml-1 tracking-widest uppercase">Soon</span></span>
+                        <span class="text-[20px] font-extrabold text-primary leading-none">{{ total_responses }}</span>
+                        <span class="text-[13px] font-bold text-textMuted">Responses</span>
                     </div>
                 </div>
 
@@ -439,7 +439,7 @@
                                             <i data-lucide="building-2" class="w-4 h-4 text-tealAccent"></i>
                                         </div>
                                         <div class="flex flex-col">
-                                            <span class="text-[14px] font-bold text-primary leading-none">0</span>
+                                            <span class="text-[14px] font-bold text-primary leading-none">{{ req.response_count }}</span>
                                             <span class="text-[11px] text-textMuted font-medium">Responses</span>
                                         </div>
                                     </div>
@@ -460,8 +460,8 @@
                                         View Request
                                     </a>
                                     
-                                    <a href="{{ url_for('patient_hospital_responses') }}" class="bg-secondary text-white font-bold px-4 py-2 rounded-lg text-[13px] hover:bg-blue-600 shadow-sm transition-all flex items-center gap-2">
-                                        View Responses
+                                    <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="flex items-center gap-2 text-[14px] font-bold text-secondary hover:text-blue-700 bg-softBlue hover:bg-blue-100 px-4 py-2.5 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm">
+                                        View Responses <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                     </a>
                                     
                                     <button disabled title="Feature coming soon" class="bg-gray-100 text-gray-400 font-bold px-4 py-2 rounded-lg text-[13px] cursor-not-allowed flex items-center gap-2 border border-gray-200">

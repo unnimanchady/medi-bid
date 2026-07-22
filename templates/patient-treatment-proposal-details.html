@@ -55,59 +55,6 @@
             }
         }
     </script>
-
-    <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out forwards;
-        }
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-        
-        .dropdown-menu {
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
-        .dropdown-menu.open {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
-
-        #mobile-menu {
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-        }
-        #mobile-menu.open {
-            max-height: 400px;
-            opacity: 1;
-        }
-
-        /* Print Styles */
-        @media print {
-            body { background: white; color: #000; }
-            header, footer, .no-print, #mobile-menu { display: none !important; }
-            main { max-width: 100% !important; margin: 0; padding: 0; }
-            .bg-bgLight { background-color: white !important; }
-            .shadow-sm, .shadow-card, .shadow-glow { box-shadow: none !important; }
-            .border-gray-200 { border-color: #ddd !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .print-break-inside-avoid { break-inside: avoid; }
-            .print-mt-4 { margin-top: 1rem; }
-        }
-    </style>
 </head>
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
 
@@ -129,70 +76,54 @@
             </a>
             
             <nav class="hidden md:flex items-center gap-1 ml-6">
-                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
-                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
+                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors">Dashboard</a>
+                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors">My Requests</a>
+                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors">Messages</a>
             </nav>
         </div>
 
         <div class="flex items-center gap-3 sm:gap-5">
             <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
                 <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
-                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
             </button>
 
             <div class="relative">
-                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
+                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
+                        {% if profile %}{{ profile.first_name[0]|title}}{{ profile.last_name[0]|title}}{% else %}U{% endif %}
+                    </div>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
                 </button>
-                
-                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
-                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
-                        <p class="text-[14px] font-bold text-textMain truncate">Sarah Jenkins</p>
-                        <p class="text-[12px] text-textMuted truncate">sarah.j@example.com</p>
-                    </div>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="shield" class="w-4 h-4 text-textMuted"></i> Privacy Settings</a>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i> Help & Support</a>
-                    <div class="h-[1px] bg-gray-100 my-1"></div>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
-                </div>
             </div>
-
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
+            
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
                 <i data-lucide="menu" class="w-6 h-6"></i>
             </button>
         </div>
     </header>
 
     <!-- MOBILE NAVIGATION -->
-    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm no-print">
+    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm no-print" style="display:none;">
         <nav class="flex flex-col p-4 gap-1">
             <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
             <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</a>
-            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
         </nav>
     </div>
 
     <!-- MAIN CONTENT -->
     <main class="flex-grow w-full max-w-[850px] mx-auto py-6 sm:py-8 px-4 sm:px-6 flex flex-col gap-6">
         
-        <!-- BREADCRUMBS & TOP NAVIGATION -->
-        <div class="flex items-center justify-between opacity-0 animate-fade-in no-print">
-            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2" aria-label="Breadcrumb">
+        <!-- BREADCRUMBS -->
+        <div class="flex items-center justify-between no-print">
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2">
                 <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors hidden sm:inline">Dashboard</a>
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
-                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors hidden md:inline">My Requests</a>
-                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden md:inline"></i>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors truncate hidden sm:inline">Hospital Responses</a>
+                <a href="{{ url_for('patient_hospital_responses', reference_id=request.reference_id) }}" class="hover:text-primary transition-colors truncate hidden sm:inline">Hospital Responses</a>
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
                 <span class="text-textMain font-bold truncate">Proposal Details</span>
             </nav>
             <div class="flex items-center gap-4">
-                <a href="{{ url_for('patient_compare_hospitals') }}" class="text-[13px] text-textMuted hover:text-primary font-semibold transition-colors focus:outline-none hidden sm:inline">Back to Comparison</a>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex-shrink-0">
+                <a href="{{ url_for('patient_hospital_responses', reference_id=request.reference_id) }}" class="flex items-center gap-1.5 text-[13px] font-semibold text-secondary hover:underline focus:outline-none flex-shrink-0">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
                     <span class="hidden sm:inline">Back to Responses</span>
                     <span class="sm:hidden">Back</span>
@@ -201,71 +132,53 @@
         </div>
 
         <!-- HEADER & ACTIONS -->
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 opacity-0 animate-fade-in stagger-1">
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div class="flex flex-col gap-2">
                 <h1 class="text-[24px] sm:text-[28px] font-extrabold text-primary tracking-tight leading-tight">Treatment Estimate & Proposal</h1>
                 <div class="flex flex-wrap items-center gap-2 text-[13px] font-mono mt-1">
-                    <span class="font-bold text-gray-500 uppercase tracking-widest bg-white border border-gray-200 px-2 py-1 rounded-md" title="Proposal ID">ID: MP-2026-B94F2</span>
-                    <span class="text-gray-300 hidden sm:inline">•</span>
-                    <span class="text-textMuted uppercase tracking-widest bg-gray-50 border border-gray-100 px-2 py-1 rounded-md" title="Request ID">REQ: MB-2026-8A39C2</span>
+                    <span class="text-textMuted uppercase tracking-widest bg-gray-50 border border-gray-100 px-2 py-1 rounded-md">REQ: {{ request.reference_id }}</span>
                 </div>
             </div>
             
             <div class="flex flex-col sm:items-end gap-3 w-full sm:w-auto">
-                <div class="inline-flex items-center gap-1.5 bg-softBlue border border-blue-100 text-secondary px-3 py-1.5 rounded-lg text-[13px] font-bold uppercase tracking-wider self-start sm:self-auto shadow-sm">
-                    <i data-lucide="clock" class="w-4 h-4"></i> Under Consideration
-                </div>
                 <div class="flex items-center gap-2 no-print self-start sm:self-auto">
                     <button onclick="window.print()" class="text-textMuted hover:text-primary bg-white border border-gray-200 p-2 rounded-lg transition-colors focus:outline-none shadow-sm" aria-label="Print Proposal" title="Print">
                         <i data-lucide="printer" class="w-4 h-4"></i>
                     </button>
-                    <!-- Developer Note: Prepare PDF download route -->
-                    <a href="#" class="text-textMuted hover:text-primary bg-white border border-gray-200 p-2 rounded-lg transition-colors focus:outline-none shadow-sm" aria-label="Download PDF" title="Download">
-                        <i data-lucide="download" class="w-4 h-4"></i>
-                    </a>
                 </div>
             </div>
         </div>
 
         <!-- TIMESTAMPS -->
-        <div class="flex items-center gap-4 text-[12.5px] text-textMuted opacity-0 animate-fade-in stagger-1">
-            <span>Received: <strong class="text-textMain">Jul 14, 2026</strong></span>
+        <div class="flex items-center gap-4 text-[12.5px] text-textMuted">
+            <span>Submitted: <strong class="text-textMain">{{ proposal.submitted_at.strftime('%B %d, %Y') }}</strong></span>
             <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-            <span>Last Updated: <strong class="text-textMain">Today, 09:30 AM</strong></span>
+            <span>Valid Until: <strong class="text-textMain">{{ proposal.valid_until.strftime('%B %d, %Y') if proposal.valid_until else 'Not specified' }}</strong></span>
         </div>
 
         <!-- HOSPITAL SUMMARY CARD -->
-        <div class="bg-white border-2 border-primary/10 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row gap-5 items-start relative overflow-hidden opacity-0 animate-fade-in stagger-1">
-            <div class="absolute left-0 top-0 h-full w-1.5 bg-primary"></div>
-            
+        <div class="bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row gap-5 items-start relative overflow-hidden">
+            <div class="absolute left-0 top-0 h-full w-1.5 bg-secondary"></div>
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-sm">
-                <i data-lucide="building" class="w-8 h-8 sm:w-10 sm:h-10 text-primary opacity-40"></i>
+                <i data-lucide="building-2" class="w-8 h-8 sm:w-10 sm:h-10 text-secondary opacity-40"></i>
             </div>
             
             <div class="flex flex-col flex-grow">
                 <div class="flex flex-wrap items-center gap-3 mb-1.5">
-                    <h2 class="text-[20px] sm:text-[22px] font-extrabold text-primary leading-tight">Apollo Hospitals</h2>
+                    <h2 class="text-[20px] sm:text-[22px] font-extrabold text-primary leading-tight">{{ hospital.display_name or hospital.legal_name }}</h2>
                     <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-2 py-0.5 rounded uppercase text-[10px] font-bold tracking-wider">
-                        <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
+                        <i data-lucide="shield-check" class="w-3 h-3"></i> Verified Partner
                     </div>
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-y-1.5 gap-x-3 text-[13.5px] text-textMuted mb-3">
-                    <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4"></i> New Delhi, India</span>
-                    <span class="text-gray-300 hidden sm:inline">•</span>
-                    <span class="flex items-center gap-1.5"><i data-lucide="award" class="w-4 h-4"></i> JCI Accredited</span>
-                    <span class="text-gray-300 hidden sm:inline">•</span>
-                    <span class="font-medium text-textMain">Cardiology & Heart Institute</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4"></i> {{ hospital.city }}, {{ hospital.country }}</span>
                 </div>
-                
-                <a href="{{ url_for('patient_hospital_profile') }}" class="inline-flex items-center gap-1.5 text-[13px] font-bold text-secondary hover:underline focus:outline-none self-start no-print">
-                    View Hospital Profile <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-                </a>
             </div>
         </div>
 
         <!-- IMPORTANT NOTICE -->
-        <div class="bg-softBlue border border-blue-100 rounded-[12px] p-4 flex gap-3 text-secondary shadow-sm opacity-0 animate-fade-in stagger-2 print-break-inside-avoid">
+        <div class="bg-softBlue border border-blue-100 rounded-[12px] p-4 flex gap-3 text-secondary shadow-sm">
             <i data-lucide="info" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
             <div class="flex flex-col text-[13.5px]">
                 <strong class="font-bold text-primary mb-0.5">About This Treatment Estimate</strong>
@@ -274,13 +187,13 @@
         </div>
 
         <!-- MAIN PROPOSAL CONTENT -->
-        <div class="flex flex-col gap-6 opacity-0 animate-fade-in stagger-3">
+        <div class="flex flex-col gap-6">
 
             <!-- GROUP 1: MEDICAL ASSESSMENT & TREATMENT -->
-            <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden print-break-inside-avoid">
+            <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
                     <h2 class="text-[18px] font-extrabold text-primary flex items-center gap-2">
-                        <i data-lucide="clipboard-list" class="w-5 h-5 text-secondary"></i> Medical Assessment & Treatment
+                        <i data-lucide="clipboard-list" class="w-5 h-5 text-secondary"></i> Medical Assessment & Treatment Plan
                     </h2>
                 </div>
                 
@@ -288,246 +201,134 @@
                     
                     <!-- Section 1: Case Review Summary -->
                     <div>
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Case Review Summary</h3>
-                        <div class="bg-softBlue/20 rounded-xl p-4 sm:p-5 text-[14.5px] text-textMain leading-relaxed border border-blue-50">
-                            <span class="font-bold block mb-1 text-primary">Initial review based on provided information:</span>
-                            Patient presents with multi-vessel coronary artery disease based on the provided angiography report and clinical history. The medical board has reviewed the ECG and recent blood panels. A surgical intervention is recommended to bypass the blockages and restore optimal blood flow.
-                        </div>
+                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Clinical Assessment</h3>
+                        <div class="bg-gray-50 rounded-xl p-4 sm:p-5 text-[14.5px] text-textMain leading-relaxed border border-gray-100 whitespace-pre-wrap">{{ proposal.treatment_plan|default('Not specified', true) }}</div>
                     </div>
 
                     <!-- Section 2: Proposed Treatment Plan -->
                     <div>
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-4">Proposed Treatment Plan</h3>
                         <div class="flex flex-col gap-5">
                             <div>
                                 <div class="text-[13px] text-textMuted mb-1 font-medium">Proposed Treatment / Procedure</div>
-                                <div class="text-[17px] font-bold text-primary">Minimally Invasive Coronary Artery Bypass Grafting (CABG)</div>
-                            </div>
-                            <div>
-                                <div class="text-[13px] text-textMuted mb-1 font-medium">Treatment Approach</div>
-                                <div class="text-[14.5px] text-textMain leading-relaxed">Minimally invasive approach utilizing a smaller keyhole incision rather than traditional sternotomy. This approach aims to reduce recovery time, lower the risk of post-operative complications, and minimize scarring. The procedure will involve grafting 2 to 3 vessels depending on the final intraoperative assessment.</div>
+                                <div class="text-[17px] font-bold text-primary">{{ proposal.proposed_treatment|default('Not specified', true) }}</div>
                             </div>
                             
-                            <div class="mt-2">
-                                <div class="text-[13px] text-textMuted mb-3 font-medium">Treatment Stages</div>
-                                <div class="flex flex-col gap-4 relative">
-                                    <div class="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gray-100 z-0"></div>
-                                    
-                                    <div class="flex gap-4 relative z-10">
-                                        <div class="w-6 h-6 rounded-full bg-softBlue text-secondary flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-sm border border-blue-100">1</div>
-                                        <div class="text-[14px] text-textMain pt-0.5"><span class="font-bold text-primary">Initial Evaluation:</span> Physical consult, pre-anesthesia checkup, and updated ECG/Echo upon arrival.</div>
-                                    </div>
-                                    <div class="flex gap-4 relative z-10">
-                                        <div class="w-6 h-6 rounded-full bg-softBlue text-secondary flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-sm border border-blue-100">2</div>
-                                        <div class="text-[14px] text-textMain pt-0.5"><span class="font-bold text-primary">Procedure:</span> Minimally invasive CABG surgery (Estimated duration: 4 hours).</div>
-                                    </div>
-                                    <div class="flex gap-4 relative z-10">
-                                        <div class="w-6 h-6 rounded-full bg-softBlue text-secondary flex items-center justify-center text-[11px] font-bold flex-shrink-0 shadow-sm border border-blue-100">3</div>
-                                        <div class="text-[14px] text-textMain pt-0.5"><span class="font-bold text-primary">Recovery:</span> 2 days in Cardiac ICU observation followed by private room recovery and initial physiotherapy.</div>
-                                    </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+                                <div>
+                                    <div class="text-[13px] text-textMuted mb-1 font-medium">Treating Department</div>
+                                    <div class="text-[14.5px] font-medium text-textMain">{{ proposal.specialty|default('Not specified', true) }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[13px] text-textMuted mb-1 font-medium">Lead Doctor / Specialist</div>
+                                    <div class="text-[14.5px] font-medium text-textMain">{{ proposal.lead_doctor|default('Not specified', true) }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Section 3: Pre-Treatment Evaluation -->
+                    <!-- Section 3: Expected Treatment Timeline -->
                     <div class="border-t border-gray-100 pt-6">
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Pre-Treatment Evaluation</h3>
-                        <p class="text-[14px] text-textMain mb-3">The following investigations are required prior to confirming the final surgical plan in-person:</p>
-                        <div class="bg-gray-50 rounded-xl p-4 sm:p-5 border border-gray-100">
-                            <ul class="list-disc pl-5 space-y-2 text-[14px] text-textMain">
-                                <li>Cardiology Specialist Consultation</li>
-                                <li>Pre-anesthesia Assessment</li>
-                                <li>Updated Echocardiogram (Echo)</li>
-                                <li>Complete Blood Count (CBC), Kidney Function Test, and Coagulation Panel</li>
-                            </ul>
-                            <div class="flex items-start gap-2 mt-4 text-[12.5px] text-textMuted italic">
-                                <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
-                                Additional tests may be recommended following clinical evaluation.
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 4: Proposed Medical Team -->
-                    <div class="border-t border-gray-100 pt-6">
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-4">Proposed Medical Team</h3>
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white border border-gray-200 rounded-xl p-4 sm:p-5 shadow-sm gap-4 hover:border-gray-300 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0 border border-gray-200">
-                                    <i data-lucide="user" class="w-6 h-6 sm:w-7 sm:h-7 text-gray-400"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-[16px] font-bold text-primary">Dr. Amit Singh</span>
-                                    <span class="text-[13.5px] font-medium text-textMuted mt-0.5">Senior Consultant, Cardiothoracic Surgery</span>
-                                    <span class="text-[12.5px] text-textMuted mt-1">15+ years experience • MBBS, MS, MCh (Cardio Thoracic Surgery)</span>
-                                </div>
-                            </div>
-                            <!-- Developer Note: Link to doctor profile when feature exists -->
-                            <a href="#" class="inline-flex items-center justify-center bg-white border border-gray-200 text-textMain font-bold px-4 py-2 rounded-lg text-[13px] hover:bg-gray-50 focus:outline-none transition-colors no-print">
-                                View Profile
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Section 5: Expected Treatment Timeline -->
-                    <div class="border-t border-gray-100 pt-6">
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-4">Expected Treatment Timeline</h3>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                            <div class="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
-                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1">Pre-Treatment</div>
-                                <div class="text-[15px] font-bold text-textMain">1–2 days</div>
-                            </div>
-                            <div class="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
-                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1">Procedure</div>
-                                <div class="text-[15px] font-bold text-textMain">1 day</div>
-                            </div>
+                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-4">Treatment Timeline Estimate</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                             <div class="bg-softBlue/30 rounded-xl p-3 sm:p-4 border border-blue-50">
-                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1">Hospital Stay</div>
-                                <div class="text-[15px] font-bold text-secondary">5–7 days</div>
+                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1 flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-secondary"></i> Total Duration</div>
+                                <div class="text-[15px] font-bold text-secondary">
+                                    {% if proposal.estimated_duration_value %}
+                                        {{ proposal.estimated_duration_value }} {{ proposal.estimated_duration_unit|default('days', true)|capitalize }}
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="bg-softTeal/30 rounded-xl p-3 sm:p-4 border border-teal-50">
-                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1">Total Destination Stay</div>
-                                <div class="text-[15px] font-bold text-tealAccent">14–21 days</div>
+                            <div class="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
+                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1 flex items-center gap-1.5"><i data-lucide="bed" class="w-3.5 h-3.5"></i> Hospital Stay</div>
+                                <div class="text-[15px] font-bold text-textMain">
+                                    {% if proposal.hospital_stay_nights is not none %}
+                                        {{ proposal.hospital_stay_nights }} Nights
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-100">
+                                <div class="text-[11px] font-bold text-textMuted uppercase mb-1 flex items-center gap-1.5"><i data-lucide="home" class="w-3.5 h-3.5"></i> Recovery Stay</div>
+                                <div class="text-[15px] font-bold text-textMain">
+                                    {% if proposal.recovery_stay_days is not none %}
+                                        {{ proposal.recovery_stay_days }} Days
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                        <p class="text-[12.5px] text-textMuted italic mt-3">All timelines are estimates and depend on individual recovery progress.</p>
                     </div>
 
                 </div>
             </div>
 
             <!-- GROUP 2: FINANCIAL ESTIMATE -->
-            <div class="bg-white border-2 border-amber-100/60 rounded-[16px] shadow-sm relative overflow-hidden print-break-inside-avoid print-mt-4">
-                <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
+            <div class="bg-white border-2 border-primary/10 rounded-[16px] shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
                 
                 <!-- Section 6: Estimated Treatment Cost -->
-                <div class="p-5 sm:p-7 border-b border-gray-100 bg-softAmber/10">
+                <div class="p-5 sm:p-7 border-b border-gray-100 bg-primary/5">
                     <h2 class="text-[18px] font-extrabold text-primary flex items-center gap-2 mb-4">
-                        <i data-lucide="calculator" class="w-5 h-5 text-amber-500"></i> Estimated Treatment Cost
+                        <i data-lucide="calculator" class="w-5 h-5 text-primary"></i> Estimated Cost Range
                     </h2>
                     <div class="flex items-baseline gap-2 mb-1">
-                        <span class="text-[16px] font-bold text-textMuted uppercase">USD</span>
-                        <span class="text-[36px] sm:text-[42px] font-black text-primary leading-none tracking-tight">8,500 – 10,000</span>
+                        <span class="text-[16px] font-bold text-textMuted uppercase">{{ proposal.currency }}</span>
+                        <span class="text-[36px] sm:text-[42px] font-black text-primary leading-none tracking-tight">
+                            {{ "{:,.0f}".format(proposal.estimated_cost_min) if proposal.estimated_cost_min else "0" }} 
+                            – 
+                            {{ "{:,.0f}".format(proposal.estimated_cost_max) if proposal.estimated_cost_max else "0" }}
+                        </span>
                     </div>
-                    <p class="text-[13px] text-textMuted italic mt-4 max-w-2xl leading-relaxed">
-                        The final treatment cost may vary based on clinical evaluation, additional investigations, changes in treatment requirements, complications, length of stay and other medical factors.
-                    </p>
                 </div>
                 
                 <!-- Section 7: Cost Breakdown -->
-                <div class="p-5 sm:p-7 bg-gray-50/50">
+                {% if proposal.line_items %}
+                <div class="p-5 sm:p-7 bg-white">
                     <h3 class="text-[14px] font-bold text-textMain mb-4">Estimated Cost Breakdown</h3>
                     <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        {% for item in proposal.line_items %}
                         <div class="flex justify-between items-center px-4 py-3 border-b border-gray-100 text-[14px]">
-                            <span class="text-textMuted font-medium">Doctor / Surgeon Fees</span>
-                            <span class="font-bold text-textMain">Included</span>
+                            <span class="text-textMuted font-medium">{{ item.description }}</span>
+                            <span class="font-bold text-textMain">{{ proposal.currency }} {{ "{:,.2f}".format(item.amount) }}</span>
                         </div>
-                        <div class="flex justify-between items-center px-4 py-3 border-b border-gray-100 text-[14px]">
-                            <span class="text-textMuted font-medium">Hospital & OT Charges</span>
-                            <span class="font-bold text-textMain">Included</span>
-                        </div>
-                        <div class="flex justify-between items-center px-4 py-3 border-b border-gray-100 text-[14px]">
-                            <span class="text-textMuted font-medium">Implants / Consumables</span>
-                            <span class="font-bold text-textMain">Varies based on selection</span>
-                        </div>
-                        <div class="px-4 py-3 text-[13px] text-textMuted italic bg-gray-50">
-                            Detailed itemized breakdown will be provided at the hospital based on final clinical evaluation.
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+                {% endif %}
                 
                 <!-- Sections 8 & 9: Inclusions & Exclusions Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 border-t border-gray-100">
+                <div class="grid grid-cols-1 md:grid-cols-2 border-t border-gray-100 bg-white">
                     <!-- Included -->
-                    <div class="p-5 sm:p-7 border-b md:border-b-0 md:border-r border-gray-100 bg-white">
+                    <div class="p-5 sm:p-7 border-b md:border-b-0 md:border-r border-gray-100">
                         <h3 class="text-[14px] font-bold text-textMain mb-4 flex items-center gap-2">
-                            <i data-lucide="check-circle-2" class="w-5 h-5 text-success"></i> Included in This Estimate
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-success"></i> Included in Estimate
                         </h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Doctor and surgeon fees</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Standard hospital and procedure charges</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Room charges (for up to 7 days)</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Routine nursing care</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Standard pre-op investigations</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Medicines during hospital admission</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> Standard meals for the patient during admission</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> 1 Follow-up physical consultation</li>
-                        </ul>
+                        {% if proposal.inclusions %}
+                        <div class="text-[14px] text-textMain whitespace-pre-wrap pl-3 border-l-2 border-green-200">{{ proposal.inclusions }}</div>
+                        {% else %}
+                        <p class="text-sm text-textMuted italic">None specified</p>
+                        {% endif %}
                     </div>
                     <!-- Excluded -->
                     <div class="p-5 sm:p-7 bg-red-50/20">
                         <h3 class="text-[14px] font-bold text-textMain mb-4 flex items-center gap-2">
-                            <i data-lucide="x-circle" class="w-5 h-5 text-danger"></i> Not Included / Additional Costs
+                            <i data-lucide="x-circle" class="w-5 h-5 text-danger"></i> Not Included
                         </h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="x" class="w-4 h-4 text-danger flex-shrink-0 mt-0.5"></i> Treatment for unexpected complications</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="x" class="w-4 h-4 text-danger flex-shrink-0 mt-0.5"></i> Extended hospital stay beyond 7 days</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="x" class="w-4 h-4 text-danger flex-shrink-0 mt-0.5"></i> Additional specialized investigations not in standard protocol</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="x" class="w-4 h-4 text-danger flex-shrink-0 mt-0.5"></i> Take-home medication upon discharge</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="x" class="w-4 h-4 text-danger flex-shrink-0 mt-0.5"></i> Companion meals and accommodation</li>
-                            <li class="flex items-start gap-2.5 text-[14px] text-textMain"><i data-lucide="x" class="w-4 h-4 text-danger flex-shrink-0 mt-0.5"></i> Flight tickets and visa fees</li>
-                        </ul>
+                        {% if proposal.exclusions %}
+                        <div class="text-[14px] text-textMain whitespace-pre-wrap pl-3 border-l-2 border-red-200">{{ proposal.exclusions }}</div>
+                        {% else %}
+                        <p class="text-sm text-textMuted italic">None specified</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
-            <!-- GROUP 3: STAY & SUPPORT -->
-            <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden print-break-inside-avoid print-mt-4">
-                <div class="p-5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-                    <h2 class="text-[18px] font-extrabold text-primary flex items-center gap-2">
-                        <i data-lucide="bed-double" class="w-5 h-5 text-secondary"></i> Hospital Stay & International Support
-                    </h2>
-                </div>
-                
-                <div class="p-5 sm:p-6 flex flex-col gap-6">
-                    <!-- Section 10: Room Details -->
-                    <div>
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Hospital Stay & Room</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                                <div class="text-[13px] text-textMuted mb-1">Room Type Included</div>
-                                <div class="text-[14.5px] font-bold text-textMain">Private Single Room</div>
-                            </div>
-                            <div class="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                                <div class="text-[13px] text-textMuted mb-1">Companion Stay</div>
-                                <div class="text-[14.5px] font-medium text-textMain">Sofa-bed available (Meals extra)</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 11: Support Services -->
-                    <div class="border-t border-gray-100 pt-6">
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-2">International Patient Support</h3>
-                        <p class="text-[12.5px] text-textMuted mb-4 italic">Note: Available services may incur additional charges unless explicitly stated in inclusions.</p>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
-                            <div class="flex justify-between items-center py-2 border-b border-gray-50 text-[14px]">
-                                <span class="text-textMuted">Visa Assistance Letter</span>
-                                <span class="font-bold text-textMain">Available</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-50 text-[14px]">
-                                <span class="text-textMuted">Airport Pickup</span>
-                                <span class="font-bold text-textMain">Complimentary</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-50 text-[14px]">
-                                <span class="text-textMuted">Accommodation Support</span>
-                                <span class="font-bold text-textMain">Available</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 border-b border-gray-50 text-[14px]">
-                                <span class="text-textMuted">Language Interpreter</span>
-                                <span class="font-bold text-textMain">English, Arabic</span>
-                            </div>
-                            <div class="flex justify-between items-center py-2 sm:border-b border-gray-50 text-[14px]">
-                                <span class="text-textMuted">International Patient Desk</span>
-                                <span class="font-bold text-textMain">Dedicated Coordinator</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- GROUP 4: NEXT STEPS & NOTES -->
-            <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden print-break-inside-avoid print-mt-4">
+            <!-- GROUP 3: NOTES & REQUIREMENTS -->
+            <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
                     <h2 class="text-[18px] font-extrabold text-primary flex items-center gap-2">
                         <i data-lucide="calendar-clock" class="w-5 h-5 text-secondary"></i> Important Notes & Requirements
@@ -536,89 +337,39 @@
                 
                 <div class="p-5 sm:p-6 flex flex-col gap-6">
                     
-                    <!-- Section 12: Additional Info Required -->
+                    {% if proposal.requirements %}
                     <div class="bg-softAmber/30 border border-amber-100 rounded-xl p-4 sm:p-5">
                         <h3 class="text-[14px] font-bold text-textMain flex items-center gap-2 mb-2">
-                            <i data-lucide="file-question" class="w-5 h-5 text-amberAccent"></i> Additional Information Required
+                            <i data-lucide="file-question" class="w-5 h-5 text-amberAccent"></i> Pre-treatment Requirements
                         </h3>
-                        <p class="text-[14px] text-textMain mb-3 leading-relaxed">The hospital has requested the following medical records to refine their clinical understanding prior to your arrival:</p>
-                        <ul class="list-disc pl-5 space-y-1.5 text-[14px] text-textMuted mb-5">
-                            <li>Latest HBA1C blood test results (within last 30 days)</li>
-                            <li>Clearance letter from local endocrinologist (due to diabetic history)</li>
-                        </ul>
-                        <button class="bg-white border border-amber-200 text-amberAccent hover:bg-amber-50 font-bold px-4 py-2.5 rounded-lg text-[13px] transition-colors focus:outline-none no-print">
-                            Upload Requested Documents
-                        </button>
+                        <div class="text-[14px] text-textMain whitespace-pre-wrap leading-relaxed">{{ proposal.requirements }}</div>
                     </div>
+                    {% endif %}
 
-                    <!-- Section 13: Follow-Up Plan -->
-                    <div class="border-t border-gray-100 pt-6">
-                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Post-Treatment Follow-Up Plan</h3>
-                        <div class="text-[14px] text-textMain leading-relaxed">
-                            <ul class="space-y-2">
-                                <li class="flex gap-2.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary flex-shrink-0 mt-2"></span> 1 physical consultation prior to final discharge clearance to travel.</li>
-                                <li class="flex gap-2.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary flex-shrink-0 mt-2"></span> 2 remote video consultations included (at 2 weeks and 6 weeks post-discharge).</li>
-                                <li class="flex gap-2.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary flex-shrink-0 mt-2"></span> We will provide a comprehensive discharge summary and coordinate with your local cardiologist for ongoing long-term care.</li>
-                            </ul>
-                        </div>
+                    {% if proposal.additional_notes %}
+                    <div class="{% if proposal.requirements %}border-t border-gray-100 pt-6{% endif %}">
+                        <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Additional Notes</h3>
+                        <div class="text-[14px] text-textMain whitespace-pre-wrap leading-relaxed">{{ proposal.additional_notes }}</div>
                     </div>
-
-                    <div class="border-t border-gray-100 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Section 15: Notes -->
-                        <div>
-                            <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Assumptions & Conditions</h3>
-                            <ul class="list-disc pl-5 space-y-2 text-[13.5px] text-textMuted leading-relaxed">
-                                <li>The estimate assumes a standard recovery without major complications requiring extended ICU stay.</li>
-                                <li>Does not cover pre-existing conditions unrelated to the primary cardiac procedure.</li>
-                            </ul>
-                        </div>
-                        
-                        <!-- Section 14: Validity -->
-                        <div>
-                            <h3 class="text-[12px] font-bold text-textMuted uppercase tracking-widest mb-3">Proposal Validity</h3>
-                            <div class="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                                <div class="text-[15px] font-bold text-textMain">Valid until: August 14, 2026</div>
-                                <p class="text-[12.5px] text-textMuted mt-1.5 leading-relaxed">Treatment availability and estimates may need to be updated if this proposal expires before a decision is made.</p>
-                            </div>
-                        </div>
-                    </div>
+                    {% endif %}
+                    
+                    {% if not proposal.requirements and not proposal.additional_notes %}
+                    <div class="text-[14px] text-textMuted italic">No additional notes or requirements specified.</div>
+                    {% endif %}
 
                 </div>
             </div>
 
         </div>
 
-        <!-- PATIENT ACTIONS (Bottom Sticky or Flow) -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-white border border-gray-200 rounded-[20px] p-5 sm:p-6 shadow-floating no-print mt-4 sticky bottom-6 z-40 opacity-0 animate-fade-in stagger-3">
-            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-center md:justify-start">
-                <button class="bg-softLavender text-lavenderAccent hover:bg-purple-100 border border-purple-100 font-bold px-5 py-2.5 rounded-xl text-[13.5px] transition-colors flex items-center justify-center gap-2 focus:outline-none w-full sm:w-auto">
-                    <i data-lucide="star" class="w-4 h-4 fill-lavenderAccent"></i> Shortlisted
-                </button>
-                <button class="bg-white border border-gray-200 text-textMain hover:bg-gray-50 font-bold px-5 py-2.5 rounded-xl text-[13.5px] transition-colors flex items-center justify-center gap-2 focus:outline-none w-full sm:w-auto">
-                    <i data-lucide="message-circle" class="w-4 h-4 text-textMuted"></i> Message Hospital
-                </button>
-            </div>
-            <div class="w-full md:w-auto mt-1 md:mt-0">
-                <button class="w-full md:w-auto bg-primary text-white hover:bg-blue-800 font-bold px-8 py-3 rounded-xl text-[14.5px] transition-all shadow-glow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-center gap-2" onclick="alert('This will begin the secure confirmation and Next Steps workflow in the future backend. It does not instantly finalize the selection.')">
-                    I'm Interested in This Option
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
-
     </main>
 
     <!-- FOOTER -->
-    <footer class="mt-auto border-t border-gray-200 bg-white py-6 no-print">
-        <div class="w-full max-w-[1000px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <footer class="mt-auto border-t border-gray-200 bg-white py-6">
+        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-2">
                 <span class="text-[14px] font-extrabold text-primary">MediBid</span>
                 <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
-            </div>
-            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
             </div>
         </div>
     </footer>
@@ -627,7 +378,6 @@
     <script>
         lucide.createIcons();
 
-        // Mobile Menu & Profile Dropdown
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const profileBtn = document.getElementById('profile-btn');
@@ -635,34 +385,13 @@
 
         if (mobileMenuBtn && mobileMenu) {
             mobileMenuBtn.addEventListener('click', () => {
-                const isOpen = mobileMenu.classList.contains('open');
-                if (isOpen) {
-                    mobileMenu.classList.remove('open');
+                if (mobileMenu.style.display === 'none') {
+                    mobileMenu.style.display = 'block';
                 } else {
-                    mobileMenu.classList.add('open');
-                    if(profileDropdown) profileDropdown.classList.remove('open');
+                    mobileMenu.style.display = 'none';
                 }
             });
         }
-
-        if (profileBtn && profileDropdown) {
-            profileBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = profileDropdown.classList.contains('open');
-                if (isOpen) {
-                    profileDropdown.classList.remove('open');
-                } else {
-                    profileDropdown.classList.add('open');
-                    if(mobileMenu) mobileMenu.classList.remove('open');
-                }
-            });
-        }
-
-        document.addEventListener('click', (e) => {
-            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-                profileDropdown.classList.remove('open');
-            }
-        });
     </script>
 </body>
 </html>

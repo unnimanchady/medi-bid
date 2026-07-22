@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treatment Requests | Admin | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#475569',
+                        accent: '#3B82F6',
+                        textMain: '#0F172A',
+                        textMuted: '#64748B',
+                        bgLight: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex">
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="w-64 bg-primary text-slate-300 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+        <div class="p-6 border-b border-slate-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-check" class="text-primary w-5 h-5"></i>
+                </div>
+                <span class="font-extrabold text-lg tracking-tight text-white">MediBid Admin</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </a>
+            
+            <a href="{{ url_for('admin_applications') }}" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+                    Hospital Applications
+                </div>
+            </a>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="font-medium">Patients</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="building-2" class="w-5 h-5"></i>
+                <span class="font-medium">Hospitals</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+
+            <a href="{{ url_for('admin_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 bg-slate-800 text-white font-bold rounded-xl transition-colors">
+                <i data-lucide="file-text" class="w-5 h-5 text-accent"></i>
+                Treatment Requests
+            </a>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span class="font-medium">Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="font-medium">Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">Platform Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+                <span class="font-medium">Audit Logs</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-700/50">
+            <a href="{{ url_for('admin_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-white hover:bg-red-500/20 font-bold rounded-xl transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-primary text-white border-b border-slate-700/50 p-4 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-check" class="text-primary w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Admin</span>
+            </div>
+            <a href="{{ url_for('admin_logout') }}" class="p-2 text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </a>
+        </header>
+
+        <div class="p-6 md:p-10 lg:p-12 max-w-7xl mx-auto w-full">
+            <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-textMain tracking-tight">Treatment Requests</h1>
+                    <p class="text-textMuted mt-1">Review all active patient treatment requests and proposals.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <form action="{{ url_for('admin_treatment_requests') }}" method="GET" class="relative">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" name="q" value="{{ search_query or '' }}" placeholder="Search ID or Name..." class="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent outline-none">
+                        {% if current_status %}
+                        <input type="hidden" name="status" value="{{ current_status }}">
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden">
+                <!-- Table Header Tabs -->
+                <div class="flex border-b border-slate-100 px-6 pt-4 gap-6 overflow-x-auto hide-scroll">
+                    <a href="{{ url_for('admin_treatment_requests', q=search_query) }}" class="pb-4 px-2 whitespace-nowrap text-sm transition-colors {% if not current_status %}text-accent font-bold border-b-2 border-accent{% else %}text-textMuted font-semibold hover:text-textMain{% endif %}">
+                        All Requests
+                    </a>
+                    <a href="{{ url_for('admin_treatment_requests', status='Active', q=search_query) }}" class="pb-4 px-2 whitespace-nowrap text-sm transition-colors {% if current_status == 'Active' %}text-accent font-bold border-b-2 border-accent{% else %}text-textMuted font-semibold hover:text-textMain{% endif %}">
+                        Active
+                    </a>
+                    <a href="{{ url_for('admin_treatment_requests', status='Closed', q=search_query) }}" class="pb-4 px-2 whitespace-nowrap text-sm transition-colors {% if current_status == 'Closed' %}text-accent font-bold border-b-2 border-accent{% else %}text-textMuted font-semibold hover:text-textMain{% endif %}">
+                        Closed
+                    </a>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100 text-xs uppercase tracking-wider text-textMuted">
+                                <th class="px-6 py-4 font-bold">Request ID</th>
+                                <th class="px-6 py-4 font-bold">Patient</th>
+                                <th class="px-6 py-4 font-bold hidden md:table-cell">Specialty / Condition</th>
+                                <th class="px-6 py-4 font-bold">Submitted Date</th>
+                                <th class="px-6 py-4 font-bold">Responses</th>
+                                <th class="px-6 py-4 font-bold text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for req in requests %}
+                            <tr class="hover:bg-slate-50/50 transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-textMain">{{ req.reference_id }}</div>
+                                    <div class="text-xs font-bold mt-1 inline-flex px-2 py-0.5 rounded-md {% if req.status == 'Active' %}bg-emerald-50 text-emerald-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+                                        {{ req.status }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-bold text-textMain">{{ req.patient_profile.first_name }} {{ req.patient_profile.last_name }}</div>
+                                    <div class="text-xs text-textMuted mt-0.5">{{ req.patient_profile.country_of_residence }}</div>
+                                </td>
+                                <td class="px-6 py-4 hidden md:table-cell">
+                                    <div class="text-sm font-medium text-textMain">{{ req.specialty }}</div>
+                                    <div class="text-xs text-textMuted mt-0.5 truncate max-w-xs">{{ req.condition }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-textMain">{{ req.created_at.strftime('%b %d, %Y') }}</div>
+                                    <div class="text-xs text-textMuted mt-0.5">{{ req.created_at.strftime('%H:%M UTC') }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md {% if req.response_count > 0 %}bg-blue-50 text-blue-700 border border-blue-100{% else %}bg-slate-50 text-slate-500 border border-slate-200{% endif %} text-xs font-bold">
+                                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                        {{ req.response_count }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{{ url_for('admin_treatment_request_detail', reference_id=req.reference_id) }}" class="inline-flex items-center justify-center bg-white border border-slate-200 text-slate-700 hover:text-accent hover:border-accent hover:bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-all">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-16 text-center">
+                                    <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-100">
+                                        <i data-lucide="search-x" class="w-8 h-8"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-textMain mb-1">No Requests Found</h3>
+                                    <p class="text-sm text-textMuted">No treatment requests match the current filters.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

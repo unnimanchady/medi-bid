@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory, flash, abort
 from functools import wraps
 from flask_migrate import Migrate
 from config import Config
-from models import db, User, PatientProfile, TreatmentRequest, MedicalDocument, Hospital, HospitalUser, Specialty, Language, HospitalAccreditation, HospitalVerificationDocument
+from models import db, User, PatientProfile, TreatmentRequest, MedicalDocument, Hospital, HospitalUser, Specialty, Language, HospitalAccreditation, HospitalVerificationDocument, TreatmentProposal, CostLineItem
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 import re
@@ -773,12 +773,21 @@ def patient_dashboard():
         TreatmentRequest.patient_profile_id.in_(profile_ids)
     ).order_by(TreatmentRequest.created_at.desc()).all()
     
+    total_responses = 0
+    for req in active_requests:
+        req.response_count = TreatmentProposal.query.filter_by(
+            treatment_request_id=req.id,
+            status='submitted'
+        ).count()
+        total_responses += req.response_count
+    
     return render_template(
         "patient-dashboard.html",
         user=user,
         profile=profile,
         active_requests=active_requests,
-        profiles=profiles
+        profiles=profiles,
+        total_responses=total_responses
     )
 
 
@@ -824,15 +833,26 @@ def patient_hospital_responses():
         
     profile_ids = [p.id for p in profiles]
     
-    # Get the most recent request for the user
-    req = TreatmentRequest.query.filter(
-        TreatmentRequest.patient_profile_id.in_(profile_ids)
-    ).order_by(TreatmentRequest.created_at.desc()).first()
+    req_reference_id = request.args.get('reference_id')
+    
+    if req_reference_id:
+        req = TreatmentRequest.query.filter_by(reference_id=req_reference_id).first()
+        if not req or req.patient_profile_id not in profile_ids:
+            return redirect(url_for('patient_dashboard'))
+    else:
+        req = TreatmentRequest.query.filter(
+            TreatmentRequest.patient_profile_id.in_(profile_ids)
+        ).order_by(TreatmentRequest.created_at.desc()).first()
     
     profile = PatientProfile.query.get(req.patient_profile_id) if req else None
     
-    # No HospitalResponse model exists yet, so pass an empty list
-    responses = []
+    if req:
+        responses = TreatmentProposal.query.filter_by(
+            treatment_request_id=req.id,
+            status='submitted'
+        ).order_by(TreatmentProposal.submitted_at.desc()).all()
+    else:
+        responses = []
 
     return render_template(
         "patient-hospital-responses.html", 
@@ -853,9 +873,31 @@ def patient_compare_hospitals():
     return render_template("patient-compare-hospitals.html")
 
 
-@app.route("/patient/treatment-proposal")
-def patient_treatment_proposal_details():
-    return render_template("patient-treatment-proposal-details.html")
+@app.route("/patient/treatment-proposal/<int:proposal_id>")
+def patient_treatment_proposal_details(proposal_id):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    user = User.query.get(user_id)
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    if not user or not profiles:
+        return redirect(url_for('patient_registration_step1'))
+        
+    profile_ids = [p.id for p in profiles]
+    
+    proposal = TreatmentProposal.query.get_or_404(proposal_id)
+    req = TreatmentRequest.query.get(proposal.treatment_request_id)
+    
+    # Security: Ensure request belongs to user and proposal is submitted
+    if not req or req.patient_profile_id not in profile_ids or proposal.status != 'submitted':
+        from flask import abort
+        abort(403)
+        
+    profile = PatientProfile.query.get(req.patient_profile_id)
+    hospital = Hospital.query.get(proposal.hospital_id)
+    
+    return render_template("patient-treatment-proposal-details.html", proposal=proposal, request=req, profile=profile, hospital=hospital, user=user)
 
 
 # =========================================================
@@ -1648,6 +1690,190 @@ def hospital_treatment_request_document_download(doc_id):
         
     return send_from_directory(UPLOAD_FOLDER, doc.storage_filename, as_attachment=True, download_name=doc.original_filename)
 
+@app.route("/hospital/treatment-requests/<string:reference_id>/proposal/edit", methods=['GET', 'POST'])
+def hospital_proposal_edit(reference_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        if request.method == 'POST':
+            return jsonify({'status': 'error', 'message': 'Unauthorized'}), 401
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        if request.method == 'POST':
+            return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+        abort(403)
+        
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    if not _is_hospital_eligible(hospital, req.specialty):
+        if request.method == 'POST':
+            return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+        abort(403)
+
+    proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first()
+    
+    if proposal and proposal.status == 'submitted':
+        return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
+
+    if request.method == 'POST':
+        data = request.json
+        if not proposal:
+            proposal = TreatmentProposal(treatment_request_id=req.id, hospital_id=hospital.id)
+            db.session.add(proposal)
+            
+        proposal.proposed_treatment = data.get('proposed_treatment')
+        proposal.treatment_plan = data.get('treatment_plan')
+        proposal.specialty = data.get('specialty')
+        proposal.lead_doctor = data.get('lead_doctor')
+        
+        try:
+            proposal.estimated_duration_value = int(data.get('estimated_duration_value')) if data.get('estimated_duration_value') else None
+        except ValueError:
+            proposal.estimated_duration_value = None
+            
+        proposal.estimated_duration_unit = data.get('estimated_duration_unit')
+        
+        try:
+            proposal.hospital_stay_nights = int(data.get('hospital_stay_nights')) if data.get('hospital_stay_nights') else None
+            proposal.recovery_stay_days = int(data.get('recovery_stay_days')) if data.get('recovery_stay_days') else None
+        except ValueError:
+            pass
+            
+        proposal.currency = data.get('currency')
+        try:
+            proposal.estimated_cost_min = float(data.get('estimated_cost_min')) if data.get('estimated_cost_min') else None
+            proposal.estimated_cost_max = float(data.get('estimated_cost_max')) if data.get('estimated_cost_max') else None
+        except ValueError:
+            pass
+            
+        proposal.inclusions = data.get('inclusions')
+        proposal.exclusions = data.get('exclusions')
+        proposal.requirements = data.get('requirements')
+        proposal.additional_notes = data.get('additional_notes')
+        
+        valid_until_str = data.get('valid_until')
+        if valid_until_str:
+            try:
+                proposal.valid_until = datetime.strptime(valid_until_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+                
+        # Line items
+        # First clear old
+        if proposal.id:
+            CostLineItem.query.filter_by(proposal_id=proposal.id).delete()
+        else:
+            db.session.flush() # get ID
+            
+        line_items = data.get('line_items', [])
+        for item in line_items:
+            try:
+                amt = float(item.get('amount', 0))
+                desc = item.get('description', '').strip()
+                if desc and amt > 0:
+                    li = CostLineItem(proposal_id=proposal.id, description=desc, amount=amt)
+                    db.session.add(li)
+            except ValueError:
+                continue
+                
+        db.session.commit()
+        return jsonify({'status': 'success', 'proposal_id': proposal.id})
+
+    # GET
+    if not proposal:
+        proposal = TreatmentProposal(
+            treatment_request_id=req.id, 
+            hospital_id=hospital.id,
+            specialty=req.specialty
+        )
+        
+    return render_template("hospital-proposal-edit.html", req=req, hospital=hospital, proposal=proposal)
+
+@app.route("/hospital/treatment-requests/<string:reference_id>/proposal/review")
+def hospital_proposal_review(reference_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        abort(403)
+        
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    if not _is_hospital_eligible(hospital, req.specialty):
+        abort(403)
+        
+    proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
+    if proposal.status == 'submitted':
+        return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
+        
+    return render_template("hospital-proposal-review.html", req=req, hospital=hospital, proposal=proposal)
+
+@app.route("/hospital/treatment-requests/<string:reference_id>/proposal/submit", methods=['POST'])
+def hospital_proposal_submit(reference_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        abort(403)
+        
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    if not _is_hospital_eligible(hospital, req.specialty):
+        abort(403)
+        
+    proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
+    if proposal.status == 'submitted':
+        flash("Proposal already submitted.", "info")
+        return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
+        
+    # Validation logic
+    if not proposal.proposed_treatment or not proposal.treatment_plan:
+        flash("Treatment details are required.", "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
+        
+    if not proposal.currency or proposal.estimated_cost_min is None or proposal.estimated_cost_max is None:
+        flash("Valid cost estimates are required.", "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
+        
+    if proposal.estimated_cost_min <= 0 or proposal.estimated_cost_max < proposal.estimated_cost_min:
+        flash("Invalid cost ranges.", "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
+        
+    if not proposal.valid_until:
+        flash("Validity date is required.", "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
+        
+    if proposal.valid_until < datetime.now(timezone.utc).date():
+        flash("Validity date cannot be in the past.", "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
+        
+    proposal.status = "submitted"
+    proposal.submitted_at = datetime.now(timezone.utc)
+    db.session.commit()
+    
+    flash("Proposal submitted successfully.", "success")
+    return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
+
+@app.route("/hospital/treatment-requests/<string:reference_id>/proposal/view")
+def hospital_proposal_view(reference_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        abort(403)
+        
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    if not _is_hospital_eligible(hospital, req.specialty):
+        abort(403)
+        
+    proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
+    
+    return render_template("hospital-proposal-review.html", req=req, hospital=hospital, proposal=proposal, is_view_only=True)
+
 @app.route("/hospital/logout")
 def hospital_logout():
     session.pop('hospital_id', None)
@@ -1781,6 +2007,50 @@ def admin_application_reject(hospital_id):
     hospital.reviewed_by_id = session.get('admin_id')
     db.session.commit()
     return redirect(url_for('admin_applications', status='rejected'))
+
+@app.route("/admin/treatment-requests")
+@admin_required
+def admin_treatment_requests():
+    status_filter = request.args.get('status')
+    search_query = request.args.get('q')
+    
+    query = TreatmentRequest.query
+    
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+        
+    if search_query:
+        query = query.join(PatientProfile).filter(
+            (TreatmentRequest.reference_id.ilike(f"%{search_query}%")) |
+            (PatientProfile.first_name.ilike(f"%{search_query}%")) |
+            (PatientProfile.last_name.ilike(f"%{search_query}%"))
+        )
+        
+    requests_list = query.order_by(TreatmentRequest.created_at.desc()).all()
+    
+    for req in requests_list:
+        req.response_count = TreatmentProposal.query.filter_by(treatment_request_id=req.id, status='submitted').count()
+        
+    return render_template("admin-treatment-requests.html", requests=requests_list, current_status=status_filter, search_query=search_query)
+
+@app.route("/admin/treatment-requests/<string:reference_id>")
+@admin_required
+def admin_treatment_request_detail(reference_id):
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    patient = req.patient_profile
+    proposals = TreatmentProposal.query.filter_by(treatment_request_id=req.id, status='submitted').all()
+    docs = MedicalDocument.query.filter_by(treatment_request_id=req.id).all()
+    
+    return render_template("admin-treatment-request-detail.html", req=req, patient=patient, proposals=proposals, docs=docs)
+
+@app.route("/admin/treatment-requests/<string:reference_id>/proposal/<int:proposal_id>")
+@admin_required
+def admin_proposal_view(reference_id, proposal_id):
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    proposal = TreatmentProposal.query.filter_by(id=proposal_id, treatment_request_id=req.id, status='submitted').first_or_404()
+    hospital = proposal.hospital
+    
+    return render_template("admin-proposal-view.html", req=req, proposal=proposal, hospital=hospital, is_view_only=True)
 
 # =========================================================
 # DEVELOPMENT SERVER
