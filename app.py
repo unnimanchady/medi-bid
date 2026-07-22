@@ -1,16 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
+from functools import wraps
 from flask_migrate import Migrate
 from config import Config
-from models import db, User, PatientProfile, TreatmentRequest, MedicalDocument
+from models import db, User, PatientProfile, TreatmentRequest, MedicalDocument, Hospital, HospitalUser, Specialty, Language, HospitalAccreditation, HospitalVerificationDocument
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 import re
+import uuid
+import json
 import uuid
 import os
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+HOSPITAL_DOCS_FOLDER = os.path.join(UPLOAD_FOLDER, 'hospital_verification')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(HOSPITAL_DOCS_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
@@ -356,18 +361,25 @@ def patient_registration_step3():
         submitted_allergy_other = request.form.get("allergy-other-text", "").strip()
         new_allergies_text = request.form.get("new-allergies", "").strip()
 
+        ignore_phrases = ["none", "nil", "no other", "na", "n/a", "no", "nothing"]
+
         if submitted_allergies:
-            if "No Known Allergies" in submitted_allergies and len(submitted_allergies) == 1:
+            if "No Known Allergies" in submitted_allergies:
                 final_allergies = ["No Known Allergies"]
                 final_allergy_other = ""
             else:
                 final_allergies = [a for a in submitted_allergies if a != "No Known Allergies"]
-                final_allergy_other = submitted_allergy_other
+                if "Other" in final_allergies and submitted_allergy_other and submitted_allergy_other.lower() not in ignore_phrases:
+                    final_allergy_other = submitted_allergy_other
+                else:
+                    final_allergy_other = ""
+                    if "Other" in final_allergies:
+                        final_allergies.remove("Other")
         else:
             final_allergies = profile.allergies if profile.allergies else ["No Known Allergies"]
             final_allergy_other = profile.allergy_other_text if profile.allergy_other_text else ""
 
-        if new_allergies_text:
+        if new_allergies_text and new_allergies_text.lower() not in ignore_phrases:
             if final_allergy_other:
                 final_allergy_other += ", " + new_allergies_text
             else:
@@ -381,6 +393,40 @@ def patient_registration_step3():
         profile.allergies = final_allergies
         profile.allergy_other_text = final_allergy_other
 
+        # Weight Logic Update
+        weight_change_type = ""
+        weight_change_amount = ""
+        weight_change_amount_unit = ""
+        prev_weight_kg = None
+        prev_weight_lbs = None
+        prev_weight_date = None
+
+        if previous_request:
+            prev_weight_kg = previous_request.weight_kg
+            prev_weight_lbs = previous_request.weight_lbs
+            prev_weight_date = previous_request.created_at.strftime('%b %d, %Y') if previous_request.created_at else None
+
+            if weight_kg_str and prev_weight_kg is not None:
+                diff = float(weight_kg_str) - float(prev_weight_kg)
+                weight_change_amount = f"+{round(abs(diff), 1)}" if diff > 0 else f"-{round(abs(diff), 1)}" if diff < 0 else "0"
+                weight_change_amount_unit = "kg"
+                if diff > 0:
+                    weight_change_type = "Weight gain"
+                elif diff < 0:
+                    weight_change_type = "Weight loss"
+                else:
+                    weight_change_type = "No weight change"
+            elif weight_lbs_str and prev_weight_lbs is not None:
+                diff = float(weight_lbs_str) - float(prev_weight_lbs)
+                weight_change_amount = f"+{round(abs(diff), 1)}" if diff > 0 else f"-{round(abs(diff), 1)}" if diff < 0 else "0"
+                weight_change_amount_unit = "lbs"
+                if diff > 0:
+                    weight_change_type = "Weight gain"
+                elif diff < 0:
+                    weight_change_type = "Weight loss"
+                else:
+                    weight_change_type = "No weight change"
+
         session['registration_medical'] = {
             'condition': request.form.get("condition", "").strip(),
             'diagnosis': request.form.get("diagnosis", "").strip(),
@@ -391,21 +437,24 @@ def patient_registration_step3():
             'allergy_other_text': final_allergy_other,
             'blood_group': previous_request.blood_group if previous_request else request.form.get("blood-group", "").strip(),
             'height_cm': previous_request.height_cm if previous_request else height_cm_str,
-            'weight_kg': previous_request.weight_kg if previous_request else weight_kg_str,
+            'weight_kg': weight_kg_str,
             'height_ft': previous_request.height_ft if previous_request else height_ft_str,
             'height_in': previous_request.height_in if previous_request else height_in_str,
-            'weight_lbs': previous_request.weight_lbs if previous_request else weight_lbs_str,
-            'weight_change_type': request.form.get("weight-change-type", "").strip(),
-            'weight_change_amount': request.form.get("weight-change-amount", "").strip(),
-            'weight_change_amount_unit': request.form.get("weight-change-amount-unit", "").strip(),
-            'weight_change_period': request.form.get("weight-change-period", "").strip(),
-            'weight_change_period_unit': request.form.get("weight-change-period-unit", "").strip(),
-            'current_weight': request.form.get("current-weight", "").strip(),
-            'current_weight_unit': request.form.get("current-weight-unit", "").strip(),
+            'weight_lbs': weight_lbs_str,
+            'weight_change_type': weight_change_type,
+            'weight_change_amount': weight_change_amount,
+            'weight_change_amount_unit': weight_change_amount_unit,
+            'weight_change_period': "",
+            'weight_change_period_unit': "",
+            'current_weight': "",
+            'current_weight_unit': "",
             'emergency_name': request.form.get("emergency-name", "").strip().title(),
             'emergency_relationship': request.form.get("emergency-relationship", "").strip(),
             'emergency_country_code': request.form.get("emergency-country-code", "").strip(),
             'emergency_phone': request.form.get("emergency-phone", "").strip(),
+            'prev_weight_kg': prev_weight_kg,
+            'prev_weight_lbs': prev_weight_lbs,
+            'prev_weight_date': prev_weight_date,
         }
             
         try:
@@ -748,7 +797,13 @@ def patient_request_details(reference_id):
         abort(403)
         
     user = User.query.get(user_id)
-    return render_template("patient-request-details.html", request=req, profile=profile, user=user)
+    
+    previous_request = TreatmentRequest.query.filter(
+        TreatmentRequest.patient_profile_id == req.patient_profile_id,
+        TreatmentRequest.created_at < req.created_at
+    ).order_by(TreatmentRequest.created_at.desc()).first()
+    
+    return render_template("patient-request-details.html", request=req, profile=profile, user=user, previous_request=previous_request)
 
 
 # =========================================================
@@ -871,6 +926,861 @@ def patient_profile_edit(profile_id):
         edit_mode=True
     )
 
+
+# =========================================================
+# HOSPITAL PORTAL ROUTES
+# =========================================================
+
+@app.route("/hospital/register", methods=["GET", "POST"])
+def hospital_register():
+    # If user is already in a session, redirect appropriately
+    existing_hospital_id = session.get('hospital_id')
+    if existing_hospital_id:
+        existing_hospital = Hospital.query.get(existing_hospital_id)
+        if existing_hospital:
+            if existing_hospital.verification_status != "incomplete":
+                return redirect(url_for('hospital_register_success'))
+            return redirect(url_for('hospital_register_info'))
+
+    if request.method == "POST":
+        first_name = request.form.get("first_name", "").strip()
+        last_name = request.form.get("last_name", "").strip()
+        work_email = request.form.get("work_email", "").strip().lower()
+        phone_country_code = request.form.get("phone_country_code", "").strip()
+        phone_number = request.form.get("phone_number", "").strip()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        
+        error = None
+        
+        # Validation
+        if not all([first_name, last_name, work_email, password, confirm_password]):
+            error = "Please fill in all required fields."
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", work_email):
+            error = "Please enter a valid email address."
+        elif password != confirm_password:
+            error = "Passwords do not match."
+        elif len(password) < 8:
+            error = "Password must be at least 8 characters long."
+        else:
+            # Check for duplicate email
+            existing_user = HospitalUser.query.filter_by(work_email=work_email).first()
+            if existing_user:
+                error = "An account with this email already exists."
+                
+        if error:
+            return render_template("hospital-registration-step1.html", error=error)
+            
+        try:
+            # Create Hospital
+            new_hospital = Hospital(
+                verification_status="incomplete"
+            )
+            db.session.add(new_hospital)
+            db.session.flush() # Get the new hospital ID
+            
+            # Create HospitalUser
+            new_user = HospitalUser(
+                hospital_id=new_hospital.id,
+                first_name=first_name,
+                last_name=last_name,
+                work_email=work_email,
+                phone_country_code=phone_country_code,
+                phone_number=phone_number,
+                password_hash=generate_password_hash(password),
+                role="hospital_admin"
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Store in session securely
+            session['hospital_id'] = new_hospital.id
+            session['hospital_user_id'] = new_user.id
+            
+            return redirect(url_for('hospital_register_info'))
+            
+        except Exception as e:
+            db.session.rollback()
+            error = "An error occurred during registration. Please try again."
+            return render_template("hospital-registration-step1.html", error=error)
+
+    return render_template("hospital-registration-step1.html")
+
+@app.route("/hospital/register/information", methods=["GET", "POST"])
+def hospital_register_info():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    user = HospitalUser.query.filter_by(id=hospital_user_id, hospital_id=hospital_id).first()
+    if not user:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    if hospital.verification_status != "incomplete":
+        return redirect(url_for('hospital_register_success'))
+
+    error = None
+
+    if request.method == "POST":
+        legal_name = request.form.get("legal_name", "").strip()
+        display_name = request.form.get("display_name", "").strip()
+        hospital_type = request.form.get("hospital_type", "").strip()
+        year_established = request.form.get("year_established", "").strip()
+        country = request.form.get("country", "").strip()
+        state_region = request.form.get("state_region", "").strip()
+        city = request.form.get("city", "").strip()
+        address = request.form.get("address", "").strip()
+        postal_code = request.form.get("postal_code", "").strip()
+        website = request.form.get("website", "").strip()
+        if website and not website.startswith(('http://', 'https://')):
+            website = 'https://' + website
+            
+        description = request.form.get("description", "").strip()
+        
+        # Required Field Validation
+        if not all([legal_name, hospital_type, country, state_region, city, address]):
+            error = "Please fill in all required fields."
+        else:
+            # Year Validation
+            if year_established:
+                try:
+                    year_val = int(year_established)
+                    current_year = datetime.now().year
+                    if year_val > current_year or year_val < 1000:
+                        error = "Please enter a valid establishment year."
+                except ValueError:
+                    error = "Year must be a number."
+
+            if not error:
+                try:
+                    hospital.legal_name = legal_name
+                    hospital.display_name = display_name if display_name else None
+                    hospital.hospital_type = hospital_type
+                    hospital.year_established = int(year_established) if year_established else None
+                    hospital.country = country
+                    hospital.state_region = state_region
+                    hospital.city = city
+                    hospital.address = address
+                    hospital.postal_code = postal_code if postal_code else None
+                    hospital.website = website if website else None
+                    hospital.description = description if description else None
+                    
+                    db.session.commit()
+                    return redirect(url_for('hospital_register_capabilities'))
+                except Exception as e:
+                    db.session.rollback()
+                    error = "An error occurred while saving your information. Please try again."
+
+    # For GET requests or validation failures, render the form passing back any existing data
+    form_data = request.form if request.method == "POST" else {}
+    return render_template("hospital-registration-step2.html", error=error, form_data=form_data)
+
+@app.route("/hospital/register/capabilities", methods=["GET", "POST"])
+def hospital_register_capabilities():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    user = HospitalUser.query.filter_by(id=hospital_user_id, hospital_id=hospital_id).first()
+    if not user:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    if hospital.verification_status != "incomplete":
+        return redirect(url_for('hospital_register_success'))
+
+    error = None
+    all_specialties = Specialty.query.order_by(Specialty.name).all()
+
+    if request.method == "POST":
+        selected_specialty_ids = request.form.getlist("specialties")
+        other_specialty = request.form.get("other_specialty", "").strip()
+        treatments_json = request.form.get("treatments", "[]")
+        centers_json = request.form.get("centers_of_excellence", "[]")
+        international = request.form.get("international_patients", "")
+        
+        # Validation
+        if not selected_specialty_ids and not other_specialty:
+            error = "Please select at least one medical specialty."
+            
+        if not error:
+            try:
+                # Update specialties relationship
+                hospital.specialties = [] # Clear existing
+                if selected_specialty_ids:
+                    specialties_to_add = Specialty.query.filter(Specialty.id.in_(selected_specialty_ids)).all()
+                    hospital.specialties.extend(specialties_to_add)
+                
+                hospital.other_specialty = other_specialty if other_specialty else None
+                
+                # Parse JSON arrays safely
+                try:
+                    treatments_list = json.loads(treatments_json)
+                    hospital.treatments = [str(t).strip() for t in treatments_list if str(t).strip()]
+                except Exception:
+                    hospital.treatments = []
+                    
+                try:
+                    centers_list = json.loads(centers_json)
+                    hospital.centers_of_excellence = [str(c).strip() for c in centers_list if str(c).strip()]
+                except Exception:
+                    hospital.centers_of_excellence = []
+                    
+                hospital.international_patient_experience = international if international else None
+                
+                db.session.commit()
+                return redirect(url_for('hospital_register_facilities'))
+            except Exception as e:
+                db.session.rollback()
+                error = "An error occurred while saving capabilities. Please try again."
+
+    # Pre-fill for GET or validation error
+    selected_ids = [str(s.id) for s in hospital.specialties]
+    
+    return render_template(
+        "hospital-registration-step3.html",
+        error=error,
+        all_specialties=all_specialties,
+        hospital=hospital,
+        selected_ids=selected_ids
+    )
+
+@app.route("/hospital/register/facilities", methods=["GET", "POST"])
+def hospital_register_facilities():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    user = HospitalUser.query.filter_by(id=hospital_user_id, hospital_id=hospital_id).first()
+    if not user:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    if hospital.verification_status != "incomplete":
+        return redirect(url_for('hospital_register_success'))
+
+    error = None
+    all_languages = Language.query.order_by(Language.name).all()
+
+    if request.method == "POST":
+        core_facilities = request.form.getlist("core_facilities")
+        has_inpatient = request.form.get("has_inpatient_rooms") == "Yes"
+        inpatient_rooms = request.form.getlist("inpatient_rooms") if has_inpatient else []
+        international_services = request.form.getlist("international_services")
+        selected_language_ids = request.form.getlist("languages")
+        other_languages = request.form.get("other_languages", "").strip()
+        food_and_dietary = request.form.getlist("food_and_dietary")
+        other_dietary = request.form.get("other_dietary", "").strip()
+        accessibility = request.form.getlist("accessibility")
+        
+        # Validation
+        if not selected_language_ids and not other_languages:
+            error = "Please select at least one communication language."
+            
+        if not error:
+            try:
+                hospital.core_facilities = core_facilities
+                hospital.has_inpatient_rooms = has_inpatient
+                hospital.inpatient_rooms = inpatient_rooms
+                
+                # Check mutually exclusive "none" for international services
+                if "none" in international_services:
+                    hospital.international_services_offered = ["none"]
+                else:
+                    hospital.international_services_offered = international_services
+                    
+                # Update languages relationship
+                hospital.languages = []
+                if selected_language_ids:
+                    languages_to_add = Language.query.filter(Language.id.in_(selected_language_ids)).all()
+                    hospital.languages.extend(languages_to_add)
+                
+                hospital.other_languages = other_languages if other_languages else None
+                hospital.food_and_dietary = food_and_dietary
+                hospital.other_dietary = other_dietary if other_dietary else None
+                hospital.accessibility = accessibility
+                
+                db.session.commit()
+                return redirect(url_for('hospital_register_verification'))
+            except Exception as e:
+                db.session.rollback()
+                error = "An error occurred while saving facilities. Please try again."
+
+    # Pre-fill for GET or validation error
+    selected_language_ids = [str(l.id) for l in hospital.languages]
+    
+    return render_template(
+        "hospital-registration-step4.html",
+        error=error,
+        all_languages=all_languages,
+        hospital=hospital,
+        selected_language_ids=selected_language_ids
+    )
+
+@app.route("/hospital/register/verification", methods=["GET", "POST"])
+def hospital_register_verification():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    user = HospitalUser.query.filter_by(id=hospital_user_id, hospital_id=hospital_id).first()
+    if not user:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    if hospital.verification_status != "incomplete":
+        return redirect(url_for('hospital_register_success'))
+
+    error = None
+
+    if request.method == "POST":
+        legal_name = request.form.get("legal_name", "").strip()
+        registration_license_number = request.form.get("registration_license_number", "").strip()
+        licensing_authority = request.form.get("licensing_authority", "").strip()
+        registration_country = request.form.get("registration_country", "").strip()
+        
+        issue_date_str = request.form.get("license_issue_date")
+        expiry_date_str = request.form.get("license_expiry_date")
+        
+        has_accreditations = request.form.get("has_accreditations") == "Yes"
+        
+        # Parse Dates
+        issue_date = None
+        expiry_date = None
+        
+        if issue_date_str:
+            try:
+                issue_date = datetime.strptime(issue_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                error = "Invalid Issue Date format."
+                
+        if expiry_date_str:
+            try:
+                expiry_date = datetime.strptime(expiry_date_str, "%Y-%m-%d").date()
+            except ValueError:
+                error = "Invalid Expiry Date format."
+
+        # Validation
+        if not legal_name or not registration_license_number or not licensing_authority or not registration_country:
+            error = "Please fill all required legal registration fields."
+            
+        if not error and issue_date and expiry_date and expiry_date < issue_date:
+            error = "Expiry Date cannot be earlier than Issue Date."
+            
+        # File Validation
+        files_to_save = []
+        if not error:
+            # Main registration doc (Required if not already uploaded)
+            main_doc_existing = HospitalVerificationDocument.query.filter_by(
+                hospital_id=hospital.id, document_category="Hospital Registration / Operating License"
+            ).first()
+            
+            main_doc_file = request.files.get("doc_registration")
+            
+            if not main_doc_existing and (not main_doc_file or main_doc_file.filename == ""):
+                error = "Hospital Registration / Operating License document is required."
+            
+            # Check all uploaded files for size and extension
+            for file_key in request.files:
+                file = request.files[file_key]
+                if file and file.filename != "":
+                    if not allowed_file(file.filename):
+                        error = f"Invalid file type for {file.filename}. Only PDF, JPG, JPEG, and PNG are allowed."
+                        break
+                    
+                    # Size check (10MB)
+                    file.seek(0, os.SEEK_END)
+                    size = file.tell()
+                    file.seek(0)
+                    if size > 10 * 1024 * 1024:
+                        error = f"File {file.filename} exceeds the 10MB limit."
+                        break
+                        
+                    # Map to category
+                    category = "Other Supporting Document"
+                    if file_key == "doc_registration":
+                        category = "Hospital Registration / Operating License"
+                    elif file_key == "doc_accreditation":
+                        category = "Accreditation Certificate"
+                    elif file_key == "doc_gov":
+                        category = "Government Registration Certificate"
+                    elif file_key == "doc_tax":
+                        category = "Tax / Business Registration Document"
+                        
+                    files_to_save.append((file, category, size))
+
+        if not error:
+            try:
+                hospital.legal_name = legal_name # Canonical update
+                hospital.registration_country = registration_country
+                hospital.registration_license_number = registration_license_number
+                hospital.licensing_authority = licensing_authority
+                hospital.license_issue_date = issue_date
+                hospital.license_expiry_date = expiry_date
+                hospital.has_accreditations = has_accreditations
+                
+                # Accreditations
+                # Clear existing to handle dynamic list
+                for acc in hospital.accreditations:
+                    db.session.delete(acc)
+                
+                if has_accreditations:
+                    acc_names = request.form.getlist("acc_name[]")
+                    acc_nums = request.form.getlist("acc_number[]")
+                    acc_dates = request.form.getlist("acc_valid_until[]")
+                    
+                    for i in range(len(acc_names)):
+                        name = acc_names[i].strip()
+                        if name:
+                            valid_until = None
+                            if i < len(acc_dates) and acc_dates[i]:
+                                try:
+                                    valid_until = datetime.strptime(acc_dates[i], "%Y-%m-%d").date()
+                                except ValueError:
+                                    pass
+                            
+                            new_acc = HospitalAccreditation(
+                                hospital_id=hospital.id,
+                                name=name,
+                                certificate_number=acc_nums[i].strip() if i < len(acc_nums) else None,
+                                valid_until=valid_until
+                            )
+                            db.session.add(new_acc)
+
+                # Save files
+                for file_obj, category, size in files_to_save:
+                    # If it's a replacement for a singular category like registration, delete old one
+                    if category == "Hospital Registration / Operating License":
+                        old_doc = HospitalVerificationDocument.query.filter_by(
+                            hospital_id=hospital.id, document_category=category
+                        ).first()
+                        if old_doc:
+                            db.session.delete(old_doc)
+                            # Actual file deletion would go here if needed, skipping for brevity
+                    
+                    original_filename = secure_filename(file_obj.filename)
+                    ext = original_filename.rsplit('.', 1)[1].lower() if '.' in original_filename else ''
+                    storage_filename = f"{uuid.uuid4().hex}.{ext}"
+                    
+                    save_path = os.path.join(HOSPITAL_DOCS_FOLDER, storage_filename)
+                    file_obj.save(save_path)
+                    
+                    new_doc = HospitalVerificationDocument(
+                        hospital_id=hospital.id,
+                        uploaded_by_id=user.id,
+                        original_filename=original_filename,
+                        storage_filename=storage_filename,
+                        document_category=category,
+                        mime_type=file_obj.mimetype,
+                        file_size=size
+                    )
+                    db.session.add(new_doc)
+
+                db.session.commit()
+                return redirect(url_for('hospital_register_review'))
+            except Exception as e:
+                db.session.rollback()
+                error = "An error occurred while saving verification details. Please try again."
+                print(f"Error: {e}")
+
+    return render_template(
+        "hospital-registration-step5.html",
+        error=error,
+        hospital=hospital
+    )
+
+@app.route("/hospital/document/remove/<int:doc_id>", methods=["POST"])
+def hospital_remove_document(doc_id):
+    hospital_id = session.get('hospital_id')
+    if not hospital_id:
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+        
+    doc = HospitalVerificationDocument.query.get(doc_id)
+    if not doc or doc.hospital_id != hospital_id:
+        return jsonify({"success": False, "error": "Document not found"}), 404
+        
+    hospital = Hospital.query.get(hospital_id)
+    if hospital and hospital.verification_status != "incomplete":
+        return jsonify({"success": False, "error": "Cannot modify submitted registration"}), 403
+        
+    try:
+        # Delete file
+        file_path = os.path.join(HOSPITAL_DOCS_FOLDER, doc.storage_filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            
+        db.session.delete(doc)
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/hospital/register/review", methods=["GET", "POST"])
+def hospital_register_review():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    user = HospitalUser.query.filter_by(id=hospital_user_id, hospital_id=hospital_id).first()
+    if not user:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    if hospital.verification_status != "incomplete":
+        return redirect(url_for('hospital_register_success'))
+
+    error = None
+
+    if request.method == "POST":
+        declaration = request.form.get("declaration")
+        if declaration != "on":
+            error = "You must agree to the declaration before submitting."
+        else:
+            try:
+                hospital.verification_status = "pending_verification"
+                db.session.commit()
+                return redirect(url_for('hospital_register_success'))
+            except Exception as e:
+                db.session.rollback()
+                error = "An error occurred while submitting your registration. Please try again."
+
+    return render_template("hospital-registration-step6.html", hospital=hospital, user=user, error=error)
+
+@app.route("/hospital/register/success")
+def hospital_register_success():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    return render_template("hospital-registration-success.html")
+
+@app.route("/hospital/login", methods=["GET", "POST"])
+def hospital_login():
+    existing_hospital_id = session.get('hospital_id')
+    if existing_hospital_id:
+        existing_hospital = Hospital.query.get(existing_hospital_id)
+        if existing_hospital:
+            if existing_hospital.verification_status != "incomplete":
+                return redirect(url_for('hospital_dashboard'))
+            return redirect(url_for('hospital_register_info'))
+            
+    error = None
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        
+        if not email or not password:
+            error = "Please enter both email and password."
+        else:
+            user = HospitalUser.query.filter_by(work_email=email).first()
+            if user and check_password_hash(user.password_hash, password):
+                session['hospital_id'] = user.hospital_id
+                session['hospital_user_id'] = user.id
+                
+                hospital = Hospital.query.get(user.hospital_id)
+                if hospital.verification_status == "incomplete":
+                    return redirect(url_for('hospital_register_info'))
+                return redirect(url_for('hospital_dashboard'))
+            else:
+                error = "Invalid email or password."
+                
+    return render_template("hospital-login.html", error=error)
+
+@app.route("/hospital/dashboard")
+def hospital_dashboard():
+    hospital_id = session.get('hospital_id')
+    hospital_user_id = session.get('hospital_user_id')
+    
+    if not hospital_id or not hospital_user_id:
+        return redirect(url_for('hospital_register'))
+        
+    user = HospitalUser.query.filter_by(id=hospital_user_id, hospital_id=hospital_id).first()
+    if not user:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_register'))
+
+    if hospital.verification_status == "incomplete":
+        return redirect(url_for('hospital_register_info'))
+        
+    eligible_requests_count = 0
+    if hospital and hospital.verification_status == 'verified':
+        all_active = TreatmentRequest.query.filter_by(status='Active').all()
+        for req in all_active:
+            if _is_hospital_eligible(hospital, req.specialty):
+                eligible_requests_count += 1
+                
+    return render_template("hospital-dashboard.html", hospital=hospital, user=user, eligible_requests_count=eligible_requests_count)
+
+def _is_hospital_eligible(hospital, request_specialty):
+    if not request_specialty:
+        return False
+    hospital_specialties = [s.name.lower() for s in hospital.specialties]
+    req_spec_lower = request_specialty.lower()
+    for hs in hospital_specialties:
+        if req_spec_lower in hs or hs in req_spec_lower:
+            return True
+    return False
+
+@app.route("/hospital/treatment-requests")
+def hospital_treatment_requests():
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        return redirect(url_for('hospital_dashboard'))
+        
+    all_active_requests = TreatmentRequest.query.filter_by(status='Active').order_by(TreatmentRequest.created_at.desc()).all()
+    
+    eligible_requests = []
+    for req in all_active_requests:
+        if _is_hospital_eligible(hospital, req.specialty):
+            eligible_requests.append(req)
+            
+    return render_template("hospital-treatment-requests.html", requests=eligible_requests, hospital=hospital)
+
+@app.route("/hospital/treatment-requests/<string:reference_id>")
+def hospital_treatment_request_detail(reference_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        return redirect(url_for('hospital_dashboard'))
+        
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    
+    if not _is_hospital_eligible(hospital, req.specialty):
+        abort(403, description="You are not authorized to view this treatment request.")
+        
+    return render_template("hospital-treatment-request-detail.html", req=req, hospital=hospital)
+
+@app.route("/hospital/treatment-requests/document/<int:doc_id>")
+def hospital_treatment_request_document(doc_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        abort(403)
+        
+    doc = MedicalDocument.query.get_or_404(doc_id)
+    
+    # Check if doc has a treatment_request, if not check patient_profile's active request
+    req = doc.treatment_request
+    if not req:
+        req = TreatmentRequest.query.filter_by(patient_profile_id=doc.patient_profile_id, status='Active').first()
+        if not req:
+            abort(403)
+            
+    if not _is_hospital_eligible(hospital, req.specialty):
+        abort(403)
+        
+    return send_from_directory(UPLOAD_FOLDER, doc.storage_filename)
+
+@app.route("/hospital/treatment-requests/document/<int:doc_id>/download")
+def hospital_treatment_request_document_download(doc_id):
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        abort(403)
+        
+    doc = MedicalDocument.query.get_or_404(doc_id)
+    
+    req = doc.treatment_request
+    if not req:
+        req = TreatmentRequest.query.filter_by(patient_profile_id=doc.patient_profile_id, status='Active').first()
+        if not req:
+            abort(403)
+            
+    if not _is_hospital_eligible(hospital, req.specialty):
+        abort(403)
+        
+    return send_from_directory(UPLOAD_FOLDER, doc.storage_filename, as_attachment=True, download_name=doc.original_filename)
+
+@app.route("/hospital/logout")
+def hospital_logout():
+    session.pop('hospital_id', None)
+    session.pop('hospital_user_id', None)
+    return redirect(url_for('home'))
+
+# =========================================================
+# ADMIN PORTAL ROUTES
+# =========================================================
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        admin_id = session.get('admin_id')
+        if not admin_id:
+            return redirect(url_for('admin_login'))
+            
+        user = User.query.get(admin_id)
+        if not user or user.role != 'admin':
+            session.pop('admin_id', None)
+            return redirect(url_for('admin_login'))
+            
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if session.get('admin_id'):
+        user = User.query.get(session.get('admin_id'))
+        if user and user.role == 'admin':
+            return redirect(url_for('admin_dashboard'))
+            
+    error = None
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        
+        user = User.query.filter_by(email=email).first()
+        if user and user.role == 'admin' and check_password_hash(user.password_hash, password):
+            session['admin_id'] = user.id
+            return redirect(url_for('admin_dashboard'))
+        else:
+            error = "Invalid email or password."
+            
+    return render_template("admin-login.html", error=error)
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop('admin_id', None)
+    return redirect(url_for('admin_login'))
+
+@app.route("/admin/dashboard")
+@admin_required
+def admin_dashboard():
+    pending_count = Hospital.query.filter_by(verification_status="pending_verification").count()
+    verified_count = Hospital.query.filter_by(verification_status="verified").count()
+    total_count = Hospital.query.count()
+    
+    return render_template(
+        "admin-dashboard.html",
+        pending_count=pending_count,
+        verified_count=verified_count,
+        total_count=total_count
+    )
+
+@app.route("/admin/hospitals/applications")
+@admin_required
+def admin_applications():
+    status = request.args.get('status', 'pending_verification')
+    if status not in ['pending_verification', 'verified', 'rejected']:
+        status = 'pending_verification'
+        
+    applications = Hospital.query.filter_by(verification_status=status).order_by(Hospital.updated_at.desc()).all()
+    
+    pending_count = Hospital.query.filter_by(verification_status='pending_verification').count()
+    verified_count = Hospital.query.filter_by(verification_status='verified').count()
+    rejected_count = Hospital.query.filter_by(verification_status='rejected').count()
+    
+    return render_template(
+        "admin-applications.html", 
+        applications=applications,
+        current_status=status,
+        pending_count=pending_count,
+        verified_count=verified_count,
+        rejected_count=rejected_count
+    )
+
+@app.route("/admin/hospitals/applications/<int:hospital_id>/review")
+@admin_required
+def admin_application_review(hospital_id):
+    hospital = Hospital.query.get_or_404(hospital_id)
+    error = request.args.get('error')
+    return render_template("admin-application-review.html", hospital=hospital, error=error)
+
+@app.route("/admin/hospitals/applications/document/<int:doc_id>")
+@admin_required
+def admin_application_document(doc_id):
+    doc = HospitalVerificationDocument.query.get_or_404(doc_id)
+    return send_from_directory(HOSPITAL_DOCS_FOLDER, doc.storage_filename)
+
+@app.route("/admin/hospitals/applications/<int:hospital_id>/approve", methods=["POST"])
+@admin_required
+def admin_application_approve(hospital_id):
+    hospital = Hospital.query.get_or_404(hospital_id)
+    if hospital.verification_status != 'pending_verification':
+        return redirect(url_for('admin_application_review', hospital_id=hospital.id, error="Application is not pending verification."))
+        
+    hospital.verification_status = 'verified'
+    hospital.reviewed_at = datetime.now(timezone.utc)
+    hospital.reviewed_by_id = session.get('admin_id')
+    db.session.commit()
+    return redirect(url_for('admin_applications', status='verified'))
+
+@app.route("/admin/hospitals/applications/<int:hospital_id>/reject", methods=["POST"])
+@admin_required
+def admin_application_reject(hospital_id):
+    hospital = Hospital.query.get_or_404(hospital_id)
+    if hospital.verification_status != 'pending_verification':
+        return redirect(url_for('admin_application_review', hospital_id=hospital.id, error="Application is not pending verification."))
+        
+    reason = request.form.get('rejection_reason', '').strip()
+    if not reason:
+        return redirect(url_for('admin_application_review', hospital_id=hospital.id, error="Rejection reason is required."))
+        
+    if len(reason) > 2000:
+        return redirect(url_for('admin_application_review', hospital_id=hospital.id, error="Rejection reason is too long."))
+        
+    hospital.verification_status = 'rejected'
+    hospital.rejection_reason = reason
+    hospital.reviewed_at = datetime.now(timezone.utc)
+    hospital.reviewed_by_id = session.get('admin_id')
+    db.session.commit()
+    return redirect(url_for('admin_applications', status='rejected'))
 
 # =========================================================
 # DEVELOPMENT SERVER

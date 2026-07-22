@@ -435,23 +435,27 @@
                                 {% set display_allergies = [] %}
                                 {% if request.allergies %}
                                     {% if request.allergies is string %}
-                                        {% set _ = display_allergies.append(request.allergies) %}
+                                        {% if request.allergies != 'No Known Allergies' %}
+                                            {% set _ = display_allergies.append(request.allergies) %}
+                                        {% endif %}
                                     {% else %}
                                         {% for a in request.allergies %}
-                                            {% if a != 'Other' %}
+                                            {% if a != 'Other' and a != 'No Known Allergies' %}
                                                 {% set _ = display_allergies.append(a) %}
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
                                 {% endif %}
-                                {% if request.allergy_other_text %}
-                                    {% set _ = display_allergies.append(request.allergy_other_text) %}
+                                
+                                {% set other_text = request.allergy_other_text %}
+                                {% if other_text and other_text|lower|trim not in ['none', 'nil', 'no other', 'na', 'n/a', 'no', 'nothing'] %}
+                                    {% set _ = display_allergies.append(other_text|trim) %}
                                 {% endif %}
                                 
                                 {% if display_allergies %}
                                     {{ display_allergies | join(', ') }}
                                 {% else %}
-                                    Not provided
+                                    No known allergies
                                 {% endif %}
                             </p>
                         </div>
@@ -459,7 +463,8 @@
                         <div class="flex flex-col gap-1.5 md:col-span-2">
                             <span class="text-[12.5px] text-textMuted font-bold uppercase tracking-wide">Weight Information</span>
                             <div class="text-[14px] text-textMain font-medium space-y-1.5 bg-bgLight p-3 rounded-xl border border-gray-100">
-                                {% if request.weight_kg or request.weight_lbs or request.weight_change_type %}
+                                {% if request.current_weight %}
+                                    <!-- Old Logic Fallback -->
                                     {% if request.weight_kg or request.weight_lbs %}
                                         <div class="flex items-center gap-2">
                                             <span class="text-textMuted w-48">Weight from Previous Request:</span>
@@ -497,7 +502,33 @@
                                         {% endif %}
                                     {% endif %}
                                 {% else %}
-                                    <p>Not provided</p>
+                                    <!-- New Logic -->
+                                    {% if previous_request %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-textMuted w-48">Previous Weight:</span>
+                                            <span>{% if previous_request.weight_kg %}{{ previous_request.weight_kg }} kg{% elif previous_request.weight_lbs %}{{ previous_request.weight_lbs }} lbs{% endif %} — Recorded on {{ previous_request.created_at.strftime('%b %d, %Y') }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-textMuted w-48">Current Weight:</span>
+                                            <span>{% if request.weight_kg %}{{ request.weight_kg }} kg{% elif request.weight_lbs %}{{ request.weight_lbs }} lbs{% endif %}</span>
+                                        </div>
+                                        {% if request.weight_change_type and request.weight_change_type != 'No weight change' %}
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-textMuted w-48">Weight Change:</span>
+                                                <span>{{ request.weight_change_amount }} {{ request.weight_change_amount_unit }} ({{ request.weight_change_type }})</span>
+                                            </div>
+                                        {% else %}
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-textMuted w-48">Weight Change:</span>
+                                                <span>No change</span>
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-textMuted w-48">Current Weight:</span>
+                                            <span>{% if request.weight_kg %}{{ request.weight_kg }} kg{% elif request.weight_lbs %}{{ request.weight_lbs }} lbs{% else %}Not provided{% endif %}</span>
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>

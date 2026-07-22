@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Registration - Step 1 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(10,132,255,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-textMain">MediBid <span class="text-primary font-black">For Hospitals</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-textMuted hidden sm:block">Step 1 of 6 — Account</span>
+                    <div class="flex items-center gap-1">
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-textMain mb-4 tracking-tight">Create Your Hospital Account</h1>
+            <p class="text-[16px] text-textMuted max-w-lg mx-auto leading-relaxed">Join MediBid and connect with patients seeking trusted healthcare worldwide.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+            
+            <div class="p-8 md:p-10">
+                
+                {% if error %}
+                <div class="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="text-red-500 w-5 h-5 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-red-800">Registration Failed</h3>
+                        <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('hospital_register') }}" id="registrationForm" class="space-y-6">
+                    
+                    <div>
+                        <h2 class="text-xl font-bold text-textMain mb-2">Authorized Representative</h2>
+                        <p class="text-[14px] text-textMuted mb-6">Enter the details of the person who will manage this hospital's MediBid account.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- First Name -->
+                        <div class="space-y-2">
+                            <label for="first_name" class="block text-[14px] font-bold text-textMain ml-1">First Name</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="user" class="h-5 w-5 text-gray-400"></i>
+                                </div>
+                                <input type="text" id="first_name" name="first_name" required
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="e.g. John">
+                            </div>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="space-y-2">
+                            <label for="last_name" class="block text-[14px] font-bold text-textMain ml-1">Last Name</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="user" class="h-5 w-5 text-gray-400"></i>
+                                </div>
+                                <input type="text" id="last_name" name="last_name" required
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="e.g. Smith">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Work Email -->
+                    <div class="space-y-2">
+                        <label for="work_email" class="block text-[14px] font-bold text-textMain ml-1">Work Email Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="mail" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="email" id="work_email" name="work_email" required
+                                class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="name@hospital.com">
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="space-y-2">
+                        <label for="phone_number" class="block text-[14px] font-bold text-textMain ml-1">Phone Number <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
+                        <div class="flex gap-3">
+                            <select id="phone_country_code" name="phone_country_code" 
+                                class="w-[100px] bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-3 py-3.5 shadow-input transition-all duration-200 outline-none appearance-none">
+                                <option value="+1">+1</option>
+                                <option value="+44">+44</option>
+                                <option value="+91">+91</option>
+                                <option value="+61">+61</option>
+                                <option value="+971">+971</option>
+                            </select>
+                            <input type="tel" id="phone_number" name="phone_number"
+                                class="flex-1 bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="e.g. 555 123 4567">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                        <!-- Password -->
+                        <div class="space-y-2">
+                            <label for="password" class="block text-[14px] font-bold text-textMain ml-1">Password</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
+                                </div>
+                                <input type="password" id="password" name="password" required minlength="8"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-12 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="••••••••">
+                                <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors toggle-password" data-target="password">
+                                    <i data-lucide="eye" class="h-5 w-5 eye-icon"></i>
+                                    <i data-lucide="eye-off" class="h-5 w-5 eye-off-icon hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="space-y-2">
+                            <label for="confirm_password" class="block text-[14px] font-bold text-textMain ml-1">Confirm Password</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
+                                </div>
+                                <input type="password" id="confirm_password" name="confirm_password" required minlength="8"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-12 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="••••••••">
+                                <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors toggle-password" data-target="confirm_password">
+                                    <i data-lucide="eye" class="h-5 w-5 eye-icon"></i>
+                                    <i data-lucide="eye-off" class="h-5 w-5 eye-off-icon hidden"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-textMuted ml-1" id="password-hint">Password must be at least 8 characters long.</p>
+
+                    <div class="pt-6">
+                        <button type="submit" 
+                            class="w-full bg-primary hover:bg-secondary text-white font-bold text-[16px] py-4 px-8 rounded-2xl shadow-floating hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                            <span>Create Account</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                </form>
+                
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-textMuted">
+                        Already have a hospital account? 
+                        <a href="/hospital/login" class="font-bold text-primary hover:text-secondary hover:underline transition-colors">Sign In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <script>
+        lucide.createIcons();
+        
+        // Password visibility toggle
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const eyeIcon = this.querySelector('.eye-icon');
+                const eyeOffIcon = this.querySelector('.eye-off-icon');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    eyeIcon.classList.add('hidden');
+                    eyeOffIcon.classList.remove('hidden');
+                } else {
+                    input.type = 'password';
+                    eyeIcon.classList.remove('hidden');
+                    eyeOffIcon.classList.add('hidden');
+                }
+            });
+        });
+
+        // Client-side validation
+        const form = document.getElementById('registrationForm');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+
+        form.addEventListener('submit', function(e) {
+            if (password.value !== confirmPassword.value) {
+                e.preventDefault();
+                alert('Passwords do not match. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

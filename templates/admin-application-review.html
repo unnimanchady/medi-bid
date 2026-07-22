@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Application | Admin | MediBid</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#475569',
+                        accent: '#3B82F6',
+                        textMain: '#0F172A',
+                        textMuted: '#64748B',
+                        bgLight: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex">
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <div class="p-6 md:p-10 lg:p-12 max-w-5xl mx-auto w-full">
+            <a href="{{ url_for('admin_applications', status=hospital.verification_status) }}" class="inline-flex items-center gap-2 text-textMuted hover:text-primary transition-colors font-semibold mb-6">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Applications
+            </a>
+            
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 flex items-start gap-3">
+                <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                <div>
+                    <h3 class="font-bold">Action Failed</h3>
+                    <p class="text-sm">{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 mb-8">
+                <div class="mb-6 border-b border-slate-100 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl font-extrabold tracking-tight mb-2">{{ hospital.legal_name }}</h1>
+                        <div class="flex items-center gap-3">
+                            <p class="text-textMuted">Submitted on: {{ hospital.created_at.strftime('%Y-%m-%d %H:%M UTC') if hospital.created_at else 'N/A' }}</p>
+                            
+                            {% if hospital.verification_status == 'pending_verification' %}
+                                <span class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-100 rounded-md text-xs font-bold uppercase tracking-wider">Pending Review</span>
+                            {% elif hospital.verification_status == 'verified' %}
+                                <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-md text-xs font-bold uppercase tracking-wider">Verified</span>
+                            {% elif hospital.verification_status == 'rejected' %}
+                                <span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-100 rounded-md text-xs font-bold uppercase tracking-wider">Rejected</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if hospital.verification_status == 'pending_verification' %}
+                    <div class="flex gap-3">
+                        <button onclick="document.getElementById('rejectModal').classList.remove('hidden')" class="px-4 py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold rounded-xl transition-colors">
+                            Reject
+                        </button>
+                        <form action="{{ url_for('admin_application_approve', hospital_id=hospital.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to approve this hospital?');">
+                            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 font-bold rounded-xl transition-colors shadow-sm">
+                                Approve Hospital
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if hospital.verification_status in ['verified', 'rejected'] and hospital.reviewed_at %}
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-8">
+                    <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-slate-500"></i> Audit Information
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-textMuted block mb-1">Reviewed By</span>
+                            <span class="font-semibold">{{ hospital.reviewed_by.first_name }} {{ hospital.reviewed_by.last_name }} ({{ hospital.reviewed_by.email }})</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Reviewed At</span>
+                            <span class="font-semibold">{{ hospital.reviewed_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+                        </div>
+                        {% if hospital.verification_status == 'rejected' and hospital.rejection_reason %}
+                        <div class="md:col-span-2 mt-2 pt-2 border-t border-slate-200">
+                            <span class="text-textMuted block mb-1">Rejection Reason</span>
+                            <p class="text-red-700 font-medium">{{ hospital.rejection_reason }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Section: Primary Contact -->
+                <div class="mb-10">
+                    <h2 class="text-lg font-bold border-b border-slate-100 pb-2 mb-4 text-primary">1. Account / Primary Contact</h2>
+                    {% if hospital.users %}
+                    {% set contact = hospital.users[0] %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                        <div>
+                            <span class="text-textMuted block mb-1">Name</span>
+                            <span class="font-medium">{{ contact.first_name }} {{ contact.last_name }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Work Email</span>
+                            <span class="font-medium">{{ contact.work_email }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Phone Number</span>
+                            <span class="font-medium">{{ contact.phone_country_code }} {{ contact.phone_number }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Role</span>
+                            <span class="font-medium capitalize">{{ contact.role.replace('_', ' ') }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-textMuted italic">No primary contact found.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Section: Hospital Information -->
+                <div class="mb-10">
+                    <h2 class="text-lg font-bold border-b border-slate-100 pb-2 mb-4 text-primary">2. Hospital Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                        <div>
+                            <span class="text-textMuted block mb-1">Display Name</span>
+                            <span class="font-medium">{{ hospital.display_name or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Hospital Type</span>
+                            <span class="font-medium capitalize">{{ hospital.hospital_type or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Year Established</span>
+                            <span class="font-medium">{{ hospital.year_established or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Website</span>
+                            {% if hospital.website %}
+                            <a href="{{ hospital.website }}" target="_blank" class="text-accent hover:underline font-medium">{{ hospital.website }}</a>
+                            {% else %}
+                            <span class="font-medium">Not provided</span>
+                            {% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-1">Location</span>
+                            <span class="font-medium">{{ hospital.address }}, {{ hospital.city }}, {{ hospital.state_region }}, {{ hospital.postal_code }}, {{ hospital.country }}</span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-1">Description</span>
+                            <p class="font-medium whitespace-pre-wrap">{{ hospital.description or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Medical Capabilities -->
+                <div class="mb-10">
+                    <h2 class="text-lg font-bold border-b border-slate-100 pb-2 mb-4 text-primary">3. Medical Capabilities</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-2">Specialties</span>
+                            {% if hospital.specialties %}
+                            <div class="flex flex-wrap gap-2">
+                                {% for spec in hospital.specialties %}
+                                <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold border border-blue-100">{{ spec.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="font-medium">Not provided</span>
+                            {% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-1">Common Treatments/Procedures</span>
+                            <p class="font-medium">{{ hospital.treatments | join(', ') if hospital.treatments else 'Not provided' }}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-1">Centers of Excellence</span>
+                            <p class="font-medium">{{ hospital.centers_of_excellence | join(', ') if hospital.centers_of_excellence else 'Not provided' }}</p>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">International Patient Experience</span>
+                            <span class="font-medium">{{ hospital.international_patient_experience or 'Not provided' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Facilities -->
+                <div class="mb-10">
+                    <h2 class="text-lg font-bold border-b border-slate-100 pb-2 mb-4 text-primary">4. Facilities & Patient Services</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-2">Core Facilities</span>
+                            <p class="font-medium">{{ hospital.core_facilities | join(', ') if hospital.core_facilities else 'Not provided' }}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-2">Inpatient Rooms</span>
+                            <p class="font-medium">
+                                {% if hospital.has_inpatient_rooms %}
+                                    {{ hospital.inpatient_rooms | join(', ') if hospital.inpatient_rooms else 'Yes' }}
+                                {% else %}
+                                    No
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-2">International Services</span>
+                            <p class="font-medium">{{ hospital.international_services_offered | join(', ') if hospital.international_services_offered else 'Not provided' }}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-textMuted block mb-2">Supported Languages</span>
+                            <div class="flex flex-wrap gap-2 mb-1">
+                                {% for lang in hospital.languages %}
+                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">{{ lang.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% if hospital.other_languages %}
+                            <p class="font-medium text-xs mt-1">Other: {{ hospital.other_languages }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Hospital Verification -->
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold border-b border-slate-100 pb-2 mb-4 text-primary">5. Hospital Verification</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm mb-6">
+                        <div>
+                            <span class="text-textMuted block mb-1">Licensing Authority</span>
+                            <span class="font-medium">{{ hospital.licensing_authority or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">License Number</span>
+                            <span class="font-medium">{{ hospital.registration_license_number or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Issue Date</span>
+                            <span class="font-medium">{{ hospital.license_issue_date.strftime('%Y-%m-%d') if hospital.license_issue_date else 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="text-textMuted block mb-1">Expiry Date</span>
+                            <span class="font-medium">{{ hospital.license_expiry_date.strftime('%Y-%m-%d') if hospital.license_expiry_date else 'Not provided' }}</span>
+                        </div>
+                    </div>
+
+                    <h3 class="font-semibold text-slate-800 mb-3">Verification Documents</h3>
+                    {% if hospital.verification_documents %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for doc in hospital.verification_documents %}
+                        <div class="border border-slate-200 rounded-xl p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                            <div class="flex items-center gap-3 overflow-hidden">
+                                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-textMain truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</p>
+                                    <p class="text-xs text-textMuted capitalize">{{ doc.document_category.replace('_', ' ') }} &bull; {{(doc.file_size / 1024)|round(1)}} KB</p>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('admin_application_document', doc_id=doc.id) }}" target="_blank" class="p-2 text-accent hover:bg-blue-100 rounded-lg transition-colors shrink-0" title="View Document">
+                                <i data-lucide="external-link" class="w-5 h-5"></i>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-textMuted italic">No documents uploaded.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="document.getElementById('rejectModal').classList.add('hidden')"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden relative">
+                <form action="{{ url_for('admin_application_reject', hospital_id=hospital.id) }}" method="POST">
+                    <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+                        <div class="w-10 h-10 bg-red-50 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-textMain">Reject Application</h3>
+                            <p class="text-sm text-textMuted">Provide a reason for rejection.</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Rejection Reason <span class="text-red-500">*</span></label>
+                        <textarea name="rejection_reason" required rows="4" class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent" placeholder="Explain why this application does not meet MediBid standards... This will be visible to the hospital."></textarea>
+                    </div>
+                    <div class="p-4 bg-slate-50 flex justify-end gap-3 border-t border-slate-100">
+                        <button type="button" onclick="document.getElementById('rejectModal').classList.add('hidden')" class="px-4 py-2 text-slate-600 font-bold hover:bg-slate-200 rounded-xl transition-colors">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white font-bold hover:bg-red-700 rounded-xl transition-colors shadow-sm">Confirm Rejection</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

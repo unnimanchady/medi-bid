@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Registration - Step 3 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(10,132,255,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom scrollbar for specialty list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F3F4F6;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+        /* Chip styles */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            background-color: #EBF5FF;
+            color: #0A84FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+            transition: all 0.2s;
+        }
+        .chip button {
+            margin-left: 0.5rem;
+            color: #60A5FA;
+            cursor: pointer;
+            outline: none;
+        }
+        .chip button:hover {
+            color: #2563EB;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-textMain">MediBid <span class="text-primary font-black">For Hospitals</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-textMuted hidden sm:block">Step 3 of 6 — Medical Capabilities</span>
+                    <div class="flex items-center gap-1">
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-textMain mb-4 tracking-tight">Medical Specialties & Capabilities</h1>
+            <p class="text-[16px] text-textMuted max-w-lg mx-auto leading-relaxed">Tell us about the medical services your hospital provides so MediBid can connect you with relevant patient requests.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+            
+            <div class="p-8 md:p-10">
+                
+                {% if error %}
+                <div class="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="text-red-500 w-5 h-5 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-red-800">Please check your inputs</h3>
+                        <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('hospital_register_capabilities') }}" id="capabilitiesForm" class="space-y-10">
+                    
+                    <!-- Section 1: Specialties -->
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">1. Medical Specialties</h2>
+                            <p class="text-[14px] text-textMuted">Select the main specialties offered at your hospital. (Select all that apply)</p>
+                        </div>
+                        
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="text" id="specialtySearch"
+                                class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-4 py-3 shadow-input transition-all duration-200 outline-none mb-3" 
+                                placeholder="Search specialties...">
+                        </div>
+
+                        <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 h-64 overflow-y-auto custom-scrollbar">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="specialtyList">
+                                {% for spec in all_specialties %}
+                                <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-gray-200 specialty-item" data-name="{{ spec.name | lower }}">
+                                    <div class="flex items-center h-5 mt-0.5">
+                                        <input type="checkbox" name="specialties" value="{{ spec.id }}" 
+                                            class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                            {% if spec.id|string in selected_ids %}checked{% endif %}>
+                                    </div>
+                                    <div class="text-sm text-textMain font-medium">{{ spec.name }}</div>
+                                </label>
+                                {% endfor %}
+                                
+                                <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-gray-200" id="otherSpecialtyLabel">
+                                    <div class="flex items-center h-5 mt-0.5">
+                                        <input type="checkbox" id="otherSpecialtyCheckbox" 
+                                            class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                            {% if hospital.other_specialty %}checked{% endif %}>
+                                    </div>
+                                    <div class="text-sm text-textMain font-medium">Other</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Other Specialty Input -->
+                        <div id="otherSpecialtyContainer" class="{% if not hospital.other_specialty %}hidden{% endif %} space-y-2 pt-2">
+                            <label for="other_specialty" class="block text-[14px] font-bold text-textMain ml-1">Please specify additional specialty</label>
+                            <input type="text" id="other_specialty" name="other_specialty"
+                                value="{{ hospital.other_specialty or '' }}"
+                                class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="e.g. Tropical Medicine">
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Treatments & Procedures -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">2. Key Treatments & Procedures</h2>
+                            <p class="text-[14px] text-textMuted">List specific major treatments, surgeries, or procedures offered. (Type and press Enter)</p>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="relative">
+                                <input type="text" id="treatmentInput"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="e.g. Coronary Artery Bypass Grafting (CABG)...">
+                                <button type="button" id="addTreatmentBtn" class="absolute inset-y-0 right-2 my-auto h-8 px-3 bg-primary hover:bg-secondary text-white text-xs font-bold rounded-xl transition-colors">
+                                    Add
+                                </button>
+                            </div>
+                            <div id="treatmentsWrapper" class="flex flex-wrap gap-1 min-h-[40px] p-2 bg-gray-50 border border-gray-100 rounded-2xl">
+                                <!-- Chips will be added here via JS -->
+                            </div>
+                            <input type="hidden" name="treatments" id="treatmentsData" value="{{ hospital.treatments | tojson if hospital.treatments else '[]' }}">
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Centers of Excellence -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">3. Centers of Excellence <span class="text-gray-400 font-normal text-[14px] ml-1">(Optional)</span></h2>
+                            <p class="text-[14px] text-textMuted">List specialized departments or centers within your hospital. (Type and press Enter)</p>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div class="relative">
+                                <input type="text" id="centerInput"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                    placeholder="e.g. Heart Institute...">
+                                <button type="button" id="addCenterBtn" class="absolute inset-y-0 right-2 my-auto h-8 px-3 bg-primary hover:bg-secondary text-white text-xs font-bold rounded-xl transition-colors">
+                                    Add
+                                </button>
+                            </div>
+                            <div id="centersWrapper" class="flex flex-wrap gap-1 min-h-[40px] p-2 bg-gray-50 border border-gray-100 rounded-2xl">
+                                <!-- Chips will be added here via JS -->
+                            </div>
+                            <input type="hidden" name="centers_of_excellence" id="centersData" value="{{ hospital.centers_of_excellence | tojson if hospital.centers_of_excellence else '[]' }}">
+                        </div>
+                    </div>
+
+                    <!-- Section 4: International Patients -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">4. International Patient Experience</h2>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-[14px] font-bold text-textMain ml-1 mb-2">Does your hospital currently treat international patients?</label>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="international_patients" value="Yes" 
+                                        class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                        {% if hospital.international_patient_experience == 'Yes' %}checked{% endif %}>
+                                    <span class="ml-3 text-sm font-medium text-textMain">Yes</span>
+                                </label>
+                                
+                                <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="international_patients" value="No" 
+                                        class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                        {% if hospital.international_patient_experience == 'No' %}checked{% endif %}>
+                                    <span class="ml-3 text-sm font-medium text-textMain">No</span>
+                                </label>
+                                
+                                <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                    <input type="radio" name="international_patients" value="Planning to" 
+                                        class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                        {% if hospital.international_patient_experience == 'Planning to' %}checked{% endif %}>
+                                    <span class="ml-3 text-sm font-medium text-textMain">Planning to</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 flex flex-col-reverse sm:flex-row items-center gap-4">
+                        <a href="{{ url_for('hospital_register_info') }}" 
+                           class="w-full sm:w-auto text-textMuted hover:text-textMain font-medium text-[15px] py-4 px-6 transition-colors text-center">
+                            Back
+                        </a>
+                        <button type="submit" 
+                            class="w-full sm:flex-1 bg-primary hover:bg-secondary text-white font-bold text-[16px] py-4 px-8 rounded-2xl shadow-floating hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                            <span>Save & Continue</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. Specialty Search Logic
+        const searchInput = document.getElementById('specialtySearch');
+        const specialtyItems = document.querySelectorAll('.specialty-item');
+        
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            specialtyItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Other Specialty Logic
+        const otherCheckbox = document.getElementById('otherSpecialtyCheckbox');
+        const otherContainer = document.getElementById('otherSpecialtyContainer');
+        const otherInput = document.getElementById('other_specialty');
+        
+        otherCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherContainer.classList.remove('hidden');
+                otherInput.required = true;
+            } else {
+                otherContainer.classList.add('hidden');
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+        });
+
+        // 2 & 3. Chip Input Logic Factory
+        function setupChipInput(inputId, btnId, wrapperId, dataId, initialData) {
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            const wrapper = document.getElementById(wrapperId);
+            const hiddenData = document.getElementById(dataId);
+            
+            let items = [];
+            try {
+                const parsed = JSON.parse(initialData);
+                if (Array.isArray(parsed)) items = parsed;
+            } catch(e) {}
+
+            function renderChips() {
+                wrapper.innerHTML = '';
+                items.forEach((item, index) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'chip';
+                    chip.innerHTML = `
+                        <span>${item}</span>
+                        <button type="button" data-index="${index}"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                    `;
+                    wrapper.appendChild(chip);
+                });
+                lucide.createIcons({root: wrapper});
+                hiddenData.value = JSON.stringify(items);
+                
+                // Add delete listeners
+                wrapper.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const idx = parseInt(this.getAttribute('data-index'));
+                        items.splice(idx, 1);
+                        renderChips();
+                    });
+                });
+            }
+
+            function addItem() {
+                const val = input.value.trim();
+                if (val && !items.includes(val)) {
+                    items.push(val);
+                    input.value = '';
+                    renderChips();
+                } else if (items.includes(val)) {
+                    input.value = ''; // Just clear if duplicate
+                }
+            }
+
+            btn.addEventListener('click', addItem);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addItem();
+                }
+            });
+
+            // Initial render
+            renderChips();
+        }
+
+        // Initialize Treatments
+        const treatmentsData = document.getElementById('treatmentsData').value;
+        setupChipInput('treatmentInput', 'addTreatmentBtn', 'treatmentsWrapper', 'treatmentsData', treatmentsData);
+
+        // Initialize Centers
+        const centersData = document.getElementById('centersData').value;
+        setupChipInput('centerInput', 'addCenterBtn', 'centersWrapper', 'centersData', centersData);
+
+        // Form Submit Validation
+        const form = document.getElementById('capabilitiesForm');
+        form.addEventListener('submit', function(e) {
+            // Re-sync JSON just in case
+            const anyChecked = document.querySelectorAll('input[name="specialties"]:checked').length > 0;
+            if (!anyChecked && !otherCheckbox.checked) {
+                e.preventDefault();
+                alert('Please select at least one medical specialty.');
+            }
+        });
+
+    </script>
+</body>
+</html>

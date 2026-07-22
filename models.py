@@ -292,3 +292,231 @@ class MedicalDocument(db.Model):
     patient_profile = db.relationship("PatientProfile", backref=db.backref("medical_documents", cascade="all, delete-orphan"))
     treatment_request = db.relationship("TreatmentRequest", backref=db.backref("medical_documents", cascade="all, delete-orphan"))
     uploaded_by = db.relationship("User", backref=db.backref("uploaded_documents", cascade="all, delete-orphan"))
+
+
+hospital_specialty = db.Table(
+    "hospital_specialty",
+    db.Column("hospital_id", db.Integer, db.ForeignKey("hospitals.id"), primary_key=True),
+    db.Column("specialty_id", db.Integer, db.ForeignKey("specialties.id"), primary_key=True)
+)
+
+
+class Specialty(db.Model):
+    __tablename__ = "specialties"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    slug = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+
+hospital_language = db.Table(
+    "hospital_language",
+    db.Column("hospital_id", db.Integer, db.ForeignKey("hospitals.id"), primary_key=True),
+    db.Column("language_id", db.Integer, db.ForeignKey("languages.id"), primary_key=True)
+)
+
+
+class Language(db.Model):
+    __tablename__ = "languages"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    slug = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+class Hospital(db.Model):
+    __tablename__ = "hospitals"
+
+    id = db.Column(db.Integer, primary_key=True)
+    legal_name = db.Column(db.String(255), nullable=True)
+    display_name = db.Column(db.String(255), nullable=True)
+    hospital_type = db.Column(db.String(100), nullable=True)
+    year_established = db.Column(db.Integer, nullable=True)
+    country = db.Column(db.String(100), nullable=True)
+    state_region = db.Column(db.String(100), nullable=True)
+    city = db.Column(db.String(100), nullable=True)
+    address = db.Column(db.Text, nullable=True)
+    postal_code = db.Column(db.String(50), nullable=True)
+    website = db.Column(db.String(255), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    
+    # Step 3 capabilities
+    other_specialty = db.Column(db.String(255), nullable=True)
+    treatments = db.Column(db.JSON, nullable=True)
+    centers_of_excellence = db.Column(db.JSON, nullable=True)
+    international_patient_experience = db.Column(db.String(50), nullable=True)
+    
+    # Step 4 capabilities
+    core_facilities = db.Column(db.JSON, nullable=True)
+    has_inpatient_rooms = db.Column(db.Boolean, nullable=True)
+    inpatient_rooms = db.Column(db.JSON, nullable=True)
+    international_services_offered = db.Column(db.JSON, nullable=True)
+    food_and_dietary = db.Column(db.JSON, nullable=True)
+    other_dietary = db.Column(db.String(255), nullable=True)
+    accessibility = db.Column(db.JSON, nullable=True)
+    other_languages = db.Column(db.String(255), nullable=True)
+    # Step 5 verification
+    registration_license_number = db.Column(db.String(100), nullable=True)
+    licensing_authority = db.Column(db.String(255), nullable=True)
+    registration_country = db.Column(db.String(100), nullable=True)
+    license_issue_date = db.Column(db.Date, nullable=True)
+    license_expiry_date = db.Column(db.Date, nullable=True)
+    has_accreditations = db.Column(db.Boolean, nullable=True)
+    
+    verification_status = db.Column(db.String(50), nullable=False, default="incomplete")
+    
+    # Phase 2 Review Audit
+    reviewed_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    reviewed_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    rejection_reason = db.Column(db.Text, nullable=True)
+    
+    reviewed_by = db.relationship("User", foreign_keys=[reviewed_by_id])
+    
+    # Relationships
+    specialties = db.relationship(
+        "Specialty",
+        secondary=hospital_specialty,
+        backref=db.backref("hospitals", lazy=True)
+    )
+    
+    languages = db.relationship(
+        "Language",
+        secondary=hospital_language,
+        backref=db.backref("hospitals", lazy=True)
+    )
+    
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )
+
+    users = db.relationship("HospitalUser", backref="hospital", cascade="all, delete-orphan")
+    accreditations = db.relationship("HospitalAccreditation", backref="hospital", cascade="all, delete-orphan")
+    verification_documents = db.relationship("HospitalVerificationDocument", backref="hospital", cascade="all, delete-orphan")
+
+
+class HospitalAccreditation(db.Model):
+    __tablename__ = "hospital_accreditations"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    hospital_id = db.Column(
+        db.Integer,
+        db.ForeignKey("hospitals.id"),
+        nullable=False,
+        index=True
+    )
+    
+    name = db.Column(db.String(255), nullable=False)
+    certificate_number = db.Column(db.String(100), nullable=True)
+    valid_until = db.Column(db.Date, nullable=True)
+    
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+
+class HospitalVerificationDocument(db.Model):
+    __tablename__ = "hospital_verification_documents"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    hospital_id = db.Column(
+        db.Integer,
+        db.ForeignKey("hospitals.id"),
+        nullable=False,
+        index=True
+    )
+    
+    uploaded_by_id = db.Column(
+        db.Integer,
+        db.ForeignKey("hospital_users.id"),
+        nullable=False,
+        index=True
+    )
+    
+    original_filename = db.Column(db.String(255), nullable=False)
+    storage_filename = db.Column(db.String(255), nullable=False, unique=True)
+    document_category = db.Column(db.String(100), nullable=False)
+    mime_type = db.Column(db.String(100), nullable=False)
+    file_size = db.Column(db.Integer, nullable=False)
+    
+    uploaded_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    uploaded_by = db.relationship("HospitalUser", backref="uploaded_hospital_documents")
+
+
+class HospitalUser(db.Model):
+    __tablename__ = "hospital_users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    hospital_id = db.Column(
+        db.Integer,
+        db.ForeignKey("hospitals.id"),
+        nullable=False,
+        index=True
+    )
+    
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    
+    work_email = db.Column(
+        db.String(255),
+        unique=True,
+        nullable=False,
+        index=True
+    )
+    
+    phone_country_code = db.Column(db.String(10), nullable=True)
+    phone_number = db.Column(db.String(50), nullable=True)
+    
+    password_hash = db.Column(db.String(255), nullable=True)
+    
+    role = db.Column(
+        db.String(50),
+        nullable=False,
+        default="hospital_admin"
+    )
+    
+    is_active = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True
+    )
+    
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
+    )

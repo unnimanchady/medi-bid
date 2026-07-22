@@ -449,7 +449,7 @@
                             <div id="allergy-other-container" class="mt-2 hidden">
                                 <input type="text" id="allergy-other-text" name="allergy-other-text"
                                     class="w-full sm:w-[50%] bg-bgLight border border-gray-200 text-gray-900 text-[14px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3 shadow-input transition-all duration-200 outline-none" 
-                                    placeholder="Specify other allergy...">
+                                    placeholder="Please specify other allergy/allergies">
                             </div>
                         </div>
                         {% endif %}
@@ -470,8 +470,8 @@
                     <div class="flex flex-col gap-6">
                         
                         <div class="flex flex-col lg:flex-row gap-5">
-                            {% if not previous_request %}
                             <!-- Blood Group -->
+                            {% if not previous_request %}
                             <div class="flex flex-col gap-1.5 lg:w-[25%] shrink-0">
                                 <div class="h-[20px] flex items-center">
                                     <label for="blood-group" class="text-[14px] font-bold text-gray-800 ml-1">Blood Group</label>
@@ -494,6 +494,7 @@
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
 
                             <!-- Height & Weight Toggle Wrapper -->
                             <div class="flex flex-col gap-1.5 relative w-full lg:w-[75%]">
@@ -511,7 +512,8 @@
                                     </label>
                                 </div>
                                 
-                                <div class="grid grid-cols-2 gap-3" id="vitals-metric">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="vitals-metric">
+                                    {% if not previous_request %}
                                     <div class="relative">
                                         <input type="number" name="height-cm" id="height-cm" min="30" max="250" step="any"
                                             class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
@@ -520,10 +522,11 @@
                                             <span class="text-gray-400 font-medium text-[13px]">cm</span>
                                         </div>
                                     </div>
-                                    <div class="relative">
+                                    {% endif %}
+                                    <div class="relative {% if previous_request %}md:col-span-2{% endif %}">
                                         <input type="number" name="weight-kg" id="weight-kg" min="1" max="500" step="any"
                                             class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
-                                            placeholder="Weight">
+                                            placeholder="{% if previous_request %}Current Weight{% else %}Weight{% endif %}">
                                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                             <span class="text-gray-400 font-medium text-[13px]">kg</span>
                                         </div>
@@ -531,6 +534,7 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 hidden" id="vitals-imperial">
+                                    {% if not previous_request %}
                                     <div class="relative">
                                         <input type="number" name="height-ft" id="height-ft" min="1" max="8" step="1"
                                             class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-10 shadow-input transition-all duration-200 outline-none" 
@@ -548,84 +552,18 @@
                                             <span class="text-gray-400 font-medium text-[13px]">in</span>
                                         </div>
                                     </div>
+                                    {% endif %}
                                     
-                                    <div class="relative">
+                                    <div class="relative {% if previous_request %}sm:col-span-3{% endif %}">
                                         <input type="number" name="weight-lbs" id="weight-lbs" min="2" max="1102" step="any"
                                             class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pr-12 shadow-input transition-all duration-200 outline-none" 
-                                            placeholder="Weight (lbs)">
+                                            placeholder="{% if previous_request %}Current Weight (lbs){% else %}Weight (lbs){% endif %}">
                                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                             <span class="text-gray-400 font-medium text-[13px]">lbs</span>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
-                            {% endif %}
-                            
-                            <!-- Weight Change -->
-                            {% if previous_request and (previous_request.weight_kg or previous_request.weight_lbs) %}
-                            <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
-                                <p class="text-[13px] font-bold text-secondary mb-3">Weight from Previous Request: {% if previous_request.weight_kg %}{{ previous_request.weight_kg }} kg{% else %}{{ previous_request.weight_lbs }} lbs{% endif %}</p>
-                                <label class="text-[14px] font-bold text-gray-800">Has your weight changed significantly since your previous request?</label>
-                                <select name="weight-change-type" id="weight-change-type" class="mt-2 w-full bg-white border border-gray-200 text-gray-900 text-[14px] rounded-xl focus:ring-input-focus focus:border-secondary block px-4 py-3 outline-none" onchange="toggleWeightChangeFields()">
-                                    <option value="No significant change">No significant change</option>
-                                    <option value="Weight loss">Weight loss</option>
-                                    <option value="Weight gain">Weight gain</option>
-                                </select>
-                                
-                                <div id="weight-change-details" class="hidden mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="text-[12px] font-bold text-gray-700 block mb-1">Approximate Change</label>
-                                        <div class="flex gap-2">
-                                            <input type="number" step="0.1" name="weight-change-amount" placeholder="e.g. 5" class="w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl focus:ring-input-focus focus:border-secondary block px-4 py-2.5 outline-none">
-                                            <select name="weight-change-amount-unit" class="bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl focus:ring-input-focus focus:border-secondary block px-3 py-2.5 outline-none w-24">
-                                                <option value="kg">kg</option>
-                                                <option value="lbs">lbs</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="text-[12px] font-bold text-gray-700 block mb-1">Current weight</label>
-                                        <div class="flex gap-2">
-                                            <input type="number" step="0.1" name="current-weight" placeholder="e.g. 70" class="w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl focus:ring-input-focus focus:border-secondary block px-4 py-2.5 outline-none">
-                                            <select name="current-weight-unit" class="bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl focus:ring-input-focus focus:border-secondary block px-3 py-2.5 outline-none w-24">
-                                                <option value="kg">kg</option>
-                                                <option value="lbs">lbs</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label class="text-[12px] font-bold text-gray-700 block mb-1">Over what period?</label>
-                                        <div class="flex gap-2">
-                                            <input type="number" step="0.1" name="weight-change-period" placeholder="e.g. 3" class="w-full bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl focus:ring-input-focus focus:border-secondary block px-4 py-2.5 outline-none">
-                                            <select name="weight-change-period-unit" class="bg-white border border-gray-200 text-gray-900 text-[13px] rounded-xl focus:ring-input-focus focus:border-secondary block px-3 py-2.5 outline-none w-28">
-                                                <option value="weeks">weeks</option>
-                                                <option value="months">months</option>
-                                                <option value="years">years</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <script>
-                                function toggleWeightChangeFields() {
-                                    const select = document.getElementById('weight-change-type');
-                                    const details = document.getElementById('weight-change-details');
-                                    if (select.value === 'Weight loss' || select.value === 'Weight gain') {
-                                        details.classList.remove('hidden');
-                                    } else {
-                                        details.classList.add('hidden');
-                                    }
-                                }
-                                document.addEventListener('DOMContentLoaded', () => {
-                                    // Pre-fill current weight to previous weight
-                                    const kgInput = document.getElementById('weight-kg');
-                                    if(kgInput && !kgInput.value) {
-                                        kgInput.value = "{{ previous_request.weight_kg }}";
-                                    }
-                                });
-                            </script>
-                            {% endif %}
                         </div>
 
                         {% if show_pregnancy %}
@@ -934,6 +872,7 @@
                     });
                     otherAllergyContainer.classList.add('hidden');
                     otherAllergyInput.removeAttribute('required');
+                    otherAllergyInput.value = '';
                 } 
                 // If anything else is checked
                 else if (e.target.checked) {
@@ -948,6 +887,7 @@
                 } else {
                     otherAllergyContainer.classList.add('hidden');
                     otherAllergyInput.removeAttribute('required');
+                    otherAllergyInput.value = '';
                 }
             });
         });

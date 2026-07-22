@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Dashboard | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white flex">
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="w-64 bg-white border-r border-gray-100 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-textMain">MediBid <span class="text-primary">Hospitals</span></span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </a>
+            
+            {% if hospital.verification_status == 'verified' %}
+            <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span>Treatment Requests</span>
+            </a>
+            {% else %}
+            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Account verification required">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span class="font-medium">Treatment Requests</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
+            </div>
+            {% endif %}
+            
+            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span class="font-medium">Proposals</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span class="font-medium">Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+                <i data-lucide="building" class="w-5 h-5"></i>
+                <span class="font-medium">Hospital Profile</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="font-medium">Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">Account / Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-gray-100">
+            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-white border-b border-gray-100 p-4 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-textMain">MediBid</span>
+            </div>
+            <a href="{{ url_for('hospital_logout') }}" class="p-2 text-textMuted hover:text-red-600 transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </a>
+        </header>
+
+        <div class="p-6 md:p-10 lg:p-12 max-w-6xl mx-auto w-full">
+            <div class="mb-8 flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-textMain tracking-tight">Hospital Dashboard</h1>
+                    <p class="text-textMuted mt-1">Welcome back, {{ user.first_name }}</p>
+                </div>
+            </div>
+
+            <!-- Hospital Summary Card -->
+            <div class="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100">
+                        <i data-lucide="building" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-textMain">{{ hospital.legal_name }}</h2>
+                        <p class="text-sm text-textMuted flex items-center gap-1 mt-1">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                            {{ hospital.city }}, {{ hospital.country }}
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 border border-gray-100 px-5 py-3 rounded-2xl md:text-right shrink-0 min-w-[200px]">
+                    <p class="text-[10px] font-bold text-textMuted uppercase tracking-wider mb-1">Primary Contact</p>
+                    <p class="text-sm font-bold text-textMain">{{ user.first_name }} {{ user.last_name }}</p>
+                    <p class="text-xs text-textMuted">{{ user.work_email }}</p>
+                </div>
+            </div>
+
+            {% if hospital.verification_status == 'pending_verification' %}
+            
+            <!-- Pending Verification Architecture -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Main Message -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm relative h-full">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-blue-500"></div>
+                        <div class="p-8 md:p-10 flex flex-col h-full justify-center">
+                            
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-inner">
+                                    <i data-lucide="clock" class="w-6 h-6"></i>
+                                </div>
+                                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 text-blue-700 text-[11px] font-bold uppercase tracking-wider rounded-full">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                    Application Status: Pending Verification
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-2xl md:text-3xl font-extrabold text-textMain mb-4">Your hospital registration is under review</h2>
+                            
+                            <p class="text-[15px] text-textMuted leading-relaxed mb-8">
+                                Thank you for submitting your application to join the MediBid network. Our compliance team is currently reviewing your submitted hospital information and verification documents to ensure our global standards are met.
+                            </p>
+                            
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-sm text-textMain space-y-4">
+                                <p class="flex items-start gap-3">
+                                    <i data-lucide="shield" class="w-5 h-5 text-gray-400 shrink-0 mt-0.5"></i>
+                                    <span class="leading-relaxed">We are verifying your operating licenses and accreditations. This helps us maintain a trusted and safe network for international patients.</span>
+                                </p>
+                                <p class="flex items-start gap-3">
+                                    <i data-lucide="mail" class="w-5 h-5 text-gray-400 shrink-0 mt-0.5"></i>
+                                    <span class="leading-relaxed">You will receive an email notification as soon as the review process is complete and your hospital account is fully activated.</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Status/Progress Card -->
+                <div>
+                    <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-full">
+                        <h3 class="font-bold text-lg text-textMain mb-8">Registration Journey</h3>
+                        
+                        <div class="relative">
+                            <!-- Vertical Line -->
+                            <div class="absolute top-4 left-4 w-0.5 h-[calc(100%-2rem)] bg-gray-100 -ml-[1px]"></div>
+                            
+                            <!-- Step 1: Submitted -->
+                            <div class="relative flex gap-4 mb-8">
+                                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center shrink-0 shadow-sm z-10 relative">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                    <!-- Connector to next step (Active) -->
+                                    <div class="absolute top-8 left-1/2 w-0.5 h-8 bg-green-500 -ml-[1px]"></div>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-textMain text-sm">Registration Submitted</p>
+                                    <p class="text-xs text-textMuted mt-1">Completed</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 2: Verification -->
+                            <div class="relative flex gap-4 mb-8">
+                                <div class="w-8 h-8 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center shrink-0 z-10 relative">
+                                    <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-blue-700 text-sm">MediBid Verification</p>
+                                    <p class="text-xs text-blue-500 mt-1 font-medium">In Progress</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Step 3: Activation -->
+                            <div class="relative flex gap-4">
+                                <div class="w-8 h-8 rounded-full bg-gray-50 border-2 border-gray-200 text-gray-400 flex items-center justify-center shrink-0 z-10">
+                                    <i data-lucide="lock" class="w-3 h-3"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-500 text-sm">Hospital Activation</p>
+                                    <p class="text-xs text-gray-400 mt-1">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            {% elif hospital.verification_status == 'verified' %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Stat Card: Eligible Requests -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex items-center justify-between group cursor-pointer hover:border-primary transition-colors" onclick="window.location.href='{{ url_for('hospital_treatment_requests') }}'">
+                    <div>
+                        <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Eligible Patient Requests</p>
+                        <p class="text-4xl font-extrabold text-textMain">{{ eligible_requests_count }}</p>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center shadow-inner group-hover:bg-primary group-hover:text-white transition-colors">
+                        <i data-lucide="stethoscope" class="w-7 h-7"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-blue-50 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-textMain mb-2">Your Account is Verified</h2>
+                <p class="text-textMuted max-w-lg mx-auto mb-6">Your hospital has full access to the MediBid network. You can now review patient treatment requests that match your registered specialties.</p>
+                <a href="{{ url_for('hospital_treatment_requests') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm">
+                    View Treatment Requests <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+            
+            {% elif hospital.verification_status == 'rejected' %}
+            <div class="bg-white rounded-3xl border border-red-100 p-8 shadow-sm max-w-3xl mx-auto">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="x-circle" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-textMain mb-2">Registration Not Approved</h2>
+                    <p class="text-textMuted">Your application to join the MediBid network has been reviewed and was not approved at this time.</p>
+                </div>
+                
+                {% if hospital.rejection_reason %}
+                <div class="bg-red-50 border border-red-100 rounded-2xl p-6 mb-6">
+                    <h3 class="font-bold text-red-800 mb-2 flex items-center gap-2">
+                        <i data-lucide="info" class="w-5 h-5"></i> Reason for Decision
+                    </h3>
+                    <p class="text-red-700 text-sm leading-relaxed whitespace-pre-wrap">{{ hospital.rejection_reason }}</p>
+                </div>
+                {% endif %}
+                
+                <div class="text-center">
+                    <p class="text-sm text-textMuted">If you have updated your credentials or believe this was a mistake, please contact our support team.</p>
+                    <a href="mailto:support@medibid.com" class="inline-flex items-center gap-2 mt-4 px-6 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold rounded-xl transition-colors">
+                        <i data-lucide="mail" class="w-4 h-4"></i> Contact Support
+                    </a>
+                </div>
+            </div>
+            
+            {% else %}
+            <!-- Fallback for unexpected status -->
+            <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm text-center">
+                <p class="text-textMuted font-bold uppercase tracking-wider">Status: {{ hospital.verification_status }}</p>
+            </div>
+            {% endif %}
+            
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Applications | Admin | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#475569',
+                        accent: '#3B82F6',
+                        textMain: '#0F172A',
+                        textMuted: '#64748B',
+                        bgLight: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex">
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="w-64 bg-primary text-slate-300 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+        <div class="p-6 border-b border-slate-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-check" class="text-primary w-5 h-5"></i>
+                </div>
+                <span class="font-extrabold text-lg tracking-tight text-white">MediBid Admin</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Dashboard
+            </a>
+            
+            <a href="{{ url_for('admin_applications') }}" class="flex items-center justify-between px-4 py-3 bg-slate-800 text-white font-bold rounded-xl transition-colors">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="clipboard-check" class="w-5 h-5 text-accent"></i>
+                    Hospital Applications
+                </div>
+                {% if applications|length > 0 %}
+                <span class="bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ applications|length }}</span>
+                {% endif %}
+            </a>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="font-medium">Patients</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="building-2" class="w-5 h-5"></i>
+                <span class="font-medium">Hospitals</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <span class="font-medium">Treatment Requests</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span class="font-medium">Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="font-medium">Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">Platform Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+                <span class="font-medium">Audit Logs</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-700/50">
+            <a href="{{ url_for('admin_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-white hover:bg-red-500/20 font-bold rounded-xl transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-primary text-white border-b border-slate-700/50 p-4 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-check" class="text-primary w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Admin</span>
+            </div>
+            <a href="{{ url_for('admin_logout') }}" class="p-2 text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </a>
+        </header>
+
+        <div class="p-6 md:p-10 lg:p-12 max-w-7xl mx-auto w-full">
+            <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-textMain tracking-tight">Hospital Applications</h1>
+                    <p class="text-textMuted mt-1">Review pending hospital registrations requiring verification.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-slate-50 transition-colors">
+                        <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-card overflow-hidden">
+                
+                <!-- Table Header Tabs -->
+                <div class="flex border-b border-slate-100 px-6 pt-4 gap-6 overflow-x-auto hide-scroll">
+                    <a href="{{ url_for('admin_applications', status='pending_verification') }}" class="pb-4 px-2 whitespace-nowrap text-sm transition-colors {% if current_status == 'pending_verification' %}text-accent font-bold border-b-2 border-accent{% else %}text-textMuted font-semibold hover:text-textMain{% endif %}">
+                        Pending Verification
+                        {% if pending_count > 0 %}
+                        <span class="ml-2 {% if current_status == 'pending_verification' %}bg-blue-50 text-blue-600{% else %}bg-slate-100 text-slate-500{% endif %} px-2 py-0.5 rounded-full text-xs">{{ pending_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('admin_applications', status='verified') }}" class="pb-4 px-2 whitespace-nowrap text-sm transition-colors {% if current_status == 'verified' %}text-emerald-600 font-bold border-b-2 border-emerald-600{% else %}text-textMuted font-semibold hover:text-textMain{% endif %}">
+                        Verified
+                        {% if verified_count > 0 %}
+                        <span class="ml-2 {% if current_status == 'verified' %}bg-emerald-50 text-emerald-600{% else %}bg-slate-100 text-slate-500{% endif %} px-2 py-0.5 rounded-full text-xs">{{ verified_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('admin_applications', status='rejected') }}" class="pb-4 px-2 whitespace-nowrap text-sm transition-colors {% if current_status == 'rejected' %}text-red-600 font-bold border-b-2 border-red-600{% else %}text-textMuted font-semibold hover:text-textMain{% endif %}">
+                        Rejected
+                        {% if rejected_count > 0 %}
+                        <span class="ml-2 {% if current_status == 'rejected' %}bg-red-50 text-red-600{% else %}bg-slate-100 text-slate-500{% endif %} px-2 py-0.5 rounded-full text-xs">{{ rejected_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100 text-xs uppercase tracking-wider text-textMuted">
+                                <th class="px-6 py-4 font-bold">Hospital Name</th>
+                                <th class="px-6 py-4 font-bold">Location</th>
+                                <th class="px-6 py-4 font-bold hidden md:table-cell">Primary Contact</th>
+                                <th class="px-6 py-4 font-bold">Submitted Date</th>
+                                <th class="px-6 py-4 font-bold">Status</th>
+                                <th class="px-6 py-4 font-bold text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for app in applications %}
+                            <tr class="hover:bg-slate-50/50 transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-textMain">{{ app.legal_name }}</div>
+                                    {% if app.hospital_type %}
+                                    <div class="text-xs text-textMuted mt-0.5">{{ app.hospital_type }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-textMain">{{ app.city }}</div>
+                                    <div class="text-xs text-textMuted mt-0.5">{{ app.country }}</div>
+                                </td>
+                                <td class="px-6 py-4 hidden md:table-cell">
+                                    {% if app.users %}
+                                        <div class="text-sm font-medium text-textMain">{{ app.users[0].first_name }} {{ app.users[0].last_name }}</div>
+                                        <div class="text-xs text-textMuted mt-0.5">{{ app.users[0].work_email }}</div>
+                                    {% else %}
+                                        <span class="text-xs text-textMuted italic">No users found</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-textMain">{{ app.updated_at.strftime('%Y-%m-%d') }}</div>
+                                    <div class="text-xs text-textMuted mt-0.5">{{ app.updated_at.strftime('%H:%M UTC') }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    {% if current_status == 'pending_verification' %}
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-100 text-xs font-bold whitespace-nowrap">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                        Pending Review
+                                    </div>
+                                    {% elif current_status == 'verified' %}
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold whitespace-nowrap">
+                                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                        Verified
+                                    </div>
+                                    {% elif current_status == 'rejected' %}
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-100 text-xs font-bold whitespace-nowrap">
+                                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                                        Rejected
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{{ url_for('admin_application_review', hospital_id=app.id) }}" class="inline-flex items-center justify-center bg-white border border-slate-200 text-slate-700 hover:text-accent hover:border-accent hover:bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-all">
+                                        {% if current_status == 'pending_verification' %}Review{% else %}View Details{% endif %}
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-16 text-center">
+                                    <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-100">
+                                        <i data-lucide="info" class="w-8 h-8"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-textMain mb-1">No Applications Found</h3>
+                                    <p class="text-sm text-textMuted">There are currently no {{ current_status.replace('_', ' ') }} applications.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

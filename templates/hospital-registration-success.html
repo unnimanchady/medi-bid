@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Submitted | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white flex flex-col">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 shrink-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-textMain">MediBid <span class="text-primary font-black">For Hospitals</span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        
+        <div class="max-w-xl w-full bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden relative text-center p-10 md:p-14">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-primary"></div>
+            
+            <div class="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-green-100">
+                <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+            </div>
+            
+            <h1 class="text-3xl font-extrabold text-textMain mb-4 tracking-tight">Registration Submitted Successfully</h1>
+            
+            <p class="text-[16px] text-textMuted leading-relaxed mb-8">
+                Thank you for applying to join the MediBid global network. Your hospital's application is now <span class="font-bold text-textMain">pending verification</span>. 
+            </p>
+
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-left mb-8">
+                <h3 class="font-bold text-blue-900 flex items-center gap-2 mb-3">
+                    <i data-lucide="info" class="w-5 h-5"></i> What happens next?
+                </h3>
+                <ul class="space-y-3 text-sm text-blue-800">
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold shrink-0">1.</span>
+                        <span>Our compliance team will review your submitted documents and verify your credentials within 2-3 business days.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold shrink-0">2.</span>
+                        <span>You will receive an email update regarding your verification status.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold shrink-0">3.</span>
+                        <span>Once approved, you will gain full access to the MediBid Hospital Dashboard to start receiving international patient requests.</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <a href="/" class="inline-flex items-center justify-center gap-2 w-full bg-primary hover:bg-secondary text-white font-bold text-[16px] py-4 px-8 rounded-2xl shadow-floating hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                <span>Return to Home</span>
+            </a>
+            
+        </div>
+        
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Registration - Step 5 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(10,132,255,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-textMain">MediBid <span class="text-primary font-black">For Hospitals</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-textMuted hidden sm:block">Step 5 of 6 — Verification</span>
+                    <div class="flex items-center gap-1">
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-textMain mb-4 tracking-tight">Verify Your Hospital</h1>
+            <p class="text-[16px] text-textMuted max-w-lg mx-auto leading-relaxed">Provide your hospital's registration and licensing information to help MediBid maintain a trusted global healthcare network.</p>
+            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span>Your documents are used only for verification and are not displayed publicly.</span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+            
+            <div class="p-8 md:p-10">
+                
+                {% if error %}
+                <div class="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="text-red-500 w-5 h-5 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-red-800">Please check your inputs</h3>
+                        <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('hospital_register_verification') }}" enctype="multipart/form-data" id="verificationForm" class="space-y-10">
+                    
+                    <!-- Section 1: Legal Registration -->
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">1. Legal Registration</h2>
+                            <p class="text-[14px] text-textMuted">Official registration details as recognized by regulatory bodies.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Legal Name -->
+                            <div class="md:col-span-2 space-y-2">
+                                <label for="legal_name" class="block text-[14px] font-bold text-textMain ml-1">Registered Legal Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="legal_name" name="legal_name" required
+                                    value="{{ hospital.legal_name or '' }}"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none">
+                            </div>
+
+                            <!-- License Number -->
+                            <div class="space-y-2">
+                                <label for="registration_license_number" class="block text-[14px] font-bold text-textMain ml-1">Healthcare Facility License Number <span class="text-red-500">*</span></label>
+                                <input type="text" id="registration_license_number" name="registration_license_number" required
+                                    value="{{ hospital.registration_license_number or '' }}"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none">
+                            </div>
+                            
+                            <!-- Licensing Authority -->
+                            <div class="space-y-2">
+                                <label for="licensing_authority" class="block text-[14px] font-bold text-textMain ml-1">Licensing / Regulatory Authority <span class="text-red-500">*</span></label>
+                                <input type="text" id="licensing_authority" name="licensing_authority" required
+                                    value="{{ hospital.licensing_authority or '' }}"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none"
+                                    placeholder="e.g. Ministry of Health">
+                            </div>
+
+                            <!-- Country of Registration -->
+                            <div class="md:col-span-2 space-y-2">
+                                <label for="registration_country" class="block text-[14px] font-bold text-textMain ml-1">Country of Registration <span class="text-red-500">*</span></label>
+                                <input type="text" id="registration_country" name="registration_country" required
+                                    value="{{ hospital.registration_country or hospital.country or '' }}"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none">
+                            </div>
+
+                            <!-- Dates -->
+                            <div class="space-y-2">
+                                <label for="license_issue_date" class="block text-[14px] font-bold text-textMain ml-1">Issue Date <span class="text-gray-400 font-normal text-[14px]">(Optional)</span></label>
+                                <input type="date" id="license_issue_date" name="license_issue_date"
+                                    value="{{ hospital.license_issue_date.strftime('%Y-%m-%d') if hospital.license_issue_date else '' }}"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none text-gray-500">
+                            </div>
+                            <div class="space-y-2">
+                                <label for="license_expiry_date" class="block text-[14px] font-bold text-textMain ml-1">Expiry Date <span class="text-gray-400 font-normal text-[14px]">(Optional)</span></label>
+                                <input type="date" id="license_expiry_date" name="license_expiry_date"
+                                    value="{{ hospital.license_expiry_date.strftime('%Y-%m-%d') if hospital.license_expiry_date else '' }}"
+                                    class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none text-gray-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Accreditations -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">2. Accreditations</h2>
+                            <p class="text-[14px] text-textMuted">Does your hospital hold any recognized healthcare accreditations? (e.g. JCI, NABH, ISO)</p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors flex-1 max-w-[150px]">
+                                <input type="radio" name="has_accreditations" value="Yes" id="hasAccYes"
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                    {% if hospital.has_accreditations %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">Yes</span>
+                            </label>
+                            
+                            <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors flex-1 max-w-[150px]">
+                                <input type="radio" name="has_accreditations" value="No" id="hasAccNo"
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                    {% if hospital.has_accreditations == False %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">No</span>
+                            </label>
+                        </div>
+
+                        <!-- Accreditations Dynamic List -->
+                        <div id="accreditationContainer" class="{% if not hospital.has_accreditations %}hidden{% endif %} mt-4 space-y-4 bg-gray-50 p-5 rounded-2xl border border-gray-200">
+                            <div id="accList" class="space-y-4">
+                                {% if hospital.accreditations %}
+                                    {% for acc in hospital.accreditations %}
+                                    <div class="acc-row bg-white p-4 rounded-xl border border-gray-200 relative">
+                                        <button type="button" class="remove-acc text-red-400 hover:text-red-600 absolute top-4 right-4"><i data-lucide="x" class="w-5 h-5"></i></button>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs font-bold text-textMuted mb-1">Accreditation Name <span class="text-red-500">*</span></label>
+                                                <input type="text" name="acc_name[]" value="{{ acc.name }}" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary" required>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-textMuted mb-1">Certificate Number <span class="text-gray-400 font-normal">(Optional)</span></label>
+                                                <input type="text" name="acc_number[]" value="{{ acc.certificate_number or '' }}" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-textMuted mb-1">Valid Until <span class="text-gray-400 font-normal">(Optional)</span></label>
+                                                <input type="date" name="acc_valid_until[]" value="{{ acc.valid_until.strftime('%Y-%m-%d') if acc.valid_until else '' }}" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary text-gray-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- Template for empty row -->
+                                    <div class="acc-row bg-white p-4 rounded-xl border border-gray-200 relative">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs font-bold text-textMuted mb-1">Accreditation Name <span class="text-red-500">*</span></label>
+                                                <input type="text" name="acc_name[]" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary" required>
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-textMuted mb-1">Certificate Number <span class="text-gray-400 font-normal">(Optional)</span></label>
+                                                <input type="text" name="acc_number[]" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-textMuted mb-1">Valid Until <span class="text-gray-400 font-normal">(Optional)</span></label>
+                                                <input type="date" name="acc_valid_until[]" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary text-gray-500">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button type="button" id="addAccBtn" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-1 mt-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Add another accreditation
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Verification Documents -->
+                    <div class="space-y-6 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">3. Verification Documents</h2>
+                            <p class="text-[14px] text-textMuted">Upload clear scans or photos of your official documents. Maximum file size: 10MB per document.</p>
+                            <p class="text-[13px] text-textMuted mt-1">Accepted formats: PDF, JPG, PNG.</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Helper logic to find existing docs -->
+                            {% set docs = {} %}
+                            {% for doc in hospital.verification_documents %}
+                                {% set _ = docs.update({doc.document_category: doc}) %}
+                            {% endfor %}
+
+                            <!-- Doc 1: Registration (Required) -->
+                            <div class="p-4 border border-gray-200 rounded-2xl bg-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-textMain flex items-center gap-2">
+                                        Hospital Registration / Operating License <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 uppercase tracking-wider">Required</span>
+                                    </h3>
+                                    <p class="text-xs text-textMuted mt-1">The primary legal document authorizing hospital operations.</p>
+                                </div>
+                                <div class="shrink-0">
+                                    {% if docs.get('Hospital Registration / Operating License') %}
+                                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 px-3 py-2 rounded-xl" id="doc_registration_display">
+                                            <i data-lucide="file-check" class="w-5 h-5 text-green-600"></i>
+                                            <span class="text-sm font-medium text-green-800 truncate max-w-[150px]">{{ docs.get('Hospital Registration / Operating License').original_filename }}</span>
+                                            <label class="cursor-pointer text-xs font-bold text-primary hover:text-secondary ml-2">
+                                                Replace
+                                                <input type="file" name="doc_registration" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input" data-target="doc_registration_display" data-old="{{ docs.get('Hospital Registration / Operating License').id }}">
+                                            </label>
+                                        </div>
+                                    {% else %}
+                                        <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-textMain transition-colors">
+                                            <i data-lucide="upload" class="w-4 h-4 text-textMuted"></i>
+                                            <span class="file-label">Upload File</span>
+                                            <input type="file" name="doc_registration" accept=".pdf,.jpg,.jpeg,.png" required class="hidden file-input">
+                                        </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Doc 2: Accreditation -->
+                            <div class="p-4 border border-gray-200 rounded-2xl bg-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-textMain flex items-center gap-2">
+                                        Accreditation Certificate <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 uppercase tracking-wider">Optional</span>
+                                    </h3>
+                                </div>
+                                <div class="shrink-0">
+                                    {% if docs.get('Accreditation Certificate') %}
+                                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 px-3 py-2 rounded-xl" id="doc_accreditation_display">
+                                            <i data-lucide="file-check" class="w-5 h-5 text-green-600"></i>
+                                            <span class="text-sm font-medium text-green-800 truncate max-w-[150px]">{{ docs.get('Accreditation Certificate').original_filename }}</span>
+                                            <label class="cursor-pointer text-xs font-bold text-primary hover:text-secondary ml-2">
+                                                Replace
+                                                <input type="file" name="doc_accreditation" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input" data-target="doc_accreditation_display">
+                                            </label>
+                                        </div>
+                                    {% else %}
+                                        <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-textMain transition-colors">
+                                            <i data-lucide="upload" class="w-4 h-4 text-textMuted"></i>
+                                            <span class="file-label">Upload File</span>
+                                            <input type="file" name="doc_accreditation" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input">
+                                        </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Doc 3: Gov Reg -->
+                            <div class="p-4 border border-gray-200 rounded-2xl bg-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-textMain flex items-center gap-2">
+                                        Government Registration Certificate <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 uppercase tracking-wider">Optional</span>
+                                    </h3>
+                                </div>
+                                <div class="shrink-0">
+                                    {% if docs.get('Government Registration Certificate') %}
+                                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 px-3 py-2 rounded-xl" id="doc_gov_display">
+                                            <i data-lucide="file-check" class="w-5 h-5 text-green-600"></i>
+                                            <span class="text-sm font-medium text-green-800 truncate max-w-[150px]">{{ docs.get('Government Registration Certificate').original_filename }}</span>
+                                            <label class="cursor-pointer text-xs font-bold text-primary hover:text-secondary ml-2">
+                                                Replace
+                                                <input type="file" name="doc_gov" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input" data-target="doc_gov_display">
+                                            </label>
+                                        </div>
+                                    {% else %}
+                                        <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-textMain transition-colors">
+                                            <i data-lucide="upload" class="w-4 h-4 text-textMuted"></i>
+                                            <span class="file-label">Upload File</span>
+                                            <input type="file" name="doc_gov" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input">
+                                        </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Doc 4: Tax -->
+                            <div class="p-4 border border-gray-200 rounded-2xl bg-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-bold text-textMain flex items-center gap-2">
+                                        Tax / Business Registration Document <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 uppercase tracking-wider">Optional</span>
+                                    </h3>
+                                </div>
+                                <div class="shrink-0">
+                                    {% if docs.get('Tax / Business Registration Document') %}
+                                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 px-3 py-2 rounded-xl" id="doc_tax_display">
+                                            <i data-lucide="file-check" class="w-5 h-5 text-green-600"></i>
+                                            <span class="text-sm font-medium text-green-800 truncate max-w-[150px]">{{ docs.get('Tax / Business Registration Document').original_filename }}</span>
+                                            <label class="cursor-pointer text-xs font-bold text-primary hover:text-secondary ml-2">
+                                                Replace
+                                                <input type="file" name="doc_tax" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input" data-target="doc_tax_display">
+                                            </label>
+                                        </div>
+                                    {% else %}
+                                        <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-textMain transition-colors">
+                                            <i data-lucide="upload" class="w-4 h-4 text-textMuted"></i>
+                                            <span class="file-label">Upload File</span>
+                                            <input type="file" name="doc_tax" accept=".pdf,.jpg,.jpeg,.png" class="hidden file-input">
+                                        </label>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="pt-8 flex flex-col-reverse sm:flex-row items-center gap-4 border-t border-gray-100">
+                        <a href="{{ url_for('hospital_register_facilities') }}" 
+                           class="w-full sm:w-auto text-textMuted hover:text-textMain font-medium text-[15px] py-4 px-6 transition-colors text-center">
+                            Back
+                        </a>
+                        <button type="submit" 
+                            class="w-full sm:flex-1 bg-primary hover:bg-secondary text-white font-bold text-[16px] py-4 px-8 rounded-2xl shadow-floating hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                            <span>Save & Continue</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // 2. Accreditations Toggle Logic
+        const hasAccYes = document.getElementById('hasAccYes');
+        const hasAccNo = document.getElementById('hasAccNo');
+        const accContainer = document.getElementById('accreditationContainer');
+
+        function toggleAcc() {
+            if (hasAccYes.checked) {
+                accContainer.classList.remove('hidden');
+                // Ensure at least one required field exists inside
+                const firstInput = accContainer.querySelector('input[name="acc_name[]"]');
+                if (firstInput) firstInput.required = true;
+            } else {
+                accContainer.classList.add('hidden');
+                const inputs = accContainer.querySelectorAll('input[name="acc_name[]"]');
+                inputs.forEach(input => input.required = false);
+            }
+        }
+        hasAccYes.addEventListener('change', toggleAcc);
+        hasAccNo.addEventListener('change', toggleAcc);
+
+        // Dynamic Accreditation Rows
+        const addAccBtn = document.getElementById('addAccBtn');
+        const accList = document.getElementById('accList');
+
+        addAccBtn.addEventListener('click', function() {
+            const row = document.createElement('div');
+            row.className = 'acc-row bg-white p-4 rounded-xl border border-gray-200 relative mt-4';
+            row.innerHTML = `
+                <button type="button" class="remove-acc text-red-400 hover:text-red-600 absolute top-4 right-4"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-textMuted mb-1">Accreditation Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="acc_name[]" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-textMuted mb-1">Certificate Number <span class="text-gray-400 font-normal">(Optional)</span></label>
+                        <input type="text" name="acc_number[]" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-textMuted mb-1">Valid Until <span class="text-gray-400 font-normal">(Optional)</span></label>
+                        <input type="date" name="acc_valid_until[]" class="w-full bg-bgLight border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-primary text-gray-500">
+                    </div>
+                </div>
+            `;
+            accList.appendChild(row);
+            lucide.createIcons();
+            
+            // Add remove event
+            row.querySelector('.remove-acc').addEventListener('click', function() {
+                row.remove();
+            });
+        });
+
+        // Add event to existing remove buttons
+        document.querySelectorAll('.remove-acc').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.acc-row').remove();
+            });
+        });
+
+        // 3. File Input UI Update and Validation
+        const fileInputs = document.querySelectorAll('.file-input');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function(e) {
+                const file = this.files[0];
+                if (file) {
+                    // Size validation (10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert("File exceeds the 10MB maximum limit.");
+                        this.value = "";
+                        return;
+                    }
+                    
+                    // Display name update
+                    const targetId = this.getAttribute('data-target');
+                    if (targetId) {
+                        // We are replacing an existing document
+                        const displayDiv = document.getElementById(targetId);
+                        const nameSpan = displayDiv.querySelector('span');
+                        nameSpan.textContent = file.name + " (Ready to replace)";
+                        displayDiv.classList.add('bg-blue-50', 'border-blue-200');
+                        displayDiv.classList.remove('bg-green-50', 'border-green-200');
+                    } else {
+                        // New upload
+                        const labelSpan = this.parentElement.querySelector('.file-label');
+                        if (labelSpan) {
+                            labelSpan.textContent = file.name;
+                            this.parentElement.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-700');
+                            this.parentElement.classList.remove('bg-gray-50', 'border-gray-200', 'text-textMain');
+                        }
+                    }
+                }
+            });
+        });
+
+        // Form Submit Date Validation
+        const form = document.getElementById('verificationForm');
+        form.addEventListener('submit', function(e) {
+            const issueDate = document.getElementById('license_issue_date').value;
+            const expiryDate = document.getElementById('license_expiry_date').value;
+            
+            if (issueDate && expiryDate) {
+                if (new Date(expiryDate) < new Date(issueDate)) {
+                    e.preventDefault();
+                    alert("Expiry Date cannot be earlier than Issue Date.");
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

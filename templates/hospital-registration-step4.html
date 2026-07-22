@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Registration - Step 4 | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                        'input': '0 2px 4px rgba(0,0,0,0.02)',
+                        'input-focus': '0 0 0 4px rgba(10,132,255,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Custom scrollbar for language list */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F3F4F6;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-textMain">MediBid <span class="text-primary font-black">For Hospitals</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-textMuted hidden sm:block">Step 4 of 6 — Facilities & Services</span>
+                    <div class="flex items-center gap-1">
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-textMain mb-4 tracking-tight">Facilities & Patient Services</h1>
+            <p class="text-[16px] text-textMuted max-w-lg mx-auto leading-relaxed">Tell patients about the facilities and support services available during their treatment journey.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+            
+            <div class="p-8 md:p-10">
+                
+                {% if error %}
+                <div class="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="text-red-500 w-5 h-5 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-red-800">Please check your inputs</h3>
+                        <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('hospital_register_facilities') }}" id="facilitiesForm" class="space-y-10">
+                    
+                    <!-- Section 1: Core Facilities -->
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">1. Core Hospital Facilities</h2>
+                            <p class="text-[14px] text-textMuted">Select the main facilities available. (Select all that apply)</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {% set core_opts = [
+                                '24/7 Emergency Department', 'Intensive Care Unit (ICU)', 'Neonatal Intensive Care Unit (NICU)', 
+                                'Operation Theatres', 'Advanced Diagnostic Imaging', 'Laboratory Services', 'Blood Bank', 
+                                'Pharmacy', 'Rehabilitation / Physiotherapy', 'Ambulance Service', 'Telemedicine / Online Consultation'
+                            ] %}
+                            
+                            {% for opt in core_opts %}
+                            <label class="relative flex items-center p-3.5 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" name="core_facilities" value="{{ opt }}" 
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                    {% if hospital.core_facilities and opt in hospital.core_facilities %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">{{ opt }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Inpatient Room Options -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">2. Inpatient Room Options</h2>
+                            <p class="text-[14px] text-textMuted">Does your hospital provide inpatient accommodation?</p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors flex-1 max-w-[150px]">
+                                <input type="radio" name="has_inpatient_rooms" value="Yes" id="hasRoomsYes"
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                    {% if hospital.has_inpatient_rooms %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">Yes</span>
+                            </label>
+                            
+                            <label class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors flex-1 max-w-[150px]">
+                                <input type="radio" name="has_inpatient_rooms" value="No" id="hasRoomsNo"
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                    {% if hospital.has_inpatient_rooms == False %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">No</span>
+                            </label>
+                        </div>
+
+                        <!-- Room Types Sub-section -->
+                        <div id="roomTypesContainer" class="{% if not hospital.has_inpatient_rooms %}hidden{% endif %} mt-4 space-y-3 p-5 bg-gray-50 border border-gray-200 rounded-2xl">
+                            <label class="block text-[14px] font-bold text-textMain mb-2">Available Room Types</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {% set room_opts = ['General Ward', 'Semi-Private Room', 'Private Room', 'Deluxe / Premium Room', 'Suite'] %}
+                                {% for opt in room_opts %}
+                                <label class="relative flex items-center p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-colors">
+                                    <input type="checkbox" name="inpatient_rooms" value="{{ opt }}" 
+                                        class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                        {% if hospital.inpatient_rooms and opt in hospital.inpatient_rooms %}checked{% endif %}>
+                                    <span class="ml-3 text-sm font-medium text-textMain">{{ opt }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: International Patient Services -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">3. International Patient Services</h2>
+                            <p class="text-[14px] text-textMuted">Select the support services provided for international patients.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {% set int_opts = [
+                                'Dedicated International Patient Desk', 'Medical Visa Assistance', 'Airport Pickup / Drop-off', 
+                                'Accommodation Assistance', 'Interpreter / Translation Support', 'Treatment Coordination', 
+                                'Remote Pre-Consultation', 'Follow-up Coordination After Returning Home'
+                            ] %}
+                            
+                            {% for opt in int_opts %}
+                            <label class="relative flex items-center p-3.5 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" name="international_services" value="{{ opt }}" 
+                                    class="int-service-cb w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                    {% if hospital.international_services_offered and opt in hospital.international_services_offered %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">{{ opt }}</span>
+                            </label>
+                            {% endfor %}
+                            
+                            <label class="relative flex items-center p-3.5 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors col-span-1 sm:col-span-2 mt-2 bg-gray-50">
+                                <input type="checkbox" name="international_services" value="none" id="noIntServices"
+                                    class="w-4 h-4 text-gray-600 bg-white border-gray-300 rounded focus:ring-gray-500 focus:ring-2"
+                                    {% if hospital.international_services_offered and 'none' in hospital.international_services_offered %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">No dedicated international patient services currently</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Language Support -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">4. Language Support <span class="text-red-500">*</span></h2>
+                            <p class="text-[14px] text-textMuted">Which languages can your hospital support for patient communication?</p>
+                        </div>
+                        
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="text" id="languageSearch"
+                                class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-4 py-3 shadow-input transition-all duration-200 outline-none mb-3" 
+                                placeholder="Search languages...">
+                        </div>
+
+                        <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50 h-56 overflow-y-auto custom-scrollbar">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="languageList">
+                                {% for lang in all_languages %}
+                                <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-gray-200 lang-item" data-name="{{ lang.name | lower }}">
+                                    <div class="flex items-center h-5 mt-0.5">
+                                        <input type="checkbox" name="languages" value="{{ lang.id }}" 
+                                            class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                            {% if lang.id|string in selected_language_ids %}checked{% endif %}>
+                                    </div>
+                                    <div class="text-sm text-textMain font-medium">{{ lang.name }}</div>
+                                </label>
+                                {% endfor %}
+                                
+                                <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white transition-colors cursor-pointer border border-transparent hover:border-gray-200" id="otherLangLabel">
+                                    <div class="flex items-center h-5 mt-0.5">
+                                        <input type="checkbox" id="otherLangCheckbox" 
+                                            class="w-4 h-4 text-primary bg-white border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                            {% if hospital.other_languages %}checked{% endif %}>
+                                    </div>
+                                    <div class="text-sm text-textMain font-medium">Other</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Other Language Input -->
+                        <div id="otherLangContainer" class="{% if not hospital.other_languages %}hidden{% endif %} space-y-2 pt-2">
+                            <label for="other_languages" class="block text-[14px] font-bold text-textMain ml-1">Please specify additional languages</label>
+                            <input type="text" id="other_languages" name="other_languages"
+                                value="{{ hospital.other_languages or '' }}"
+                                class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="e.g. Swahili, Tagalog">
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Food & Dietary Support -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">5. Food & Dietary Support <span class="text-gray-400 font-normal text-[14px] ml-1">(Optional)</span></h2>
+                            <p class="text-[14px] text-textMuted">Select the meal options available for patients.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {% set food_opts = ['Vegetarian Meals', 'Non-Vegetarian Meals', 'Vegan Meals', 'Halal Food', 'Kosher Food', 'Medical / Therapeutic Diets', 'International Cuisine'] %}
+                            {% for opt in food_opts %}
+                            <label class="relative flex items-center p-3.5 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" name="food_and_dietary" value="{{ opt }}" 
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                    {% if hospital.food_and_dietary and opt in hospital.food_and_dietary %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">{{ opt }}</span>
+                            </label>
+                            {% endfor %}
+                            
+                            <label class="relative flex items-center p-3.5 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" id="otherDietCheckbox" 
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                    {% if hospital.other_dietary %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">Other dietary support</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Other Dietary Input -->
+                        <div id="otherDietContainer" class="{% if not hospital.other_dietary %}hidden{% endif %} space-y-2 pt-2">
+                            <label for="other_dietary" class="block text-[14px] font-bold text-textMain ml-1">Please specify dietary support</label>
+                            <input type="text" id="other_dietary" name="other_dietary"
+                                value="{{ hospital.other_dietary or '' }}"
+                                class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none" 
+                                placeholder="e.g. Gluten-free">
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Accessibility -->
+                    <div class="space-y-4 pt-6 border-t border-gray-100">
+                        <div>
+                            <h2 class="text-xl font-bold text-textMain">6. Accessibility <span class="text-gray-400 font-normal text-[14px] ml-1">(Optional)</span></h2>
+                            <p class="text-[14px] text-textMuted">Select accessibility features available at your hospital.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {% set acc_opts = ['Wheelchair Accessible', 'Accessible Patient Rooms', 'Accessible Toilets', 'Assistance for Patients with Disabilities'] %}
+                            {% for opt in acc_opts %}
+                            <label class="relative flex items-center p-3.5 border border-gray-200 rounded-2xl cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="checkbox" name="accessibility" value="{{ opt }}" 
+                                    class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                                    {% if hospital.accessibility and opt in hospital.accessibility %}checked{% endif %}>
+                                <span class="ml-3 text-sm font-medium text-textMain">{{ opt }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="pt-8 flex flex-col-reverse sm:flex-row items-center gap-4 border-t border-gray-100">
+                        <a href="{{ url_for('hospital_register_capabilities') }}" 
+                           class="w-full sm:w-auto text-textMuted hover:text-textMain font-medium text-[15px] py-4 px-6 transition-colors text-center">
+                            Back
+                        </a>
+                        <button type="submit" 
+                            class="w-full sm:flex-1 bg-primary hover:bg-secondary text-white font-bold text-[16px] py-4 px-8 rounded-2xl shadow-floating hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                            <span>Save & Continue</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // 2. Inpatient Rooms Toggle Logic
+        const hasRoomsYes = document.getElementById('hasRoomsYes');
+        const hasRoomsNo = document.getElementById('hasRoomsNo');
+        const roomTypesContainer = document.getElementById('roomTypesContainer');
+        const roomCheckboxes = roomTypesContainer.querySelectorAll('input[type="checkbox"]');
+
+        function toggleRooms() {
+            if (hasRoomsYes.checked) {
+                roomTypesContainer.classList.remove('hidden');
+            } else {
+                roomTypesContainer.classList.add('hidden');
+                roomCheckboxes.forEach(cb => cb.checked = false); // Clear selections
+            }
+        }
+        hasRoomsYes.addEventListener('change', toggleRooms);
+        hasRoomsNo.addEventListener('change', toggleRooms);
+
+        // 3. International Services Exclusive Logic
+        const noIntServices = document.getElementById('noIntServices');
+        const intServiceCbs = document.querySelectorAll('.int-service-cb');
+
+        noIntServices.addEventListener('change', function() {
+            if (this.checked) {
+                intServiceCbs.forEach(cb => cb.checked = false);
+            }
+        });
+
+        intServiceCbs.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (this.checked) {
+                    noIntServices.checked = false;
+                }
+            });
+        });
+
+        // 4. Language Search Logic
+        const langSearchInput = document.getElementById('languageSearch');
+        const langItems = document.querySelectorAll('.lang-item');
+        
+        langSearchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            langItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Other Language Logic
+        const otherLangCheckbox = document.getElementById('otherLangCheckbox');
+        const otherLangContainer = document.getElementById('otherLangContainer');
+        const otherLangInput = document.getElementById('other_languages');
+        
+        otherLangCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherLangContainer.classList.remove('hidden');
+                otherLangInput.required = true;
+            } else {
+                otherLangContainer.classList.add('hidden');
+                otherLangInput.required = false;
+                otherLangInput.value = '';
+            }
+        });
+        
+        // 5. Other Dietary Logic
+        const otherDietCheckbox = document.getElementById('otherDietCheckbox');
+        const otherDietContainer = document.getElementById('otherDietContainer');
+        const otherDietInput = document.getElementById('other_dietary');
+        
+        otherDietCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherDietContainer.classList.remove('hidden');
+                otherDietInput.required = true;
+            } else {
+                otherDietContainer.classList.add('hidden');
+                otherDietInput.required = false;
+                otherDietInput.value = '';
+            }
+        });
+
+        // Form Submit Validation
+        const form = document.getElementById('facilitiesForm');
+        form.addEventListener('submit', function(e) {
+            const anyChecked = document.querySelectorAll('input[name="languages"]:checked').length > 0;
+            if (!anyChecked && !otherLangCheckbox.checked) {
+                e.preventDefault();
+                alert('Please select at least one communication language.');
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -122,12 +122,13 @@
 
             <!-- Right Actions -->
             <div class="hidden lg:flex items-center gap-6">
+                <a href="{{ url_for('hospital_login') }}" class="text-[14px] font-medium text-gray-500 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary rounded px-2 py-1">Hospital Login</a>
                 <button class="flex items-center gap-1.5 text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary rounded px-2 py-1" aria-label="Change language">
                     <i data-lucide="globe" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
                     EN
                     <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
                 </button>
-                <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:-translate-y-0.5">
+                <a href="{{ url_for('patient_login') }}" class="bg-primary hover:bg-blue-800 hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:-translate-y-0.5">
                     <i data-lucide="user" class="w-4 h-4" aria-hidden="true"></i>
                     Sign In
                 </a>
@@ -500,10 +501,13 @@
             </div>
         </div>
         
-        <div class="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0">
-            <a href="{{ url_for('patient_dashboard') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-4 rounded-xl w-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+        <div class="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0 flex flex-col gap-4">
+            <a href="{{ url_for('patient_login') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-4 rounded-xl w-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                 <i data-lucide="user" class="w-5 h-5" aria-hidden="true"></i>
                 Sign In to MediBid
+            </a>
+            <a href="{{ url_for('hospital_login') }}" class="text-center text-[15px] font-semibold text-gray-600 hover:text-primary transition-colors w-full focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg py-2">
+                Hospital Login
             </a>
         </div>
     </div>

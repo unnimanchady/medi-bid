@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Registration - Review & Submit | MediBid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A84FF',
+                        secondary: '#2563EB',
+                        accent: '#14B8A6',
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .review-section {
+            @apply bg-gray-50 rounded-2xl p-6 border border-gray-100;
+        }
+        .review-label {
+            @apply text-xs font-bold text-textMuted uppercase tracking-wider mb-1 block;
+        }
+        .review-value {
+            @apply text-[15px] text-textMain font-medium;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-textMain">MediBid <span class="text-primary font-black">For Hospitals</span></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-medium text-textMuted hidden sm:block">Step 6 of 6 — Review</span>
+                    <div class="flex items-center gap-1">
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-textMain mb-4 tracking-tight">Review & Submit</h1>
+            <p class="text-[16px] text-textMuted max-w-2xl mx-auto leading-relaxed">Please review your registration details carefully before submitting. You can edit any section if needed.</p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden relative">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-secondary to-accent"></div>
+            
+            <div class="p-8 md:p-10 space-y-8">
+                
+                {% if error %}
+                <div class="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="text-red-500 w-5 h-5 shrink-0 mt-0.5"></i>
+                    <div>
+                        <h3 class="text-sm font-bold text-red-800">Submission Error</h3>
+                        <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Section 1: Account Info -->
+                <div class="review-section relative">
+                    <div class="flex justify-between items-start mb-6 border-b border-gray-200 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="user" class="w-5 h-5 text-primary"></i>
+                            <h2 class="text-xl font-bold text-textMain">1. Account Information</h2>
+                        </div>
+                        <a href="{{ url_for('hospital_register') }}" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-1 transition-colors">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Edit
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <span class="review-label">Contact Name</span>
+                            <span class="review-value">{{ user.first_name }} {{ user.last_name }}</span>
+                        </div>
+                        <div>
+                            <span class="review-label">Work Email</span>
+                            <span class="review-value">{{ user.work_email }}</span>
+                        </div>
+                        <div>
+                            <span class="review-label">Phone Number</span>
+                            <span class="review-value">{% if user.phone_country_code %}{{ user.phone_country_code }} {% endif %}{{ user.phone_number or 'Not provided' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Hospital Info -->
+                <div class="review-section relative">
+                    <div class="flex justify-between items-start mb-6 border-b border-gray-200 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="building" class="w-5 h-5 text-primary"></i>
+                            <h2 class="text-xl font-bold text-textMain">2. Hospital Information</h2>
+                        </div>
+                        <a href="{{ url_for('hospital_register_info') }}" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-1 transition-colors">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Edit
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="sm:col-span-2">
+                            <span class="review-label">Hospital Display Name</span>
+                            <span class="review-value text-lg font-bold">{{ hospital.display_name or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="review-label">Hospital Type</span>
+                            <span class="review-value">{{ hospital.hospital_type or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="review-label">Year Established</span>
+                            <span class="review-value">{{ hospital.year_established or 'Not provided' }}</span>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <span class="review-label">Address</span>
+                            <span class="review-value">
+                                {{ hospital.address or 'Not provided' }}<br>
+                                {{ hospital.city or '' }}, {{ hospital.state_region or '' }} {{ hospital.postal_code or '' }}<br>
+                                {{ hospital.country or '' }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="review-label">Website</span>
+                            <span class="review-value">
+                                {% if hospital.website %}
+                                <a href="{{ hospital.website }}" target="_blank" class="text-primary hover:underline">{{ hospital.website }}</a>
+                                {% else %}
+                                Not provided
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <span class="review-label">Description</span>
+                            <span class="review-value">{{ hospital.description or 'Not provided' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Medical Capabilities -->
+                <div class="review-section relative">
+                    <div class="flex justify-between items-start mb-6 border-b border-gray-200 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="stethoscope" class="w-5 h-5 text-primary"></i>
+                            <h2 class="text-xl font-bold text-textMain">3. Medical Capabilities</h2>
+                        </div>
+                        <a href="{{ url_for('hospital_register_capabilities') }}" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-1 transition-colors">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Edit
+                        </a>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <span class="review-label">Primary Specialties</span>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                {% if hospital.specialties %}
+                                    {% for spec in hospital.specialties %}
+                                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium border border-blue-100">{{ spec.name }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="review-value">Not provided</span>
+                                {% endif %}
+                                {% if hospital.other_specialty %}
+                                    <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium border border-blue-100">{{ hospital.other_specialty }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <span class="review-label">Treatments Offered</span>
+                                {% if hospital.treatments %}
+                                <ul class="list-disc list-inside text-[15px] text-textMain space-y-1">
+                                    {% for t in hospital.treatments %}
+                                    <li>{{ t }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <span class="review-value">Not provided</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <span class="review-label">Centers of Excellence</span>
+                                {% if hospital.centers_of_excellence %}
+                                <ul class="list-disc list-inside text-[15px] text-textMain space-y-1">
+                                    {% for c in hospital.centers_of_excellence %}
+                                    <li>{{ c }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <span class="review-value">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="review-label">International Patient Experience</span>
+                            <span class="review-value">{{ hospital.international_patient_experience or 'Not provided' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Facilities & Services -->
+                <div class="review-section relative">
+                    <div class="flex justify-between items-start mb-6 border-b border-gray-200 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="coffee" class="w-5 h-5 text-primary"></i>
+                            <h2 class="text-xl font-bold text-textMain">4. Facilities & Services</h2>
+                        </div>
+                        <a href="{{ url_for('hospital_register_facilities') }}" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-1 transition-colors">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Edit
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div>
+                            <span class="review-label">Core Facilities</span>
+                            {% if hospital.core_facilities %}
+                            <ul class="list-disc list-inside text-[15px] text-textMain space-y-1 mt-1">
+                                {% for f in hospital.core_facilities %}
+                                <li>{{ f }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="review-value">Not provided</span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <span class="review-label">Inpatient Rooms</span>
+                            {% if hospital.has_inpatient_rooms %}
+                                {% if hospital.inpatient_rooms %}
+                                <ul class="list-disc list-inside text-[15px] text-textMain space-y-1 mt-1">
+                                    {% for r in hospital.inpatient_rooms %}
+                                    <li>{{ r }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                <span class="review-value">Available</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="review-value">Not available</span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <span class="review-label">International Services</span>
+                            {% if hospital.international_services_offered %}
+                            <ul class="list-disc list-inside text-[15px] text-textMain space-y-1 mt-1">
+                                {% for s in hospital.international_services_offered %}
+                                <li>{{ s }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="review-value">Not provided</span>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <span class="review-label">Languages Spoken</span>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                {% if hospital.languages %}
+                                    {% for lang in hospital.languages %}
+                                        <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">{{ lang.name }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="review-value">Not provided</span>
+                                {% endif %}
+                                {% if hospital.other_languages %}
+                                    <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">{{ hospital.other_languages }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Verification Info -->
+                <div class="review-section relative bg-blue-50/50 border-blue-100">
+                    <div class="flex justify-between items-start mb-6 border-b border-blue-200 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
+                            <h2 class="text-xl font-bold text-textMain">5. Hospital Verification</h2>
+                        </div>
+                        <a href="{{ url_for('hospital_register_verification') }}" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-1 transition-colors">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i> Edit
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                        <div class="sm:col-span-2">
+                            <span class="review-label">Registered Legal Name</span>
+                            <span class="review-value font-bold">{{ hospital.legal_name or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="review-label">License Number</span>
+                            <span class="review-value">{{ hospital.registration_license_number or 'Not provided' }}</span>
+                        </div>
+                        <div>
+                            <span class="review-label">Licensing Authority</span>
+                            <span class="review-value">{{ hospital.licensing_authority or 'Not provided' }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Uploaded Docs -->
+                    <div>
+                        <span class="review-label mb-3">Verification Documents</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% if hospital.verification_documents %}
+                                {% for doc in hospital.verification_documents %}
+                                <div class="bg-white border border-gray-200 p-3 rounded-xl flex items-center gap-3 shadow-sm">
+                                    <div class="bg-green-100 p-2 rounded-lg text-green-600">
+                                        <i data-lucide="file-check" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <p class="text-xs font-bold text-textMain truncate" title="{{ doc.document_category }}">{{ doc.document_category }}</p>
+                                        <p class="text-[11px] text-textMuted truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <span class="review-value">No documents uploaded.</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if hospital.has_accreditations and hospital.accreditations %}
+                    <div class="mt-6 border-t border-blue-100 pt-4">
+                        <span class="review-label">Accreditations</span>
+                        <ul class="list-disc list-inside text-[15px] text-textMain space-y-1 mt-1">
+                            {% for acc in hospital.accreditations %}
+                            <li>{{ acc.name }} {% if acc.certificate_number %}({{ acc.certificate_number }}){% endif %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form method="POST" action="{{ url_for('hospital_register_review') }}" id="submitForm" class="pt-8 border-t border-gray-100">
+                    
+                    <div class="bg-gray-50 border border-gray-200 p-6 rounded-2xl mb-8">
+                        <label class="flex items-start gap-4 cursor-pointer group">
+                            <div class="relative flex items-center justify-center shrink-0 mt-1">
+                                <input type="checkbox" name="declaration" id="declaration" required
+                                    class="w-6 h-6 rounded-md border-2 border-gray-300 text-primary focus:ring-primary focus:ring-offset-2 transition-colors cursor-pointer appearance-none checked:bg-primary checked:border-primary">
+                                <i data-lucide="check" class="w-4 h-4 text-white absolute opacity-0 pointer-events-none transition-opacity"></i>
+                            </div>
+                            <div>
+                                <span class="block text-[15px] font-bold text-textMain mb-1">Declaration of Accuracy</span>
+                                <span class="block text-sm text-textMuted leading-relaxed">
+                                    I hereby declare that all the information provided above is accurate, current, and complete. 
+                                    I confirm that I am authorized to register this hospital and submit this application on its behalf. 
+                                    I understand that MediBid will review this information for verification purposes before granting full access to the platform.
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
+                        <a href="{{ url_for('hospital_register_verification') }}" 
+                           class="w-full sm:w-auto text-textMuted hover:text-textMain font-medium text-[15px] py-4 px-6 transition-colors text-center">
+                            Back
+                        </a>
+                        <button type="submit" id="submitBtn" disabled
+                            class="w-full sm:w-auto bg-gray-300 text-gray-500 font-bold text-[16px] py-4 px-10 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 cursor-not-allowed">
+                            <span>Submit Registration</span>
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        
+    </main>
+
+    <style>
+        /* Checkbox tick visibility */
+        input[type="checkbox"]:checked + i {
+            opacity: 1;
+        }
+    </style>
+
+    <script>
+        lucide.createIcons();
+        
+        const declaration = document.getElementById('declaration');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitForm = document.getElementById('submitForm');
+
+        declaration.addEventListener('change', function() {
+            if (this.checked) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-primary', 'hover:bg-secondary', 'text-white', 'shadow-floating', 'hover:shadow-lg', 'hover:-translate-y-0.5');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                submitBtn.classList.remove('bg-primary', 'hover:bg-secondary', 'text-white', 'shadow-floating', 'hover:shadow-lg', 'hover:-translate-y-0.5');
+            }
+        });
+
+        // Prevent double submission
+        submitForm.addEventListener('submit', function(e) {
+            if (submitBtn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Submitting...
+            `;
+            submitBtn.classList.add('opacity-90', 'cursor-not-allowed');
+            submitBtn.classList.remove('hover:-translate-y-0.5', 'hover:shadow-lg', 'hover:bg-secondary');
+        });
+    </script>
+</body>
+</html>

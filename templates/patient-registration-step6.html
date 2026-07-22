@@ -293,46 +293,49 @@
                             <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Physical Metrics</span>
                             <span class="text-[15px] font-medium text-gray-900 block">
                                 {% if medical.get('height_cm') %} {{ medical.get('height_cm') }} cm {% elif medical.get('height_ft') or medical.get('height_in') %} {{ medical.get('height_ft')|default('0', true) }} ft {{ medical.get('height_in')|default('0', true) }} in {% endif %}
-                                {% if (medical.get('height_cm') or medical.get('height_ft')) and (not medical.get('weight_change_type')) and (medical.get('weight_kg') or medical.get('weight_lbs')) %} | {% endif %}
-                                {% if not medical.get('weight_change_type') %}
+                                {% if (medical.get('height_cm') or medical.get('height_ft')) and not medical.get('prev_weight_kg') and not medical.get('prev_weight_lbs') and (medical.get('weight_kg') or medical.get('weight_lbs')) %} | {% endif %}
+                                {% if not medical.get('prev_weight_kg') and not medical.get('prev_weight_lbs') %}
                                     {% if medical.get('weight_kg') %} {{ medical.get('weight_kg') }} kg {% elif medical.get('weight_lbs') %} {{ medical.get('weight_lbs') }} lbs {% endif %}
                                 {% endif %}
                             </span>
                         </div>
 
-                        {% if medical.get('weight_change_type') %}
+                        {% if medical.get('prev_weight_kg') or medical.get('prev_weight_lbs') %}
                         <div class="col-span-1 sm:col-span-2">
                             <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Weight Information</span>
                             <div class="mt-2 text-[14px] text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <p><span class="font-semibold text-gray-600">Weight from Previous Request:</span> {% if medical.get('weight_kg') %}{{ medical.get('weight_kg') }} kg{% elif medical.get('weight_lbs') %}{{ medical.get('weight_lbs') }} lbs{% endif %}</p>
-                                <p><span class="font-semibold text-gray-600">Weight Change:</span> {{ medical.get('weight_change_type') }}</p>
-                                {% if medical.get('weight_change_type') != 'No significant change' %}
-                                    {% if medical.get('weight_change_amount') %}
-                                    <p><span class="font-semibold text-gray-600">Approximate Change:</span> {{ medical.get('weight_change_amount') }} {% if medical.get('weight_change_amount_unit') %}{{ medical.get('weight_change_amount_unit') }}{% endif %}</p>
-                                    {% endif %}
-                                    {% if medical.get('current_weight') %}
-                                    <p><span class="font-semibold text-gray-600">Current Weight:</span> {{ medical.get('current_weight') }} {% if medical.get('current_weight_unit') %}{{ medical.get('current_weight_unit') }}{% endif %}</p>
-                                    {% endif %}
-                                    {% if medical.get('weight_change_period') %}
-                                    <p class="sm:col-span-2"><span class="font-semibold text-gray-600">Period:</span> {{ medical.get('weight_change_period') }} {% if medical.get('weight_change_period_unit') %}{{ medical.get('weight_change_period_unit') }}{% endif %}</p>
-                                    {% endif %}
+                                <p class="sm:col-span-2"><span class="font-semibold text-gray-600">Previous Weight:</span> {% if medical.get('prev_weight_kg') %}{{ medical.get('prev_weight_kg') }} kg{% elif medical.get('prev_weight_lbs') %}{{ medical.get('prev_weight_lbs') }} lbs{% endif %} {% if medical.get('prev_weight_date') %}— Recorded on {{ medical.get('prev_weight_date') }}{% endif %}</p>
+                                <p class="sm:col-span-2"><span class="font-semibold text-gray-600">Current Weight:</span> {% if medical.get('weight_kg') %}{{ medical.get('weight_kg') }} kg{% elif medical.get('weight_lbs') %}{{ medical.get('weight_lbs') }} lbs{% endif %}</p>
+                                {% if medical.get('weight_change_type') != 'No weight change' %}
+                                    <p class="sm:col-span-2"><span class="font-semibold text-gray-600">Weight Change:</span> {{ medical.get('weight_change_amount') }} {{ medical.get('weight_change_amount_unit') }} ({{ medical.get('weight_change_type') }})</p>
+                                {% else %}
+                                    <p class="sm:col-span-2"><span class="font-semibold text-gray-600">Weight Change:</span> No change</p>
                                 {% endif %}
                             </div>
                         </div>
                         {% endif %}
 
-                        {% if medical.get('allergies') %}
                         <div class="col-span-1 sm:col-span-2">
                             <span class="block text-[12px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Allergies</span>
-                            <div class="flex flex-wrap gap-2">
-                                {% for allergy in medical.get('allergies') %}
-                                    <span class="inline-flex bg-red-50 text-red-700 border border-red-100 px-3 py-1 rounded-md text-[13px] font-medium">
-                                        {{ allergy }}{% if allergy == 'Other' and medical.get('allergy_other_text') %}: {{ medical.get('allergy_other_text') }}{% endif %}
-                                    </span>
+                            <div class="text-[14px] text-gray-900 font-medium">
+                                {% set display_allergies = [] %}
+                                {% for allergy in medical.get('allergies', []) %}
+                                    {% if allergy != 'Other' and allergy != 'No Known Allergies' %}
+                                        {% set _ = display_allergies.append(allergy) %}
+                                    {% endif %}
                                 {% endfor %}
+                                {% set other_text = medical.get('allergy_other_text', '') %}
+                                {% if other_text and other_text|lower|trim not in ['none', 'nil', 'no other', 'na', 'n/a', 'no', 'nothing'] %}
+                                    {% set _ = display_allergies.append(other_text|trim) %}
+                                {% endif %}
+                                
+                                {% if display_allergies %}
+                                    {{ display_allergies | join(', ') }}
+                                {% else %}
+                                    No known allergies
+                                {% endif %}
                             </div>
                         </div>
-                        {% endif %}
 
                         {% if profile.pregnancy_status %}
                         <div>
