@@ -1,0 +1,389 @@
+import re
+import os
+
+with open('templates/patient-dashboard.html', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# 1. Activate the Medical Documents nav link in both desktop and mobile sidebars
+active_nav_link = """
+            <a href="{{ url_for('patient_medical_documents') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-secondary/15 text-white font-bold transition-all border border-secondary/20 shadow-sm mt-1">
+                <i data-lucide="folder" class="w-5 h-5 text-secondary"></i> Medical Documents
+            </a>
+"""
+
+inactive_nav_link = """
+            <a href="{{ url_for('patient_medical_documents') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group mt-1">
+                <i data-lucide="folder" class="w-5 h-5 group-hover:text-white transition-colors"></i> Medical Documents
+            </a>
+"""
+
+doc_btn_pattern = r'<button disabled[^>]*>\s*<div[^>]*>\s*<i data-lucide="folder"[^>]*></i>\s*Medical Documents\s*</div>\s*<span[^>]*>Soon</span>\s*</button>'
+content = re.sub(doc_btn_pattern, inactive_nav_link, content)
+
+dashboard_active_pattern = r'<a href="\{\{ url_for\(\'patient_dashboard\'\) \}\}" class="flex items-center gap-3 px-4 py-3\.5 rounded-xl bg-secondary/15 text-white font-bold transition-all border border-secondary/20 shadow-sm">'
+dashboard_inactive = r'<a href="{{ url_for(\'patient_dashboard\') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">'
+content = content.replace(dashboard_active_pattern, dashboard_inactive)
+
+content = content.replace(inactive_nav_link, active_nav_link)
+
+
+# 2. Replace the main content
+main_content_pattern = r'<main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-\[1400px\] w-full mx-auto">.*?</main>'
+
+new_main_content = """
+        <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-[1400px] w-full mx-auto relative">
+            
+            <!-- TOP / HEADER SECTION -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 opacity-0 animate-fade-in">
+                <div class="flex flex-col">
+                    <h1 class="text-[26px] sm:text-[30px] font-extrabold text-primary tracking-tight">Medical Documents</h1>
+                    <p class="text-[14px] sm:text-[15px] text-textMuted font-medium mt-1">Manage and securely share your health records.</p>
+                </div>
+                
+                <button onclick="document.getElementById('uploadModal').classList.remove('hidden');" class="bg-secondary text-white font-bold px-6 py-3.5 rounded-full shadow-sm hover:bg-blue-600 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-2 self-start sm:self-auto whitespace-nowrap transition-all">
+                    <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Document
+                </button>
+            </div>
+
+            <!-- FILTERS & SEARCH -->
+            <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-in stagger-1">
+                <div class="flex-1 relative">
+                    <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="searchInput" placeholder="Search by title or filename..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all text-[14px]">
+                </div>
+                <div class="sm:w-64 relative">
+                    <i data-lucide="filter" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <select id="categoryFilter" class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all appearance-none text-[14px] font-medium text-textMain cursor-pointer">
+                        <option value="">All Categories</option>
+                        <option value="Blood Test">Blood Test</option>
+                        <option value="MRI">MRI</option>
+                        <option value="CT Scan">CT Scan</option>
+                        <option value="X-Ray">X-Ray</option>
+                        <option value="Ultrasound">Ultrasound</option>
+                        <option value="ECG">ECG</option>
+                        <option value="Echocardiogram">Echocardiogram</option>
+                        <option value="Prescription">Prescription</option>
+                        <option value="Medical Report">Medical Report</option>
+                        <option value="Discharge Summary">Discharge Summary</option>
+                        <option value="Insurance Document">Insurance Document</option>
+                        <option value="Passport / ID">Passport / ID</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- DOCUMENTS LIST -->
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden opacity-0 animate-fade-in stagger-2">
+                {% if docs %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="docsTable">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider">Document details</th>
+                                <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider">Related To</th>
+                                <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for doc in docs %}
+                            <tr class="hover:bg-gray-50/50 transition-colors group doc-row" data-category="{{ doc.document_type }}" data-search="{{ (doc.title or '')|lower }} {{ doc.original_filename|lower }}">
+                                <td class="px-6 py-4 align-top">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-secondary shrink-0 mt-0.5">
+                                            <i data-lucide="file" class="w-5 h-5"></i>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[15px] font-bold text-textMain leading-tight">{{ doc.title or 'Untitled Document' }}</span>
+                                            <span class="text-[13px] text-textMuted mt-1">{{ doc.original_filename }} &bull; {{ (doc.file_size / 1024)|round(1) }} KB</span>
+                                            <span class="text-[12px] text-gray-400 mt-1">Uploaded on {{ doc.uploaded_at.strftime('%d %b %Y, %H:%M') }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 align-top">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-bold bg-gray-100 text-gray-600 uppercase tracking-widest whitespace-nowrap">{{ doc.document_type }}</span>
+                                </td>
+                                <td class="px-6 py-4 align-top">
+                                    <div class="flex flex-col gap-1.5">
+                                        <div class="flex items-center gap-1.5 text-[13px] font-medium text-textMain">
+                                            <i data-lucide="user" class="w-3.5 h-3.5 text-textMuted"></i> {{ doc.patient_profile.first_name }} {{ doc.patient_profile.last_name }}
+                                        </div>
+                                        {% if doc.treatment_request %}
+                                        <div class="flex items-center gap-1.5 text-[13px] font-medium text-textMain">
+                                            <i data-lucide="folder-open" class="w-3.5 h-3.5 text-textMuted"></i> {{ doc.treatment_request.reference_id }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 align-top text-right whitespace-nowrap">
+                                    <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                        <a href="{{ url_for('view_document', doc_id=doc.id) }}" target="_blank" class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-colors" title="View">
+                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                        </a>
+                                        <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-colors" title="Download">
+                                            <i data-lucide="download" class="w-4 h-4"></i>
+                                        </a>
+                                        <button onclick="deleteDocument({{ doc.id }})" class="p-2 text-gray-400 hover:text-danger hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Empty State within Table -->
+                <div id="noResults" class="hidden p-12 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="search-x" class="w-8 h-8 text-gray-300"></i>
+                    </div>
+                    <h3 class="text-[16px] font-bold text-textMain mb-1">No documents found</h3>
+                    <p class="text-[14px] text-textMuted">Try adjusting your search or filters.</p>
+                </div>
+                {% else %}
+                <div class="p-12 sm:p-20 flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 bg-softBlue rounded-full flex items-center justify-center mb-5 border border-blue-100">
+                        <i data-lucide="folder-open" class="w-10 h-10 text-secondary"></i>
+                    </div>
+                    <h3 class="text-[20px] font-extrabold text-primary mb-2">No documents yet</h3>
+                    <p class="text-[15px] text-textMuted max-w-md mb-6">Upload your medical records, test results, and prescriptions to safely share them with healthcare providers.</p>
+                    <button onclick="document.getElementById('uploadModal').classList.remove('hidden');" class="bg-white border border-gray-200 text-textMain font-bold px-6 py-2.5 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+                        Upload First Document
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- UPLOAD MODAL -->
+            <div id="uploadModal" class="fixed inset-0 z-[100] hidden">
+                <div class="absolute inset-0 bg-primary/40 backdrop-blur-sm" onclick="document.getElementById('uploadModal').classList.add('hidden');"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
+                        <h3 class="text-[18px] font-bold text-primary">Upload Document</h3>
+                        <button onclick="document.getElementById('uploadModal').classList.add('hidden');" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="uploadForm" class="p-6 overflow-y-auto custom-scrollbar flex flex-col gap-5">
+                        
+                        <!-- File Input -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[13px] font-bold text-textMain uppercase tracking-widest">Select File *</label>
+                            <label class="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-secondary hover:bg-softBlue transition-all group relative">
+                                <input type="file" id="documentFile" name="document" class="hidden" required accept=".pdf,.png,.jpg,.jpeg">
+                                <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3 group-hover:bg-white group-hover:text-secondary group-hover:shadow-sm transition-all text-gray-400">
+                                    <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-[14px] font-bold text-primary text-center" id="fileNameDisplay">Click to browse or drag file here</span>
+                                <span class="text-[12px] text-textMuted mt-1">PDF, PNG, JPG</span>
+                            </label>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[13px] font-bold text-textMain uppercase tracking-widest">Document Title *</label>
+                            <input type="text" name="title" required placeholder="e.g. Recent Blood Work" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all text-[14px]">
+                        </div>
+
+                        <!-- Category -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[13px] font-bold text-textMain uppercase tracking-widest">Category *</label>
+                            <div class="relative">
+                                <select name="document_type" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all appearance-none text-[14px] font-medium">
+                                    <option value="" disabled selected>Select a category...</option>
+                                    <option value="Blood Test">Blood Test</option>
+                                    <option value="MRI">MRI</option>
+                                    <option value="CT Scan">CT Scan</option>
+                                    <option value="X-Ray">X-Ray</option>
+                                    <option value="Ultrasound">Ultrasound</option>
+                                    <option value="ECG">ECG</option>
+                                    <option value="Echocardiogram">Echocardiogram</option>
+                                    <option value="Prescription">Prescription</option>
+                                    <option value="Medical Report">Medical Report</option>
+                                    <option value="Discharge Summary">Discharge Summary</option>
+                                    <option value="Insurance Document">Insurance Document</option>
+                                    <option value="Passport / ID">Passport / ID</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Patient Profile -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[13px] font-bold text-textMain uppercase tracking-widest">Patient Profile *</label>
+                            <div class="relative">
+                                <select name="patient_profile_id" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all appearance-none text-[14px] font-medium">
+                                    <option value="" disabled selected>Select patient...</option>
+                                    {% for profile in profiles %}
+                                    <option value="{{ profile.id }}">{{ profile.first_name }} {{ profile.last_name }} ({{ profile.relationship_type }})</option>
+                                    {% endfor %}
+                                </select>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-[13px] font-bold text-textMain uppercase tracking-widest">Description (Optional)</label>
+                            <textarea name="description" rows="2" placeholder="Brief details about this document..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-secondary/50 transition-all text-[14px] custom-scrollbar"></textarea>
+                        </div>
+                        
+                        <!-- Error Message Container -->
+                        <div id="uploadError" class="hidden p-3 bg-red-50 text-danger text-[13px] font-medium rounded-xl border border-red-100 flex items-start gap-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                            <span id="uploadErrorMessage">Error uploading document.</span>
+                        </div>
+
+                    </form>
+                    
+                    <div class="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 shrink-0">
+                        <button type="button" onclick="document.getElementById('uploadModal').classList.add('hidden');" class="px-5 py-2.5 rounded-xl font-bold text-textMuted hover:text-textMain hover:bg-gray-200/50 transition-colors text-[14px]">Cancel</button>
+                        <button type="button" id="uploadSubmitBtn" onclick="submitUpload()" class="px-6 py-2.5 rounded-xl font-bold text-white bg-primary hover:bg-blue-900 transition-colors text-[14px] shadow-sm flex items-center gap-2">
+                            Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+"""
+
+content = re.sub(main_content_pattern, new_main_content, content, flags=re.DOTALL)
+
+# Add script for Medical Documents logic
+script_injection = """
+    <script>
+        // Medical Documents Interactions
+        
+        // Update file name display
+        const fileInput = document.getElementById('documentFile');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files.length > 0) {
+                    fileNameDisplay.textContent = this.files[0].name;
+                    fileNameDisplay.classList.remove('text-primary');
+                    fileNameDisplay.classList.add('text-secondary');
+                } else {
+                    fileNameDisplay.textContent = 'Click to browse or drag file here';
+                    fileNameDisplay.classList.add('text-primary');
+                    fileNameDisplay.classList.remove('text-secondary');
+                }
+            });
+        }
+        
+        // Search and Filter
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const docRows = document.querySelectorAll('.doc-row');
+        const noResults = document.getElementById('noResults');
+        
+        function filterDocs() {
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const category = categoryFilter ? categoryFilter.value : '';
+            let visibleCount = 0;
+            
+            docRows.forEach(row => {
+                const searchStr = row.getAttribute('data-search') || '';
+                const textMatch = searchStr.includes(searchTerm);
+                const catMatch = category === '' || row.getAttribute('data-category') === category;
+                
+                if (textMatch && catMatch) {
+                    row.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+            
+            if (noResults) {
+                if (visibleCount === 0 && docRows.length > 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+        }
+        
+        if (searchInput) searchInput.addEventListener('input', filterDocs);
+        if (categoryFilter) categoryFilter.addEventListener('change', filterDocs);
+        
+        // Upload Action
+        async function submitUpload() {
+            const form = document.getElementById('uploadForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const btn = document.getElementById('uploadSubmitBtn');
+            const errorDiv = document.getElementById('uploadError');
+            const errorMsg = document.getElementById('uploadErrorMessage');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Uploading...';
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const formData = new FormData(form);
+                const response = await fetch('{{ url_for("patient_medical_documents_upload") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    errorMsg.textContent = data.error || 'Failed to upload document.';
+                    errorDiv.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Upload';
+                    lucide.createIcons();
+                }
+            } catch (error) {
+                errorMsg.textContent = 'A network error occurred.';
+                errorDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = 'Upload';
+                lucide.createIcons();
+            }
+        }
+        
+        // Delete Action
+        async function deleteDocument(docId) {
+            if (!confirm('Are you sure you want to delete this document? This cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/patient/document/${docId}/delete`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'Failed to delete document.');
+                }
+            } catch (error) {
+                alert('A network error occurred.');
+            }
+        }
+    </script>
+"""
+
+content = content.replace('<script>', script_injection + '\n    <script>', 1)
+
+with open('templates/patient-medical-documents.html', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Created templates/patient-medical-documents.html")

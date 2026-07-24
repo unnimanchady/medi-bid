@@ -1,221 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Responses | MediBid</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0B1D40', // Deep Navy
-                        secondary: '#0082CA', // Bright Blue
-                        textMain: '#1E293B',
-                        textMuted: '#64748B',
-                        bgLight: '#F7FAFC',
-                        success: '#10B981', 
-                        warning: '#F59E0B',
-                        danger: '#EF4444',
-                        // Soft UI Colors
-                        softBlue: '#EFF6FF',
-                        softTeal: '#ECFDF5',
-                        tealAccent: '#14B8A6',
-                        softLavender: '#F5F3FF',
-                        lavenderAccent: '#8B5CF6',
-                        softAmber: '#FFFBEB',
-                        amberAccent: '#D97706',
-                        softPeach: '#FFF7ED',
-                        peachAccent: '#EA580C',
-                        softGreen: '#F0FDF4',
-                        greenAccent: '#15803D',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
-                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
-                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
-                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
-                    }
-                }
-            }
-        }
-    </script>
+{% extends "patient-layout.html" %}
 
-    <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.5s ease-out forwards;
-        }
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-        
-        /* Dropdown transitions */
-        .dropdown-menu {
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
-        .dropdown-menu.open {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
+{% block title %}Patient Hospital Responses | MediBid{% endblock %}
 
-        /* Mobile menu */
-        #mobile-menu {
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-        }
-        #mobile-menu.open {
-            max-height: 400px;
-            opacity: 1;
-        }
-
-        /* Sticky Compare Bar Transition */
-        #compare-bar {
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-            transform: translateY(150%);
-            opacity: 0;
-        }
-        #compare-bar.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Custom Checkbox */
-        .compare-checkbox {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #CBD5E1;
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.2s;
-        }
-        .compare-checkbox:checked {
-            background-color: #0082CA;
-            border-color: #0082CA;
-        }
-        .compare-checkbox:checked::after {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 1px;
-            width: 6px;
-            height: 12px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-        .compare-checkbox:focus-visible {
-            outline: 2px solid #0082CA;
-            outline-offset: 2px;
-        }
-    </style>
-</head>
-<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white relative pb-24">
-
-    <!-- AUTHENTICATED HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center gap-6">
-            <!-- Logo -->
-            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
-                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
-                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
-                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
-                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-                <div class="flex flex-col">
-                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
-                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
-                </div>
-            </a>
-            
-            <!-- Desktop Navigation -->
-            <nav class="hidden md:flex items-center gap-1 ml-6">
-                <!-- Developer Note: Replace URLs with Flask routes -->
-                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
-                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
-            </nav>
-        </div>
-
-        <div class="flex items-center gap-3 sm:gap-5">
-            <!-- Notifications Bell -->
-            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
-                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
-                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-            </button>
-
-            <!-- Profile Dropdown Trigger -->
-            <div class="relative">
-                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors" aria-haspopup="true" aria-expanded="false">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
-                        {% if profile %}{{ profile.first_name[0]|title}}{{ profile.last_name[0]|title}}{% else %}U{% endif %}
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
-                </button>
-                
-                <!-- Profile Dropdown Menu -->
-                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
-                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
-                        <p class="text-[14px] font-bold text-textMain truncate">{% if profile %}{{ profile.first_name|title}} {{ profile.last_name|title}}{% else %}User{% endif %}</p>
-                        <p class="text-[12px] text-textMuted truncate">{% if user %}{{ user.email }}{% else %}Unknown{% endif %}</p>
-                    </div>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> My Profile</a>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="shield" class="w-4 h-4 text-textMuted"></i> Privacy Settings</a>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="help-circle" class="w-4 h-4 text-textMuted"></i> Help & Support</a>
-                    <div class="h-[1px] bg-gray-100 my-1"></div>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
-                </div>
-            </div>
-
-            <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
-                <i data-lucide="menu" class="w-6 h-6"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- MOBILE NAVIGATION -->
+{% block content %}
+<!-- MOBILE NAVIGATION -->
     <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm">
         <nav class="flex flex-col p-4 gap-1">
             <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
             <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl bg-softBlue text-secondary font-bold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</a>
             <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
-            <a href="#" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="bell" class="w-5 h-5 text-textMuted"></i> Notifications</a>
+            <a href="{{ url_for('patient_notifications') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="bell" class="w-5 h-5 text-textMuted"></i> Notifications</a>
         </nav>
     </div>
 
@@ -392,49 +186,10 @@
         </div>
 
     </main>
+{% endblock %}
 
-    <!-- FOOTER -->
-    <footer class="mt-auto border-t border-gray-200 bg-white py-6">
-        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
-                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
-            </div>
-            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
-            </div>
-        </div>
-    </footer>
-
-    {% if responses %}
-    <!-- STICKY COMPARE ACTION BAR -->
-    <div id="compare-bar" class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] py-4 px-4 sm:px-6">
-        <div class="max-w-[1000px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0 text-secondary">
-                    <i data-lucide="copy-check" class="w-5 h-5"></i>
-                </div>
-                <div class="flex flex-col">
-                    <h4 class="text-[15px] font-bold text-textMain"><span id="compare-count">0</span> Hospitals Selected</h4>
-                    <p class="text-[12px] text-textMuted font-medium">Compare up to 4 hospitals side-by-side.</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3 w-full sm:w-auto">
-                <button id="clear-compare-btn" class="text-[13px] font-semibold text-textMuted hover:text-textMain px-3 py-2 transition-colors focus:outline-none hidden sm:block">
-                    Clear Selection
-                </button>
-                <a href="#" id="compare-action-btn" class="flex-grow sm:flex-grow-0 bg-primary hover:bg-blue-800 text-white font-bold px-8 py-3 rounded-full text-[14px] transition-all shadow-glow hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-center gap-2">
-                    Compare Hospitals <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Scripts -->
-    <script>
+{% block page_scripts %}
+<script>
         lucide.createIcons();
 
         // 1. Mobile Menu & Profile Dropdown Logic
@@ -542,5 +297,4 @@
             });
         }
     </script>
-</body>
-</html>
+{% endblock %}

@@ -144,11 +144,31 @@
                     <p class="text-textMuted mt-1">Review all active patient treatment requests and proposals.</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <form action="{{ url_for('admin_treatment_requests') }}" method="GET" class="relative">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                        <input type="text" name="q" value="{{ search_query or '' }}" placeholder="Search ID or Name..." class="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent outline-none">
+                    <form action="{{ url_for('admin_treatment_requests') }}" method="GET" class="flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="relative">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" name="q" value="{{ search_query or '' }}" placeholder="Search ID or Name..." class="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent outline-none">
+                        </div>
+                        <select name="specialty" onchange="this.form.submit()" class="border border-slate-200 rounded-lg text-sm py-2 px-3 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent outline-none">
+                            <option value="">All Specialties</option>
+                            <option value="Cardiology" {% if current_specialty == 'Cardiology' %}selected{% endif %}>Cardiology</option>
+                            <option value="Oncology" {% if current_specialty == 'Oncology' %}selected{% endif %}>Oncology</option>
+                            <option value="Neurology" {% if current_specialty == 'Neurology' %}selected{% endif %}>Neurology</option>
+                            <option value="Orthopedics" {% if current_specialty == 'Orthopedics' %}selected{% endif %}>Orthopedics</option>
+                        </select>
+                        <select name="country" onchange="this.form.submit()" class="border border-slate-200 rounded-lg text-sm py-2 px-3 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent outline-none">
+                            <option value="">All Countries</option>
+                            <option value="United States" {% if current_country == 'United States' %}selected{% endif %}>United States</option>
+                            <option value="United Kingdom" {% if current_country == 'United Kingdom' %}selected{% endif %}>United Kingdom</option>
+                            <option value="Canada" {% if current_country == 'Canada' %}selected{% endif %}>Canada</option>
+                            <option value="India" {% if current_country == 'India' %}selected{% endif %}>India</option>
+                        </select>
                         {% if current_status %}
                         <input type="hidden" name="status" value="{{ current_status }}">
+                        {% endif %}
+                        <noscript><button type="submit" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm">Filter</button></noscript>
+                        {% if search_query or current_specialty or current_country %}
+                        <a href="{{ url_for('admin_treatment_requests', status=current_status) }}" class="text-sm font-bold text-textMuted hover:text-accent transition-colors">Clear</a>
                         {% endif %}
                     </form>
                 </div>

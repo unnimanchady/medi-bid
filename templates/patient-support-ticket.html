@@ -1,0 +1,228 @@
+{% extends "patient-layout.html" %}
+
+{% block title %}Patient Support Ticket | MediBid{% endblock %}
+
+{% block content %}
+<!-- MOBILE NAVIGATION -->
+    <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] shadow-sm">
+        <nav class="flex flex-col p-4 gap-1">
+            <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
+            <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5 text-textMuted"></i> My Requests</a>
+            <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="message-square" class="w-5 h-5 text-textMuted"></i> Messages</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow w-full max-w-[900px] mx-auto py-6 sm:py-8 px-4 sm:px-6 flex flex-col gap-6">
+            
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2" aria-label="Breadcrumb">
+                <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors hidden sm:inline">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300 hidden sm:inline"></i>
+                <a href="{{ url_for('patient_support') }}#tickets" class="hover:text-primary transition-colors">Help & Support</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
+                <span class="text-textMain font-bold">{{ ticket.ticket_number }}</span>
+            </nav>
+            
+            <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 sm:p-8 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h2 class="text-[20px] font-extrabold text-primary">{{ ticket.subject }}</h2>
+                            {% if ticket.status == 'Open' %}
+                                <span class="bg-green-50 text-green-700 text-[12px] font-bold px-2.5 py-1 rounded-md">Open</span>
+                            {% elif ticket.status == 'In Progress' %}
+                                <span class="bg-yellow-50 text-yellow-700 text-[12px] font-bold px-2.5 py-1 rounded-md">In Progress</span>
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-700 text-[12px] font-bold px-2.5 py-1 rounded-md">{{ ticket.status }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-[13px] text-textMuted font-medium">Ticket {{ ticket.ticket_number }} &bull; {{ ticket.category }} &bull; Submitted {{ ticket.created_at.strftime('%b %d, %Y at %I:%M %p') }}</p>
+                    </div>
+                </div>
+                
+                <div class="p-6 sm:p-8 flex flex-col gap-6 bg-gray-50/50">
+                    
+                    <!-- Original Request -->
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20 shadow-inner flex-shrink-0">
+                            <span class="text-secondary font-bold text-[14px]">{{ user.first_name[0] }}{{ user.last_name[0] }}</span>
+                        </div>
+                        <div class="flex-grow bg-white border border-gray-100 rounded-2xl rounded-tl-none p-5 shadow-sm">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold text-[14px] text-textMain">You</span>
+                                <span class="text-[12px] text-textMuted">{{ ticket.created_at.strftime('%b %d, %I:%M %p') }}</span>
+                            </div>
+                            <p class="text-[14px] text-textMain leading-relaxed whitespace-pre-wrap">{{ ticket.message }}</p>
+                            
+                            {% if ticket.attachment_filename %}
+                            <div class="mt-4 pt-4 border-t border-gray-50">
+                                <span class="text-[12px] font-bold text-textMuted uppercase tracking-wider mb-2 block">Attachment</span>
+                                <div class="inline-flex items-center gap-2 bg-gray-50 border border-gray-100 px-3 py-2 rounded-lg">
+                                    <i data-lucide="paperclip" class="w-4 h-4 text-gray-400"></i>
+                                    <span class="text-[13px] text-textMain font-medium">{{ ticket.attachment_filename }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Replies Thread -->
+                    {% for msg in ticket.messages %}
+                        {% if msg.sender_type == 'patient' %}
+                        <!-- Patient Reply -->
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center border border-secondary/20 shadow-inner flex-shrink-0">
+                                <span class="text-secondary font-bold text-[14px]">{{ user.first_name[0] }}{{ user.last_name[0] }}</span>
+                            </div>
+                            <div class="flex-grow bg-white border border-gray-100 rounded-2xl rounded-tl-none p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-bold text-[14px] text-textMain">You</span>
+                                    <span class="text-[12px] text-textMuted">{{ msg.created_at.strftime('%b %d, %I:%M %p') }}</span>
+                                </div>
+                                <p class="text-[14px] text-textMain leading-relaxed whitespace-pre-wrap">{{ msg.message }}</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Admin Reply -->
+                        <div class="flex gap-4 flex-row-reverse">
+                            <div class="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                <span class="text-white font-bold text-[14px]">A</span>
+                            </div>
+                            <div class="flex-grow bg-blue-50 border border-blue-100 rounded-2xl rounded-tr-none p-5 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 flex-row-reverse">
+                                    <span class="font-bold text-[14px] text-blue-900">MediBid Support</span>
+                                    <span class="text-[12px] text-blue-600/70">{{ msg.created_at.strftime('%b %d, %I:%M %p') }}</span>
+                                </div>
+                                <p class="text-[14px] text-blue-900 leading-relaxed whitespace-pre-wrap text-right">{{ msg.message }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                </div>
+                
+                {% if ticket.status != 'Closed' %}
+                <div class="p-6 sm:p-8 border-t border-gray-100 bg-white">
+                    <form method="POST" action="{{ url_for('patient_support_ticket_detail', ticket_number=ticket.ticket_number) }}" class="flex flex-col gap-4">
+                        <textarea name="message" rows="3" required placeholder="Type your reply here..." class="w-full border border-gray-200 bg-gray-50 rounded-xl px-4 py-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-secondary focus:bg-white transition-all resize-none"></textarea>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-secondary text-white font-bold px-6 py-2.5 rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2">
+                                <i data-lucide="send" class="w-4 h-4"></i> Send Reply
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="p-6 sm:p-8 border-t border-gray-100 bg-gray-50 text-center">
+                    <p class="text-[14px] font-bold text-gray-500">This ticket has been closed. If you need further assistance, please open a new ticket.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+        </main>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+        lucide.createIcons();
+
+        // Mobile Menu & Profile Dropdown
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenu.classList.contains('open');
+                if (isOpen) {
+                    mobileMenu.classList.remove('open');
+                } else {
+                    mobileMenu.classList.add('open');
+                    if(profileDropdown) profileDropdown.classList.remove('open');
+                }
+            });
+        }
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = profileDropdown.classList.contains('open');
+                if (isOpen) {
+                    profileDropdown.classList.remove('open');
+                } else {
+                    profileDropdown.classList.add('open');
+                    if(mobileMenu) mobileMenu.classList.remove('open');
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+
+        // Settings Tabs Logic
+        const tabs = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.settings-section');
+        const toast = document.getElementById('save-toast');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active styles from all
+                tabs.forEach(t => {
+                    t.classList.remove('active', 'text-secondary', 'border-secondary', 'font-bold');
+                    t.classList.add('text-textMuted', 'border-transparent', 'font-medium');
+                });
+                
+                // Add active style to clicked
+                tab.classList.remove('text-textMuted', 'border-transparent', 'font-medium');
+                tab.classList.add('active', 'text-secondary', 'border-secondary', 'font-bold');
+                
+                // Hide all sections
+                sections.forEach(s => {
+                    s.classList.add('hidden');
+                    s.classList.remove('animate-fade-in');
+                });
+                
+                // Hide toast if changing tabs
+                if(toast) toast.classList.add('hidden');
+                
+                // Show target section
+                const target = tab.getAttribute('data-target');
+                const targetEl = document.getElementById(target);
+                targetEl.classList.remove('hidden');
+                
+                // Force reflow to restart animation
+                void targetEl.offsetWidth;
+                targetEl.classList.add('animate-fade-in');
+            });
+        });
+
+        // Form Submit Simulation
+        function handleSave(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            // Loading state
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                // Show toast
+                if(toast) {
+                    toast.classList.remove('hidden');
+                    // Hide after 3 seconds
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 3000);
+                }
+            }, 800);
+        }
+    </script>
+{% endblock %}

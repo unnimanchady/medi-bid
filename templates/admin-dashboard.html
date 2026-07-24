@@ -75,21 +75,20 @@
                 {% endif %}
             </a>
             
-            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <a href="{{ url_for('admin_patients') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
                 <i data-lucide="users" class="w-5 h-5"></i>
-                <span class="font-medium">Patients</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
+                Patients
+            </a>
             
-            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
-                <i data-lucide="building-2" class="w-5 h-5"></i>
-                <span class="font-medium">Hospitals</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
+            <!-- Replaced with direct hospital apps for now -->
 
             <a href="{{ url_for('admin_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
                 Treatment Requests
+            </a>
+            <a href="{{ url_for('admin_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <i data-lucide="file-check" class="w-5 h-5"></i>
+                Submitted Proposals
             </a>
             
             <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
@@ -147,62 +146,75 @@
             </div>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 
-                <!-- Stat 1 -->
-                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-card transition-shadow">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-                            <i data-lucide="clock" class="w-6 h-6"></i>
-                        </div>
-                    </div>
-                    <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Pending Applications</p>
-                    <h3 class="text-4xl font-extrabold text-textMain">{{ pending_count }}</h3>
-                    <div class="mt-4 pt-4 border-t border-slate-100">
-                        <a href="{{ url_for('admin_applications') }}" class="text-accent text-sm font-bold hover:text-blue-700 flex items-center gap-1 transition-colors">
-                            Review applications <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Stat 2 -->
-                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-card transition-shadow">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-                        </div>
-                    </div>
-                    <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Verified Hospitals</p>
-                    <h3 class="text-4xl font-extrabold text-textMain">{{ verified_count }}</h3>
-                    <div class="mt-4 pt-4 border-t border-slate-100">
-                        <span class="text-emerald-600 text-sm font-bold flex items-center gap-1">
-                            <i data-lucide="activity" class="w-4 h-4"></i> Active network
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Stat 3 -->
-                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-card transition-shadow">
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
                     <div class="flex justify-between items-start mb-4">
                         <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                            <i data-lucide="building-2" class="w-6 h-6"></i>
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Total Patients</p>
+                    <h3 class="text-4xl font-extrabold text-textMain">{{ total_patients }}</h3>
+                </div>
+                
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                            <i data-lucide="building" class="w-6 h-6"></i>
                         </div>
                     </div>
                     <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Total Hospitals</p>
-                    <h3 class="text-4xl font-extrabold text-textMain">{{ total_count }}</h3>
-                    <div class="mt-4 pt-4 border-t border-slate-100">
-                        <span class="text-textMuted text-sm font-bold flex items-center gap-1">
-                            Registered accounts
-                        </span>
+                    <h3 class="text-4xl font-extrabold text-textMain">{{ total_hospitals }}</h3>
+                </div>
+                
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-6 h-6"></i>
+                        </div>
                     </div>
+                    <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Active Requests</p>
+                    <h3 class="text-4xl font-extrabold text-textMain">{{ active_requests }}</h3>
+                </div>
+                
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+                            <i data-lucide="file-check" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Pending Hospitals</p>
+                    <h3 class="text-4xl font-extrabold text-textMain">{{ pending_count }}</h3>
                 </div>
             </div>
-
-            <!-- Coming Soon Modules Placeholder -->
-            <div class="bg-slate-50 border border-slate-200 border-dashed rounded-3xl p-10 text-center">
-                <div class="w-16 h-16 bg-white text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-200 shadow-sm">
-                    <i data-lucide="sparkles" class="w-8 h-8"></i>
-                </div>
+            
+            <h2 class="text-2xl font-bold text-textMain mb-4">Recent Activity</h2>
+            <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden mb-12 shadow-sm">
+                {% if recent_activity %}
+                <ul class="divide-y divide-slate-100">
+                    {% for act in recent_activity %}
+                    <li class="p-4 hover:bg-slate-50 transition-colors">
+                        <a href="{{ act.url }}" class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 {% if act.type == 'request' %}bg-purple-100 text-purple-600{% else %}bg-amber-100 text-amber-600{% endif %}">
+                                <i data-lucide="{% if act.type == 'request' %}file-text{% else %}building{% endif %}" class="w-5 h-5"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-textMain">{{ act.title }}</h4>
+                                <p class="text-sm text-textMuted">{{ act.time.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-slate-300"></i>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-8 text-center text-textMuted">No recent activity.</div>
+                {% endif %}
+            </div>
+            
+            <!-- 
+            
                 <h3 class="text-xl font-bold text-textMain mb-2">More Modules Coming Soon</h3>
                 <p class="text-textMuted max-w-md mx-auto">
                     Patient management, treatment request oversight, and platform settings will appear here in upcoming phases of development.

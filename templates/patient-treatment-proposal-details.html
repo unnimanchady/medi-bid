@@ -1,108 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treatment Estimate & Proposal | MediBid</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0B1D40',
-                        secondary: '#0082CA',
-                        textMain: '#1E293B',
-                        textMuted: '#64748B',
-                        bgLight: '#F7FAFC',
-                        success: '#10B981', 
-                        warning: '#F59E0B',
-                        danger: '#EF4444',
-                        softBlue: '#EFF6FF',
-                        softTeal: '#ECFDF5',
-                        tealAccent: '#14B8A6',
-                        softLavender: '#F5F3FF',
-                        lavenderAccent: '#8B5CF6',
-                        softAmber: '#FFFBEB',
-                        amberAccent: '#D97706',
-                        softPeach: '#FFF7ED',
-                        peachAccent: '#EA580C',
-                        softGreen: '#F0FDF4',
-                        greenAccent: '#15803D',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
-                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
-                        'glow': '0 20px 40px -10px rgba(11,29,64,0.15)',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
+{% extends "patient-layout.html" %}
 
-    <!-- AUTHENTICATED HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm no-print">
-        <div class="flex items-center gap-6">
-            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
-                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
-                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
-                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
-                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-                <div class="flex flex-col">
-                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
-                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
-                </div>
-            </a>
-            
-            <nav class="hidden md:flex items-center gap-1 ml-6">
-                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors">Dashboard</a>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg bg-softBlue text-secondary font-bold text-[14px] transition-colors">My Requests</a>
-                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors">Messages</a>
-            </nav>
-        </div>
+{% block title %}Patient Treatment Proposal Details | MediBid{% endblock %}
 
-        <div class="flex items-center gap-3 sm:gap-5">
-            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
-                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
-            </button>
-
-            <div class="relative">
-                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">
-                        {% if profile %}{{ profile.first_name[0]|title}}{{ profile.last_name[0]|title}}{% else %}U{% endif %}
-                    </div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
-                </button>
-            </div>
-            
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
-                <i data-lucide="menu" class="w-6 h-6"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- MOBILE NAVIGATION -->
+{% block content %}
+<!-- MOBILE NAVIGATION -->
     <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] sm:top-[80px] shadow-sm no-print" style="display:none;">
         <nav class="flex flex-col p-4 gap-1">
             <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
@@ -151,7 +52,15 @@
 
         <!-- TIMESTAMPS -->
         <div class="flex items-center gap-4 text-[12.5px] text-textMuted">
-            <span>Submitted: <strong class="text-textMain">{{ proposal.submitted_at.strftime('%B %d, %Y') }}</strong></span>
+            <span>Submitted: <strong class="text-textMain">
+                {% if proposal.submitted_at %}
+                    {{ proposal.submitted_at.strftime('%B %d, %Y') }}
+                {% elif proposal.created_at %}
+                    {{ proposal.created_at.strftime('%B %d, %Y') }}
+                {% else %}
+                    Not available
+                {% endif %}
+            </strong></span>
             <span class="w-1 h-1 rounded-full bg-gray-300"></span>
             <span>Valid Until: <strong class="text-textMain">{{ proposal.valid_until.strftime('%B %d, %Y') if proposal.valid_until else 'Not specified' }}</strong></span>
         </div>
@@ -363,19 +272,10 @@
         </div>
 
     </main>
+{% endblock %}
 
-    <!-- FOOTER -->
-    <footer class="mt-auto border-t border-gray-200 bg-white py-6">
-        <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
-                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script>
+{% block page_scripts %}
+<script>
         lucide.createIcons();
 
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -393,5 +293,4 @@
             });
         }
     </script>
-</body>
-</html>
+{% endblock %}

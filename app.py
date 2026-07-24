@@ -43,6 +43,8 @@ def home():
 
 @app.route("/patient/register/step-1", methods=["GET", "POST"])
 def patient_registration_step1():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     error = None
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -130,6 +132,7 @@ def patient_login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
             session['registration_user_id'] = user.id
+            session['patient_authenticated'] = True
             return redirect(url_for('patient_dashboard'))
         else:
             error = "Invalid email or password."
@@ -137,8 +140,17 @@ def patient_login():
     return render_template("patient-login.html", error=error)
 
 
+
+@app.route("/patient/logout")
+def patient_logout():
+    session.pop('registration_user_id', None)
+    session.pop('patient_authenticated', None)
+    return redirect(url_for('patient_login'))
+
 @app.route("/patient/register/who", methods=["GET", "POST"])
 def patient_registration_who():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
@@ -175,6 +187,8 @@ def patient_registration_who():
 
 @app.route("/patient/register/step-2", methods=["GET", "POST"])
 def patient_registration_step2():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
@@ -285,6 +299,8 @@ def is_pregnancy_applicable(profile):
 
 @app.route("/patient/register/step-3", methods=["GET", "POST"])
 def patient_registration_step3():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
@@ -469,6 +485,8 @@ def patient_registration_step3():
 
 @app.route("/patient/register/step-4")
 def patient_registration_step4():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     specialty = session.get('registration_specialty', '')
     
     specialty_lower = specialty.lower()
@@ -504,6 +522,8 @@ def patient_registration_step4():
 
 @app.route("/patient/register/step-5", methods=["GET", "POST"])
 def patient_registration_step5():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     error = request.args.get('error')
     
     if request.method == "POST":
@@ -613,6 +633,8 @@ def download_document(doc_id):
 
 @app.route("/patient/register/step-6", methods=["GET", "POST"])
 def patient_registration_step6():
+    if session.get("patient_authenticated"):
+        return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
@@ -865,12 +887,64 @@ def patient_hospital_responses():
 
 @app.route("/patient/hospital-profile")
 def patient_hospital_profile():
-    return render_template("patient-hospital-profile.html")
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    proposal = None
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    if profiles:
+        profile_ids = [p.id for p in profiles]
+        requests = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).all()
+        request_ids = [r.id for r in requests]
+        proposal = TreatmentProposal.query.filter(
+            TreatmentProposal.treatment_request_id.in_(request_ids)
+        ).order_by(TreatmentProposal.created_at.desc()).first()
+        
+    return render_template("patient-hospital-profile.html", proposal=proposal)
 
 
 @app.route("/patient/compare-hospitals")
 def patient_compare_hospitals():
-    return render_template("patient-compare-hospitals.html")
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    profile_ids = [p.id for p in profiles]
+    
+    req_id = request.args.get('request_id', type=int)
+    prop_ids = request.args.get('proposal_ids')
+    
+    if req_id:
+        target_req = TreatmentRequest.query.filter_by(id=req_id).first()
+        if not target_req or target_req.patient_profile_id not in profile_ids:
+            target_req = None
+    else:
+        # Fallback to the latest request that has submitted proposals
+        all_reqs = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).order_by(TreatmentRequest.created_at.desc()).all()
+        target_req = None
+        for r in all_reqs:
+            props = TreatmentProposal.query.filter_by(treatment_request_id=r.id, status='submitted').count()
+            if props > 0:
+                target_req = r
+                break
+                
+    compare_items = []
+    if target_req:
+        q = TreatmentProposal.query.filter_by(treatment_request_id=target_req.id, status='submitted')
+        if prop_ids:
+            id_list = [int(i.strip()) for i in prop_ids.split(',') if i.strip().isdigit()]
+            if id_list:
+                q = q.filter(TreatmentProposal.id.in_(id_list))
+                
+        proposals = q.limit(3).all()
+        for p in proposals:
+            h = Hospital.query.get(p.hospital_id)
+            if h:
+                compare_items.append({'proposal': p, 'hospital': h})
+                
+    return render_template("patient-compare-hospitals.html", compare_items=compare_items, target_req=target_req)
 
 
 @app.route("/patient/treatment-proposal/<int:proposal_id>")
@@ -906,7 +980,21 @@ def patient_treatment_proposal_details(proposal_id):
 
 @app.route("/patient/secure-messages")
 def patient_secure_messages():
-    return render_template("patient-secure-messages.html")
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    proposal = None
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    if profiles:
+        profile_ids = [p.id for p in profiles]
+        requests = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).all()
+        request_ids = [r.id for r in requests]
+        proposal = TreatmentProposal.query.filter(
+            TreatmentProposal.treatment_request_id.in_(request_ids)
+        ).order_by(TreatmentProposal.created_at.desc()).first()
+        
+    return render_template("patient-secure-messages.html", proposal=proposal)
 
 
 @app.route("/patient/profile-settings")
@@ -978,11 +1066,7 @@ def hospital_register():
     # If user is already in a session, redirect appropriately
     existing_hospital_id = session.get('hospital_id')
     if existing_hospital_id:
-        existing_hospital = Hospital.query.get(existing_hospital_id)
-        if existing_hospital:
-            if existing_hospital.verification_status != "incomplete":
-                return redirect(url_for('hospital_register_success'))
-            return redirect(url_for('hospital_register_info'))
+        return redirect(url_for('hospital_dashboard'))
 
     if request.method == "POST":
         first_name = request.form.get("first_name", "").strip()
@@ -1928,15 +2012,43 @@ def admin_logout():
 @app.route("/admin/dashboard")
 @admin_required
 def admin_dashboard():
+    total_patients = User.query.filter_by(role='patient').count()
+    total_hospitals = Hospital.query.count()
+    active_requests = TreatmentRequest.query.filter(TreatmentRequest.status.in_(['Active', 'Pending'])).count()
+    submitted_proposals = TreatmentProposal.query.filter_by(status='submitted').count()
     pending_count = Hospital.query.filter_by(verification_status="pending_verification").count()
-    verified_count = Hospital.query.filter_by(verification_status="verified").count()
-    total_count = Hospital.query.count()
+    
+    # Recent activity
+    recent_requests = TreatmentRequest.query.order_by(TreatmentRequest.created_at.desc()).limit(5).all()
+    recent_hospitals = Hospital.query.order_by(Hospital.created_at.desc()).limit(5).all()
+    
+    recent_activity = []
+    for r in recent_requests:
+        recent_activity.append({
+            'type': 'request',
+            'title': f'New Treatment Request ({r.reference_id})',
+            'time': r.created_at,
+            'url': url_for('admin_treatment_request_detail', reference_id=r.reference_id)
+        })
+    for h in recent_hospitals:
+        recent_activity.append({
+            'type': 'hospital',
+            'title': f'Hospital Registration ({h.hospital_name})',
+            'time': h.created_at,
+            'url': url_for('admin_application_review', hospital_id=h.id)
+        })
+        
+    recent_activity.sort(key=lambda x: x['time'], reverse=True)
+    recent_activity = recent_activity[:5]
     
     return render_template(
         "admin-dashboard.html",
+        total_patients=total_patients,
+        total_hospitals=total_hospitals,
+        active_requests=active_requests,
+        submitted_proposals=submitted_proposals,
         pending_count=pending_count,
-        verified_count=verified_count,
-        total_count=total_count
+        recent_activity=recent_activity
     )
 
 @app.route("/admin/hospitals/applications")
@@ -1961,11 +2073,19 @@ def admin_applications():
         rejected_count=rejected_count
     )
 
-@app.route("/admin/hospitals/applications/<int:hospital_id>/review")
+@app.route("/admin/hospitals/applications/<int:hospital_id>/review", methods=["GET", "POST"])
 @admin_required
 def admin_application_review(hospital_id):
     hospital = Hospital.query.get_or_404(hospital_id)
     error = request.args.get('error')
+    
+    if request.method == "POST":
+        notes = request.form.get("admin_notes", "").strip()
+        hospital.admin_notes = notes
+        db.session.commit()
+        flash("Admin notes saved.", "success")
+        return redirect(url_for("admin_application_review", hospital_id=hospital.id))
+        
     return render_template("admin-application-review.html", hospital=hospital, error=error)
 
 @app.route("/admin/hospitals/applications/document/<int:doc_id>")
@@ -2012,15 +2132,23 @@ def admin_application_reject(hospital_id):
 @admin_required
 def admin_treatment_requests():
     status_filter = request.args.get('status')
+    specialty_filter = request.args.get('specialty')
+    country_filter = request.args.get('country')
     search_query = request.args.get('q')
     
-    query = TreatmentRequest.query
+    query = TreatmentRequest.query.join(PatientProfile)
     
     if status_filter:
-        query = query.filter_by(status=status_filter)
+        query = query.filter(TreatmentRequest.status == status_filter)
+        
+    if specialty_filter:
+        query = query.filter(TreatmentRequest.specialty == specialty_filter)
+        
+    if country_filter:
+        query = query.filter(PatientProfile.country_of_residence == country_filter)
         
     if search_query:
-        query = query.join(PatientProfile).filter(
+        query = query.filter(
             (TreatmentRequest.reference_id.ilike(f"%{search_query}%")) |
             (PatientProfile.first_name.ilike(f"%{search_query}%")) |
             (PatientProfile.last_name.ilike(f"%{search_query}%"))
@@ -2031,7 +2159,14 @@ def admin_treatment_requests():
     for req in requests_list:
         req.response_count = TreatmentProposal.query.filter_by(treatment_request_id=req.id, status='submitted').count()
         
-    return render_template("admin-treatment-requests.html", requests=requests_list, current_status=status_filter, search_query=search_query)
+    return render_template(
+        "admin-treatment-requests.html", 
+        requests=requests_list, 
+        current_status=status_filter, 
+        current_specialty=specialty_filter,
+        current_country=country_filter,
+        search_query=search_query
+    )
 
 @app.route("/admin/treatment-requests/<string:reference_id>")
 @admin_required
@@ -2052,9 +2187,440 @@ def admin_proposal_view(reference_id, proposal_id):
     
     return render_template("admin-proposal-view.html", req=req, proposal=proposal, hospital=hospital, is_view_only=True)
 
+
+@app.route("/admin/patients")
+@admin_required
+def admin_patients():
+    search_query = request.args.get('q')
+    
+    query = User.query.filter_by(role='patient')
+    if search_query:
+        query = query.filter(
+            (User.email.ilike(f"%{search_query}%")) |
+            (User.first_name.ilike(f"%{search_query}%")) |
+            (User.last_name.ilike(f"%{search_query}%"))
+        )
+        
+    patients = query.order_by(User.created_at.desc()).all()
+    return render_template("admin-patients.html", patients=patients, search_query=search_query)
+
+@app.route("/admin/patients/<int:user_id>")
+@admin_required
+def admin_patient_detail(user_id):
+    patient = User.query.filter_by(id=user_id, role='patient').first_or_404()
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    
+    profile_ids = [p.id for p in profiles]
+    requests = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).order_by(TreatmentRequest.created_at.desc()).all()
+    
+    for req in requests:
+        req.response_count = TreatmentProposal.query.filter_by(treatment_request_id=req.id, status='submitted').count()
+        
+    return render_template("admin-patient-detail.html", patient=patient, profiles=profiles, requests=requests)
+
+@app.route("/admin/proposals")
+@admin_required
+def admin_proposals():
+    hospital_id = request.args.get('hospital_id')
+    status_filter = request.args.get('status')
+    
+    query = TreatmentProposal.query.join(TreatmentRequest)
+    
+    if hospital_id:
+        query = query.filter(TreatmentProposal.hospital_id == hospital_id)
+        
+    if status_filter:
+        query = query.filter(TreatmentProposal.status == status_filter)
+        
+    proposals = query.order_by(TreatmentProposal.created_at.desc()).all()
+    
+    hospitals = Hospital.query.order_by(Hospital.hospital_name.asc()).all()
+    
+    return render_template("admin-proposals.html", proposals=proposals, hospitals=hospitals, current_status=status_filter, current_hospital=hospital_id)
+
+
 # =========================================================
 # DEVELOPMENT SERVER
 # =========================================================
+
+
+# =========================================================
+# PATIENT MEDICAL DOCUMENTS
+# =========================================================
+
+@app.route("/patient/medical-documents")
+def patient_medical_documents():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    profile_ids = [p.id for p in profiles]
+    
+    docs = MedicalDocument.query.filter(MedicalDocument.patient_profile_id.in_(profile_ids)).order_by(MedicalDocument.uploaded_at.desc()).all()
+    
+    return render_template("patient-medical-documents.html", docs=docs, profiles=profiles)
+
+@app.route("/patient/document/upload", methods=["POST"])
+def patient_medical_documents_upload():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    if 'document' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+        
+    file = request.files['document']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+        
+    document_type = request.form.get('document_type', 'Other')
+    title = request.form.get('title')
+    description = request.form.get('description')
+    profile_id = request.form.get('patient_profile_id')
+    treatment_request_id = request.form.get('treatment_request_id')
+    
+    if not profile_id:
+        return jsonify({'error': 'Patient Profile is required'}), 400
+        
+    # Verify profile belongs to user
+    profile = PatientProfile.query.filter_by(id=profile_id, user_id=user_id).first()
+    if not profile:
+        return jsonify({'error': 'Invalid Patient Profile'}), 400
+        
+    # Verify treatment request if provided
+    if treatment_request_id:
+        req = TreatmentRequest.query.filter_by(id=treatment_request_id, patient_profile_id=profile_id).first()
+        if not req:
+            return jsonify({'error': 'Invalid Treatment Request for this profile'}), 400
+    
+    if file and allowed_file(file.filename):
+        original_filename = secure_filename(file.filename)
+        ext = original_filename.rsplit('.', 1)[1].lower()
+        storage_filename = f"{uuid.uuid4().hex}.{ext}"
+        
+        file_path = os.path.join(UPLOAD_FOLDER, storage_filename)
+        file.save(file_path)
+        file_size = os.path.getsize(file_path)
+        
+        new_doc = MedicalDocument(
+            original_filename=original_filename,
+            storage_filename=storage_filename,
+            document_type=document_type,
+            title=title,
+            description=description,
+            mime_type=file.content_type,
+            file_size=file_size,
+            patient_profile_id=profile_id,
+            treatment_request_id=treatment_request_id if treatment_request_id else None,
+            uploaded_by_id=user_id
+        )
+        db.session.add(new_doc)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Document uploaded successfully!'})
+        
+    return jsonify({'error': 'Invalid file type'}), 400
+
+@app.route("/patient/document/<int:doc_id>/delete", methods=["POST"])
+def patient_medical_document_delete(doc_id):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    doc = MedicalDocument.query.get_or_404(doc_id)
+    
+    if doc.uploaded_by_id != user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    try:
+        file_path = os.path.join(UPLOAD_FOLDER, doc.storage_filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            
+        db.session.delete(doc)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route("/patient/document/<int:doc_id>/view")
+def view_document(doc_id):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        from flask import abort
+        abort(401)
+        
+    doc = MedicalDocument.query.get_or_404(doc_id)
+    if doc.uploaded_by_id != user_id:
+        from flask import abort
+        abort(403)
+        
+    return send_from_directory(UPLOAD_FOLDER, doc.storage_filename, as_attachment=False)
+
+
+
+# =========================================================
+# NOTIFICATION ENGINE HELPER
+# =========================================================
+
+def create_notification(recipient_type, recipient_user_id, title, message, notification_type, reference_type=None, reference_id=None, target_url=None):
+    from models import db, Notification
+    from datetime import datetime, timezone
+    
+    if not recipient_type or not recipient_user_id or not title or not message or not notification_type:
+        return None
+        
+    try:
+        new_notif = Notification(
+            recipient_type=recipient_type,
+            recipient_user_id=recipient_user_id,
+            title=title,
+            message=message,
+            notification_type=notification_type,
+            reference_type=reference_type,
+            reference_id=reference_id,
+            target_url=target_url,
+            created_at=datetime.now(timezone.utc)
+        )
+        db.session.add(new_notif)
+        db.session.commit()
+        return new_notif
+    except Exception as e:
+        db.session.rollback()
+        print(f"Failed to create notification: {str(e)}")
+        return None
+
+
+# =========================================================
+# NOTIFICATION ROUTES
+# =========================================================
+
+@app.route("/api/notifications")
+def api_get_notifications():
+    user_id = session.get("registration_user_id")
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    notifications = Notification.query.filter_by(
+        recipient_type='patient', 
+        recipient_user_id=user_id
+    ).order_by(Notification.created_at.desc()).limit(5).all()
+    
+    unread_count = Notification.query.filter_by(
+        recipient_type='patient', 
+        recipient_user_id=user_id,
+        is_read=False
+    ).count()
+    
+    data = []
+    for n in notifications:
+        data.append({
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'is_read': n.is_read,
+            'created_at': n.created_at.isoformat(),
+            'target_url': n.target_url
+        })
+        
+    return jsonify({
+        'notifications': data,
+        'unread_count': unread_count
+    })
+
+@app.route("/api/notifications/<int:notif_id>/read", methods=['POST'])
+def api_mark_notification_read(notif_id):
+    user_id = session.get("registration_user_id")
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    notif = Notification.query.filter_by(
+        id=notif_id,
+        recipient_type='patient',
+        recipient_user_id=user_id
+    ).first()
+    
+    if notif:
+        notif.is_read = True
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'error': 'Not found'}), 404
+
+@app.route("/api/notifications/read-all", methods=['POST'])
+def api_mark_all_notifications_read():
+    user_id = session.get("registration_user_id")
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    Notification.query.filter_by(
+        recipient_type='patient',
+        recipient_user_id=user_id,
+        is_read=False
+    ).update({'is_read': True})
+    
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route("/patient/notifications")
+def patient_notifications():
+    user_id = session.get("registration_user_id")
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    # We will fetch from client side or pass to template
+    notifications = Notification.query.filter_by(
+        recipient_type='patient', 
+        recipient_user_id=user_id
+    ).order_by(Notification.created_at.desc()).all()
+    
+    unread_count = sum(1 for n in notifications if not n.is_read)
+    
+    return render_template("patient-notifications.html", notifications=notifications, unread_count=unread_count)
+
+
+
+# =========================================================
+# SUPPORT MODULE
+# =========================================================
+
+@app.route("/patient/support")
+def patient_support():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    user = User.query.get(user_id)
+    tickets = SupportTicket.query.filter_by(user_id=user_id).order_by(SupportTicket.updated_at.desc()).all()
+    
+    return render_template("patient-support.html", user=user, tickets=tickets)
+
+
+@app.route("/patient/support/submit", methods=["POST"])
+def patient_support_submit():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    subject = request.form.get("subject", "").strip()
+    category = request.form.get("category", "").strip()
+    message = request.form.get("message", "").strip()
+    
+    if not subject or not category or not message:
+        flash("All fields are required.", "error")
+        return redirect(url_for('patient_support') + '#contact')
+        
+    import random
+    import string
+    
+    # Generate unique ticket number
+    while True:
+        ticket_number = 'TKT-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        if not SupportTicket.query.filter_by(ticket_number=ticket_number).first():
+            break
+            
+    attachment = request.files.get("attachment")
+    attachment_filename = None
+    if attachment and attachment.filename:
+        # In a real app we'd save it properly. For V1 MVP, just store the filename
+        attachment_filename = attachment.filename
+        
+    new_ticket = SupportTicket(
+        ticket_number=ticket_number,
+        user_id=user_id,
+        subject=subject,
+        category=category,
+        message=message,
+        attachment_filename=attachment_filename,
+        status="Open"
+    )
+    db.session.add(new_ticket)
+    db.session.commit()
+    
+    flash(f"Support ticket {ticket_number} created successfully.", "success")
+    return redirect(url_for('patient_support') + '#tickets')
+
+
+@app.route("/patient/support/ticket/<string:ticket_number>", methods=["GET", "POST"])
+def patient_support_ticket_detail(ticket_number):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    ticket = SupportTicket.query.filter_by(ticket_number=ticket_number).first_or_404()
+    
+    # IDOR Prevention
+    if ticket.user_id != user_id:
+        from flask import abort
+        abort(403)
+        
+    if request.method == "POST":
+        message = request.form.get("message", "").strip()
+        if not message:
+            flash("Message cannot be empty.", "error")
+            return redirect(url_for('patient_support_ticket_detail', ticket_number=ticket.ticket_number))
+            
+        new_msg = SupportTicketMessage(
+            ticket_id=ticket.id,
+            sender_type="patient",
+            message=message
+        )
+        ticket.updated_at = datetime.now(timezone.utc)
+        db.session.add(new_msg)
+        db.session.commit()
+        
+        return redirect(url_for('patient_support_ticket_detail', ticket_number=ticket.ticket_number))
+        
+    return render_template("patient-support-ticket.html", ticket=ticket)
+
+
+
+@app.route("/patient/request/<reference_id>/add-document", methods=["POST"])
+def patient_request_add_document(reference_id):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+    req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
+    
+    # Check authorization
+    if req.patient_profile.user_id != user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    if 'document' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+        
+    file = request.files['document']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+        
+    document_type = request.form.get('document_type', 'Other Medical Document')
+    
+    if file and allowed_file(file.filename):
+        original_filename = secure_filename(file.filename)
+        ext = original_filename.rsplit('.', 1)[1].lower()
+        storage_filename = f"{uuid.uuid4().hex}.{ext}"
+        
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], storage_filename)
+        file.save(file_path)
+        file_size = os.path.getsize(file_path)
+        
+        new_doc = MedicalDocument(
+            original_filename=original_filename,
+            storage_filename=storage_filename,
+            document_type=document_type,
+            mime_type=file.content_type,
+            file_size=file_size,
+            patient_profile_id=req.patient_profile_id,
+            treatment_request_id=req.id,
+            uploaded_by_id=user_id
+        )
+        db.session.add(new_doc)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+        
+    return jsonify({'error': 'Invalid file type'}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposals | MediBid Admin</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B', // Slate 800
+                        secondary: '#475569',
+                        accent: '#3B82F6', // Blue for highlights in admin
+                        textMain: '#0F172A',
+                        textMuted: '#64748B',
+                        bgLight: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex">
+
+    <!-- Sidebar (Desktop) -->
+    <aside class="w-64 bg-primary text-slate-300 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+        <div class="p-6 border-b border-slate-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-check" class="text-primary w-5 h-5"></i>
+                </div>
+                <span class="font-extrabold text-lg tracking-tight text-white">MediBid Admin</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-slate-800 text-white font-bold rounded-xl transition-colors">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-accent"></i>
+                Dashboard
+            </a>
+            
+            <a href="{{ url_for('admin_applications') }}" class="flex items-center justify-between px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+                    Hospital Applications
+                </div>
+                {% if pending_count > 0 %}
+                <span class="bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pending_count }}</span>
+                {% endif %}
+            </a>
+            
+            <a href="{{ url_for('admin_patients') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                Patients
+            </a>
+            
+            <!-- Replaced with direct hospital apps for now -->
+
+            <a href="{{ url_for('admin_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                Treatment Requests
+            </a>
+            <a href="{{ url_for('admin_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium rounded-xl transition-colors">
+                <i data-lucide="file-check" class="w-5 h-5"></i>
+                Submitted Proposals
+            </a>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span class="font-medium">Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="font-medium">Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+            
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+                <span class="font-medium">Platform Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+
+            <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+                <span class="font-medium">Audit Logs</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-700/50">
+            <a href="{{ url_for('admin_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-white hover:bg-red-500/20 font-bold rounded-xl transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+        <!-- Mobile Header -->
+        <header class="md:hidden bg-primary text-white border-b border-slate-700/50 p-4 flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-check" class="text-primary w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight">Admin</span>
+            </div>
+            <a href="{{ url_for('admin_logout') }}" class="p-2 text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+            </a>
+        </header>
+
+        <div class="p-6 md:p-10 lg:p-12 max-w-6xl mx-auto w-full">
+            <div class="mb-8">
+                <h1 class="text-3xl font-extrabold text-textMain tracking-tight">Treatment Proposals</h1>
+                <p class="text-textMuted mt-1">Review proposals submitted by hospitals to patients.</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm mb-8">
+                <form method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="flex-1 w-full">
+                        <label class="block text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Hospital</label>
+                        <select name="hospital_id" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent font-medium">
+                            <option value="">All Hospitals</option>
+                            {% for h in hospitals %}
+                            <option value="{{ h.id }}" {% if current_hospital == h.id|string %}selected{% endif %}>{{ h.hospital_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="block text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Status</label>
+                        <select name="status" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent font-medium text-textMain">
+                            <option value="">All Statuses</option>
+                            <option value="submitted" {% if current_status == 'submitted' %}selected{% endif %}>Submitted</option>
+                            <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>Draft</option>
+                            <option value="withdrawn" {% if current_status == 'withdrawn' %}selected{% endif %}>Withdrawn</option>
+                        </select>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <button type="submit" class="w-full md:w-auto bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-700 transition-colors shadow-sm">Filter</button>
+                    </div>
+                    {% if current_hospital or current_status %}
+                    <div class="w-full md:w-auto text-center">
+                        <a href="{{ url_for('admin_proposals') }}" class="text-textMuted hover:text-primary font-bold px-4 py-2.5 inline-block">Clear</a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-sm font-bold text-textMuted uppercase tracking-wider">
+                                <th class="px-6 py-4">Request Ref</th>
+                                <th class="px-6 py-4">Hospital</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Submitted</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            {% for proposal in proposals %}
+                            <tr class="hover:bg-slate-50/50 transition-colors group">
+                                <td class="px-6 py-4 font-bold text-textMain">
+                                    <a href="{{ url_for('admin_treatment_request_detail', reference_id=proposal.treatment_request.reference_id) }}" class="text-accent hover:underline">{{ proposal.treatment_request.reference_id }}</a>
+                                </td>
+                                <td class="px-6 py-4 font-medium text-textMain">
+                                    <a href="{{ url_for('admin_application_review', hospital_id=proposal.hospital.id) }}" class="hover:text-accent transition-colors">{{ proposal.hospital.hospital_name }}</a>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold {% if proposal.status == 'submitted' %}bg-emerald-100 text-emerald-700{% elif proposal.status == 'draft' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-700{% endif %}">
+                                        {{ proposal.status|title }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-textMuted">
+                                    {{ proposal.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    {% if proposal.status == 'submitted' %}
+                                    <a href="{{ url_for('admin_proposal_view', reference_id=proposal.treatment_request.reference_id, proposal_id=proposal.id) }}" class="inline-flex items-center gap-1.5 text-accent font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors">
+                                        View <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                    {% else %}
+                                    <span class="text-slate-400 text-sm font-medium">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-textMuted">
+                                    <i data-lucide="file-check" class="w-8 h-8 mx-auto mb-3 text-slate-300"></i>
+                                    <p class="font-medium">No proposals found matching your criteria.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

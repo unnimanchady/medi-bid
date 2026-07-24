@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Patient Dashboard | MediBid{% endblock %}</title>
+    {% block page_styles %}{% endblock %}
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B1D40', // Deep Navy
+                        secondary: '#0082CA', // Bright Blue
+                        textMain: '#1E293B',
+                        textMuted: '#64748B',
+                        bgLight: '#F7FAFC',
+                        success: '#10B981', 
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        // Soft UI Colors
+                        softBlue: '#EFF6FF',
+                        softTeal: '#ECFDF5',
+                        tealAccent: '#14B8A6',
+                        softLavender: '#F5F3FF',
+                        lavenderAccent: '#8B5CF6',
+                        softAmber: '#FFFBEB',
+                        amberAccent: '#D97706',
+                        softGreen: '#F0FDF4',
+                        greenAccent: '#15803D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                        'premium': '0 15px 35px -5px rgba(11,29,64,0.12)',
+                        'glow': '0 20px 40px -10px rgba(0,130,202,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.6s ease-out forwards;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        /* Drawer transitions */
+        .drawer-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .drawer-menu {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Profile dropdown */
+        #profile-dropdown {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        #profile-dropdown.open {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* Custom Scrollbar for Sidebar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex selection:bg-secondary selection:text-white">
+
+    <!-- DESKTOP SIDEBAR (Left Navigation) -->
+    <aside class="hidden md:flex flex-col w-64 lg:w-[280px] bg-[#051126] min-h-screen sticky top-0 flex-shrink-0 z-40 border-r border-gray-800 shadow-xl">
+        <!-- Logo Area -->
+        <div class="h-[70px] lg:h-[80px] flex items-center px-6 lg:px-8 border-b border-white/5">
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 lg:w-8 lg:h-8 flex-shrink-0">
+                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.2" stroke="#0082CA" stroke-width="2"/>
+                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
+                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
+                    <circle cx="10" cy="22" r="8" fill="#0082CA"/>
+                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-[20px] font-extrabold text-white leading-none tracking-tight">MediBid</span>
+                    <span class="text-[9px] text-white/50 font-bold uppercase tracking-widest mt-0.5">Patient Portal</span>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Navigation Links -->
+        <nav class="flex-grow py-6 px-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mb-1">Main Menu</p>
+            
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-secondary/15 text-white font-bold transition-all border border-secondary/20 shadow-sm">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-secondary"></i> Dashboard
+            </a>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="file-text" class="w-5 h-5"></i> My Requests
+                </div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="building-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Hospital Responses
+            </a>
+            
+            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="bar-chart-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Compare Proposals
+            </a>
+            
+            <a href="{{ url_for('patient_secure_messages') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="message-square" class="w-5 h-5 group-hover:text-white transition-colors"></i> Messages
+            </a>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left mt-1">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="folder" class="w-5 h-5"></i> Medical Documents
+                </div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="bell" class="w-5 h-5"></i> Notifications
+                </div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mt-6 mb-1">Account</p>
+            
+            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="user" class="w-5 h-5 group-hover:text-white transition-colors"></i> Profile & Settings
+            </a>
+            
+            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
+                <div class="flex items-center gap-3 font-medium">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i> Help & Support
+                </div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+        </nav>
+        
+        <!-- Bottom Action -->
+        <div class="p-4 border-t border-white/5 bg-white/[0.02]">
+            <button disabled title="Secure logout requires backend implementation" class="w-full flex items-center justify-between bg-white/5 text-white/50 px-4 py-3.5 rounded-xl transition-all font-medium text-[14px] cursor-not-allowed">
+                <div class="flex items-center gap-3"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</div>
+                <span class="text-[9px] font-extrabold bg-white/10 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MOBILE DRAWER & BACKDROP -->
+    <div id="mobile-overlay" class="drawer-overlay fixed inset-0 bg-primary/80 backdrop-blur-sm z-40 opacity-0 pointer-events-none md:hidden"></div>
+    
+    <aside id="mobile-drawer" class="drawer-menu fixed top-0 bottom-0 left-0 w-[280px] bg-[#051126] z-50 transform -translate-x-full flex flex-col shadow-2xl md:hidden overflow-y-auto custom-scrollbar border-r border-gray-800">
+        <!-- Close Button & Logo -->
+        <div class="h-[70px] flex items-center justify-between px-6 border-b border-white/5">
+            <span class="text-[20px] font-extrabold text-white tracking-tight">MediBid</span>
+            <button id="close-drawer-btn" class="p-2 text-white/60 hover:text-white bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <!-- Drawer Navigation Links (Same as Desktop) -->
+        <nav class="flex-grow py-6 px-4 flex flex-col gap-2">
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mb-1">Main Menu</p>
+            
+            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-secondary/15 text-white font-bold transition-all border border-secondary/20 shadow-sm">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-secondary"></i> Dashboard
+            </a>
+            
+            <button disabled class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 bg-transparent transition-all cursor-not-allowed text-left">
+                <div class="flex items-center gap-3 font-medium"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</div>
+                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
+            </button>
+            
+            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="building-2" class="w-5 h-5"></i> Hospital Responses
+            </a>
+            
+            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Compare Proposals
+            </a>
+            
+            <a href="{{ url_for('patient_secure_messages') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="message-square" class="w-5 h-5"></i> Messages
+            </a>
+            
+            <p class="px-3 text-[11px] font-bold text-white/30 uppercase tracking-widest mt-6 mb-1">Account</p>
+            
+            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i> Profile & Settings
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-white/5 bg-white/[0.02]">
+            <button disabled class="w-full flex items-center justify-between bg-white/5 text-white/50 px-4 py-3.5 rounded-xl transition-all font-medium text-[14px] cursor-not-allowed">
+                <div class="flex items-center gap-3"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</div>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-grow flex flex-col min-w-0 bg-bgLight relative">
+        
+        <!-- TOP HEADER -->
+        <header class="bg-white border-b border-gray-200 h-[70px] lg:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
+            
+            <!-- Mobile Header Left -->
+            <div class="flex items-center md:hidden">
+                <button id="open-drawer-btn" class="p-2 -ml-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center gap-2 ml-2">
+                    <span class="text-[18px] font-extrabold text-primary tracking-tight">MediBid</span>
+                </div>
+            </div>
+            
+            <!-- Desktop Header Left (Optional Breadcrumbs/Title) -->
+            <div class="hidden md:flex items-center">
+                <h2 class="text-[16px] font-bold text-primary">Patient Dashboard</h2>
+            </div>
+            
+            <!-- Header Right -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                
+                <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center gap-2.5 focus:outline-none hover:bg-gray-50 p-1.5 sm:pr-3 rounded-full transition-colors border border-transparent hover:border-gray-200">
+                        {% if user %}
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-softBlue border border-blue-100 flex items-center justify-center text-secondary font-extrabold text-[12px] sm:text-[13px] uppercase shadow-sm">
+                            {{ user.first_name[0]|title}}{{ user.last_name[0]|title}}
+                        </div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="text-[13px] font-bold text-textMain leading-none">{{ user.first_name|title}}</span>
+                        </div>
+                        {% else %}
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-softBlue border border-blue-100 flex items-center justify-center text-secondary font-extrabold text-[12px] sm:text-[13px] uppercase shadow-sm">
+                            G
+                        </div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="text-[13px] font-bold text-textMain leading-none">Guest</span>
+                        </div>
+                        {% endif %}
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                    </button>
+                    
+                    <div id="profile-dropdown" class="absolute right-0 top-[110%] w-64 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                        <div class="px-4 py-3 border-b border-gray-50 mb-1 flex items-center gap-3">
+                            {% if user %}
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-extrabold text-[14px] uppercase shadow-sm">
+                                {{ user.first_name[0]|title}}{{ user.last_name[0]|title}}
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <p class="text-[14px] font-bold text-textMain truncate">{{ user.first_name|title}} {{ user.last_name|title}}</p>
+                                <p class="text-[12px] text-textMuted truncate">{{ user.email }}</p>
+                            </div>
+                            {% else %}
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-extrabold text-[14px] uppercase shadow-sm">
+                                G
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <p class="text-[14px] font-bold text-textMain truncate">Guest User</p>
+                                <p class="text-[12px] text-textMuted truncate">guest@medibid.com</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="user" class="w-4 h-4 text-textMuted"></i> Profile Details</a>
+                        <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-3 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
+                        <div class="h-[1px] bg-gray-100 my-1"></div>
+                        <a href="{{ url_for('patient_logout') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors w-full text-left"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        
+<main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-[1400px] w-full mx-auto">
+    {% block content %}{% endblock %}
+
+<!-- FOOTER -->
+            <footer class="mt-8 border-t border-gray-200 pt-6 pb-2">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[14px] font-extrabold text-primary">MediBid</span>
+                        <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
+                    </div>
+                    <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
+                        <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
+                        <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
+                    </div>
+                </div>
+            </footer>
+            
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // Drawer Elements
+        const openDrawerBtn = document.getElementById('open-drawer-btn');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('mobile-overlay');
+        
+        function openDrawer() {
+            mobileDrawer.classList.remove('-translate-x-full');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+        
+        function closeDrawer() {
+            mobileDrawer.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            overlay.classList.remove('opacity-100');
+            document.body.style.overflow = '';
+        }
+
+        if (openDrawerBtn) openDrawerBtn.addEventListener('click', openDrawer);
+        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        
+        // Escape key to close drawer
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !mobileDrawer.classList.contains('-translate-x-full')) {
+                closeDrawer();
+            }
+        });
+
+        // Desktop Profile Dropdown
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('open');
+            });
+        }
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+
+    </script>
+    {% block page_scripts %}{% endblock %}
+</body>
+</html>

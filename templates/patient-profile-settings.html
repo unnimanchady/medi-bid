@@ -1,171 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile & Settings | MediBid</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0B1D40',
-                        secondary: '#0082CA',
-                        textMain: '#1E293B',
-                        textMuted: '#64748B',
-                        bgLight: '#F7FAFC',
-                        success: '#10B981', 
-                        warning: '#F59E0B',
-                        danger: '#EF4444',
-                        softBlue: '#EFF6FF',
-                        softTeal: '#ECFDF5',
-                        tealAccent: '#14B8A6',
-                        softLavender: '#F5F3FF',
-                        lavenderAccent: '#8B5CF6',
-                        softAmber: '#FFFBEB',
-                        amberAccent: '#D97706',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
-                    }
-                }
-            }
-        }
-    </script>
+{% extends "patient-layout.html" %}
 
-    <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out forwards;
-        }
-        
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        .dropdown-menu {
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            opacity: 0;
-            transform: scale(0.95);
-            pointer-events: none;
-        }
-        .dropdown-menu.open {
-            opacity: 1;
-            transform: scale(1);
-            pointer-events: auto;
-        }
+{% block title %}Patient Profile Settings | MediBid{% endblock %}
 
-        #mobile-menu {
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-        }
-        #mobile-menu.open {
-            max-height: 400px;
-            opacity: 1;
-        }
-        
-        /* Mobile vs Desktop Tab Styling Overrides */
-        @media (min-width: 768px) {
-            .nav-item.active {
-                background-color: #EFF6FF !important; /* softBlue */
-                border-left-width: 3px !important;
-                border-bottom-width: 0 !important;
-            }
-            .nav-item {
-                border-left-width: 3px !important;
-                border-bottom-width: 0 !important;
-            }
-        }
-    </style>
-</head>
-<body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-secondary selection:text-white">
-
-    <!-- AUTHENTICATED HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[70px] sm:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-50 shadow-sm">
-        <div class="flex items-center gap-6">
-            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="MediBid Home">
-                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" aria-hidden="true">
-                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
-                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
-                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
-                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-                <div class="flex flex-col">
-                    <span class="text-[18px] sm:text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
-                    <span class="text-[9px] sm:text-[10px] text-textMuted font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
-                </div>
-            </a>
-            
-            <nav class="hidden md:flex items-center gap-1 ml-6">
-                <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Dashboard</a>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">My Requests</a>
-                <a href="{{ url_for('patient_secure_messages') }}" class="px-4 py-2 rounded-lg text-textMuted hover:bg-gray-50 hover:text-primary font-semibold text-[14px] transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">Messages</a>
-            </nav>
-        </div>
-
-        <div class="flex items-center gap-3 sm:gap-5">
-            <button class="relative p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-full" aria-label="Notifications">
-                <i data-lucide="bell" class="w-5 h-5" aria-hidden="true"></i>
-                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
-            </button>
-
-            <div class="relative">
-                <button id="profile-btn" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-secondary rounded-full p-1 border border-transparent hover:border-gray-200 transition-colors bg-gray-50" aria-haspopup="true" aria-expanded="false">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px]">SJ</div>
-                    <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
-                </button>
-                
-                <div id="profile-dropdown" class="dropdown-menu absolute right-0 top-[110%] w-56 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
-                    <div class="px-4 py-3 border-b border-gray-50 mb-1">
-                        <p class="text-[14px] font-bold text-textMain truncate">{{ user.first_name|title }} {{ user.last_name|title }}</p>
-                        <p class="text-[12px] text-textMuted truncate">{{ user.email }}</p>
-                    </div>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-bold text-secondary bg-softBlue transition-colors"><i data-lucide="user" class="w-4 h-4"></i> My Profile</a>
-                    <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-medium text-textMain hover:bg-gray-50 hover:text-primary transition-colors"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account Settings</a>
-                    <div class="h-[1px] bg-gray-100 my-1"></div>
-                    <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
-                </div>
-            </div>
-
-            <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="Open Menu">
-                <i data-lucide="menu" class="w-6 h-6"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- MOBILE NAVIGATION -->
+{% block content %}
+<!-- MOBILE NAVIGATION -->
     <div id="mobile-menu" class="md:hidden bg-white border-b border-gray-100 w-full z-40 absolute top-[70px] shadow-sm">
         <nav class="flex flex-col p-4 gap-1">
             <a href="{{ url_for('patient_dashboard') }}" class="px-4 py-3 rounded-xl text-textMain font-semibold text-[15px] flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-5 h-5 text-textMuted"></i> Dashboard</a>
@@ -226,24 +64,10 @@
 
     </div>
 </main>
+{% endblock %}
 
-    <!-- FOOTER -->
-    <footer class="mt-auto border-t border-gray-200 bg-white py-6">
-        <div class="w-full max-w-[1100px] mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-2">
-                <span class="text-[14px] font-extrabold text-primary">MediBid</span>
-                <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
-            </div>
-            <div class="flex items-center gap-6 text-[13px] text-textMuted font-medium">
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
-                <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Help & Support</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script>
+{% block page_scripts %}
+<script>
         lucide.createIcons();
 
         // Mobile Menu & Profile Dropdown
@@ -345,5 +169,4 @@
             }, 800);
         }
     </script>
-</body>
-</html>
+{% endblock %}

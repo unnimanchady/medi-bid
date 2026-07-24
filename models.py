@@ -65,6 +65,20 @@ class User(db.Model):
         nullable=False,
         default=True
     )
+    
+    notify_email = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True,
+        server_default='1'
+    )
+    
+    notify_in_app = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=True,
+        server_default='1'
+    )
 
     created_at = db.Column(
         db.DateTime(timezone=True),
@@ -256,6 +270,9 @@ class MedicalDocument(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    title = db.Column(db.String(255), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    
     original_filename = db.Column(db.String(255), nullable=False)
     storage_filename = db.Column(db.String(255), nullable=False, unique=True)
     document_type = db.Column(db.String(100), nullable=False)
@@ -380,6 +397,7 @@ class Hospital(db.Model):
     reviewed_at = db.Column(db.DateTime(timezone=True), nullable=True)
     reviewed_by_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     rejection_reason = db.Column(db.Text, nullable=True)
+    admin_notes = db.Column(db.Text, nullable=True)
     
     reviewed_by = db.relationship("User", foreign_keys=[reviewed_by_id])
     
@@ -556,6 +574,10 @@ class TreatmentProposal(db.Model):
     additional_notes = db.Column(db.Text, nullable=True)
     valid_until = db.Column(db.Date, nullable=True)
     
+    # Patient persistence fields
+    patient_shortlisted = db.Column(db.Boolean, default=False, server_default='0', nullable=False)
+    patient_notes = db.Column(db.Text, nullable=True)
+    
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     submitted_at = db.Column(db.DateTime(timezone=True), nullable=True)
@@ -571,3 +593,108 @@ class CostLineItem(db.Model):
     
     description = db.Column(db.String(255), nullable=False)
     amount = db.Column(db.Numeric(12, 2), nullable=False)
+
+class MessageThread(db.Model):
+    __tablename__ = 'message_threads'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    treatment_request_id = db.Column(db.Integer, db.ForeignKey('treatment_requests.id'), nullable=False, index=True)
+    hospital_id = db.Column(db.Integer, db.ForeignKey('hospitals.id'), nullable=False, index=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    treatment_request = db.relationship('TreatmentRequest', backref=db.backref('message_threads', lazy=True, cascade='all, delete-orphan'))
+    hospital = db.relationship('Hospital', backref=db.backref('message_threads', lazy=True, cascade='all, delete-orphan'))
+    messages = db.relationship('Message', backref='thread', lazy='dynamic', cascade='all, delete-orphan', order_by='Message.created_at.asc()')
+    
+    __table_args__ = (
+        db.UniqueConstraint('treatment_request_id', 'hospital_id', name='uq_thread_request_hospital'),
+    )
+    
+    def __repr__(self):
+        return f"<MessageThread {self.id} Req:{self.treatment_request_id} Hosp:{self.hospital_id}>"
+
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    thread_id = db.Column(db.Integer, db.ForeignKey('message_threads.id'), nullable=False, index=True)
+    
+    sender_type = db.Column(db.String(20), nullable=False) # 'patient' or 'hospital'
+    sender_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True) # If patient
+    sender_hospital_id = db.Column(db.Integer, db.ForeignKey('hospitals.id'), nullable=True) # If hospital
+    
+    message_body = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    is_read = db.Column(db.Boolean, default=False, nullable=False)
+    
+    def __repr__(self):
+        return f"<Message {self.id} Thread:{self.thread_id} Sender:{self.sender_type}>"
+
+
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    recipient_type = db.Column(db.String(50), nullable=False) # 'patient', 'hospital', 'admin'
+    recipient_user_id = db.Column(db.Integer, nullable=False, index=True)
+    
+    title = db.Column(db.String(255), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    notification_type = db.Column(db.String(100), nullable=False)
+    
+    reference_type = db.Column(db.String(100), nullable=True)
+    reference_id = db.Column(db.String(100), nullable=True)
+    target_url = db.Column(db.String(255), nullable=True)
+    
+    is_read = db.Column(db.Boolean, default=False, nullable=False, index=True)
+    
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        index=True
+    )
+    
+    def __repr__(self):
+        return f"<Notification {self.id} {self.recipient_type}:{self.recipient_user_id} - {self.title}>"
+
+
+class SupportTicket(db.Model):
+    __tablename__ = "support_tickets"
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_number = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    
+    subject = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    attachment_filename = db.Column(db.String(255), nullable=True)
+    
+    status = db.Column(db.String(20), nullable=False, default="Open")
+    
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    
+    # Relationships
+    user = db.relationship('User', backref=db.backref('support_tickets', lazy=True, cascade='all, delete-orphan'))
+
+
+class SupportTicketMessage(db.Model):
+    __tablename__ = "support_ticket_messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('support_tickets.id'), nullable=False, index=True)
+    
+    sender_type = db.Column(db.String(20), nullable=False)  # 'patient' or 'admin'
+    message = db.Column(db.Text, nullable=False)
+    
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    
+    # Relationships
+    ticket = db.relationship('SupportTicket', backref=db.backref('messages', lazy=True, cascade='all, delete-orphan', order_by='SupportTicketMessage.created_at.asc()'))
+

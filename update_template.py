@@ -1,0 +1,336 @@
+import os
+
+template_content = """{% extends "patient-layout.html" %}
+
+{% block title %}Compare Proposals - MediBid{% endblock %}
+
+{% block content %}
+        <!-- PAGE HEADER -->
+        <header class="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm no-print">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 max-w-[1400px] w-full mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg bg-gray-50 border border-gray-100" aria-label="Open Menu">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-[20px] sm:text-[24px] font-extrabold text-primary tracking-tight">Compare Proposals</h1>
+                        <p class="text-[13px] text-textMuted mt-0.5">Side-by-side comparison of your shortlisted hospital proposals.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3 self-end sm:self-auto">
+                    <button class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all">
+                        <i data-lucide="printer" class="w-4 h-4 text-textMuted"></i> Print
+                    </button>
+                    <button class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all">
+                        <i data-lucide="download" class="w-4 h-4 text-textMuted"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-[1400px] w-full mx-auto">
+            
+            {% if not compare_items %}
+            <!-- EMPTY STATE -->
+            <div class="bg-white border border-gray-200 rounded-[20px] shadow-sm p-10 flex flex-col items-center justify-center text-center opacity-0 animate-fade-in">
+                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-5 border border-gray-100">
+                    <i data-lucide="layout-list" class="w-10 h-10 text-gray-400"></i>
+                </div>
+                <h2 class="text-xl font-extrabold text-primary mb-2">No Proposals Selected</h2>
+                <p class="text-textMuted text-[14px] max-w-md mx-auto mb-6">You haven't selected any proposals for comparison, or the request you are viewing does not have any active proposals yet.</p>
+                <a href="{{ url_for('patient_dashboard') }}" class="bg-primary text-white px-6 py-2.5 rounded-xl font-bold text-[14px] hover:bg-blue-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                    Return to Dashboard
+                </a>
+            </div>
+            {% else %}
+            
+            <!-- CONTROLS & INFO -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-0 animate-fade-in no-print">
+                <div class="flex items-center gap-2 text-[13px] text-textMuted">
+                    <i data-lucide="info" class="w-4 h-4 text-secondary"></i>
+                    Comparing <strong class="text-textMain">{{ compare_items|length }}</strong> proposals for <strong class="text-textMain">{{ target_req.treatment_type }}</strong>.
+                </div>
+                <!-- Toggle Switch -->
+                <div class="flex items-center gap-3 self-end sm:self-auto bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm">
+                    <span class="text-[13px] font-bold text-textMain">Highlight Differences</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="highlight-toggle" class="sr-only peer">
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-secondary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- COMPARISON HEADERS (STICKY ON SCROLL) -->
+            <!-- We dynamically size the grid based on how many items + 1 label column -->
+            <div class="grid grid-cols-1 md:grid-cols-{{ 1 + compare_items|length }} gap-4 opacity-0 animate-fade-in stagger-1 sticky top-[73px] sm:top-[85px] z-20 bg-bgLight pt-2 pb-4 no-print">
+                <!-- Label Column (Empty in Header) -->
+                <div class="hidden md:block col-span-1"></div>
+                
+                {% set colors = ['primary', 'lavenderAccent', 'secondary'] %}
+                {% set bg_colors = ['bg-primary', 'bg-lavenderAccent', 'bg-secondary'] %}
+                {% set text_colors = ['text-primary', 'text-lavenderAccent', 'text-secondary'] %}
+
+                {% for item in compare_items %}
+                {% set color_idx = loop.index0 % 3 %}
+                <!-- Header {{ loop.index }} -->
+                <div class="col-span-1 flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group hover:border-gray-300 transition-colors">
+                    <div class="absolute top-0 left-0 w-1 h-full {{ bg_colors[color_idx] }}"></div>
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building" class="w-5 h-5 {{ text_colors[color_idx] }} opacity-50"></i>
+                        </div>
+                        {% if item.hospital.verification_status == 'verified' %}
+                        <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-1.5 py-0.5 rounded uppercase text-[9px] font-bold tracking-wider">
+                            <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col mt-auto">
+                        <h3 class="text-[15px] font-bold text-textMain leading-tight truncate" title="{{ item.hospital.name }}">{{ item.hospital.name }}</h3>
+                        <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5 truncate"><i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i> {{ item.hospital.city }}, {{ item.hospital.country }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- COMPARISON SECTIONS -->
+            <div class="flex flex-col gap-5 opacity-0 animate-fade-in stagger-3 pb-8">
+                
+                <!-- Category 1: Hospital Overview -->
+                <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-overview">
+                        <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="building-2" class="w-5 h-5 text-secondary"></i> Hospital Overview</h2>
+                        <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                    </button>
+                    <div id="section-overview" class="accordion-wrapper">
+                        <div class="accordion-inner">
+                            <!-- Accreditation -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Accreditation</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col"><span class="text-[14px] text-textMain font-medium">{{ item.hospital.accreditations or 'N/A' }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Founded -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Founded Year</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col"><span class="text-[14px] text-textMain">{{ item.hospital.established_year or 'N/A' }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 2: Medical Expertise -->
+                <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-expertise">
+                        <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="stethoscope" class="w-5 h-5 text-secondary"></i> Medical Expertise</h2>
+                        <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                    </button>
+                    <div id="section-expertise" class="accordion-wrapper">
+                        <div class="accordion-inner">
+                            <!-- Treatment Approach -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Treatment Approach</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col"><span class="text-[14px] text-textMain">{{ item.proposal.treatment_approach or 'See Full Proposal' }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 3: Proposal Details -->
+                <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
+                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-financials">
+                        <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="wallet" class="w-5 h-5 text-secondary"></i> Financials & Timeline</h2>
+                        <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
+                    </button>
+                    <div id="section-financials" class="accordion-wrapper">
+                        <div class="accordion-inner">
+                            <!-- Estimated Cost -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors comparison-row">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Total Estimated Cost</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block comparison-cell">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col"><span class="text-[16px] font-extrabold text-primary">${{ item.proposal.estimated_cost }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Length of Stay -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors comparison-row">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Total Duration</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block comparison-cell">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col"><span class="text-[14px] font-bold text-textMain">{{ item.proposal.duration_weeks }} Weeks</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Inclusions -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Inclusions / Exclusions</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="text-[13px] text-textMain whitespace-pre-line">{{ item.proposal.inclusions_exclusions }}</div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Validity -->
+                            <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5 border-t border-gray-100 hover:bg-gray-50/30 transition-colors">
+                                <div class="md:col-span-1 font-bold text-textMain text-[14px] flex items-center pb-2 md:pb-0 border-b border-gray-100 md:border-b-0">Offer Validity</div>
+                                {% for item in compare_items %}
+                                <div class="md:col-span-1 flex items-start gap-3 md:block">
+                                    <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
+                                    <div class="flex flex-col"><span class="text-[13px] text-textMuted flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Valid until {{ item.proposal.validity_date.strftime('%b %d, %Y') if item.proposal.validity_date else 'N/A' }}</span></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Category (Always Open) -->
+                <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm mt-4 no-print">
+                    <div class="w-full flex items-center p-4 sm:p-5 bg-gray-50 border-b border-gray-200">
+                        <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary">Your Next Steps</h2>
+                    </div>
+                    <div class="flex flex-col md:grid md:grid-cols-{{ 1 + compare_items|length }} gap-4 p-4 sm:p-5">
+                        <div class="md:col-span-1 hidden md:block text-[14px] font-medium text-textMuted pt-2 pr-4">
+                            Review the complete proposal or save your private thoughts for each option. Shortlist your favorites to decide later.
+                        </div>
+                        
+                        {% for item in compare_items %}
+                        <!-- Hosp {{ loop.index }} Actions -->
+                        <div class="md:col-span-1 flex flex-col gap-3 pb-6 border-b border-gray-100 md:border-b-0 md:pb-0">
+                            <span class="md:hidden text-[13px] font-bold text-textMain mb-2 flex items-center gap-2">
+                                <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold shadow-sm">{{ loop.index }}</div> {{ item.hospital.name }}
+                            </span>
+                            
+                            <a href="{{ url_for('patient_treatment_proposal_details', proposal_id=item.proposal.id) }}" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-blue-800 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-primary">
+                                View Full Proposal
+                            </a>
+                            <a href="{{ url_for('patient_hospital_profile', hospital_id=item.hospital.id) }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                View Hospital Profile
+                            </a>
+                            <button class="bg-white border border-gray-200 text-textMuted hover:text-lavenderAccent font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-purple-50 flex items-center justify-center gap-2 w-full focus:outline-none">
+                                <i data-lucide="star" class="w-4 h-4"></i> Shortlist
+                            </button>
+                            
+                            <div class="mt-3">
+                                <label class="text-[12px] font-bold text-textMuted mb-1.5 block flex items-center justify-between">
+                                    My Notes
+                                    <i data-lucide="lock" class="w-3 h-3 text-gray-300" title="Private to you"></i>
+                                </label>
+                                <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[13px] text-textMain focus:outline-none focus:ring-2 focus:ring-secondary resize-none transition-shadow focus:bg-white" rows="3" placeholder="Add a private note..."></textarea>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+            {% endif %}
+        </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Accordion Logic
+    document.querySelectorAll('.accordion-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const targetContent = document.getElementById(targetId);
+            const icon = btn.querySelector('.lucide-chevron-up, .lucide-chevron-down');
+            
+            const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                // Collapse
+                targetContent.style.height = `${targetContent.scrollHeight}px`; // Explicit height
+                // Force repaint
+                targetContent.offsetHeight; 
+                targetContent.style.height = '0px';
+                btn.setAttribute('aria-expanded', 'false');
+                icon.classList.replace('lucide-chevron-up', 'lucide-chevron-down');
+                icon.style.transform = 'rotate(180deg)';
+                btn.classList.add('bg-white');
+                btn.classList.remove('bg-gray-50');
+            } else {
+                // Expand
+                targetContent.style.height = `${targetContent.scrollHeight}px`;
+                btn.setAttribute('aria-expanded', 'true');
+                icon.classList.replace('lucide-chevron-down', 'lucide-chevron-up');
+                icon.style.transform = 'rotate(0deg)';
+                btn.classList.add('bg-gray-50');
+                btn.classList.remove('bg-white');
+                
+                // Cleanup inline height after transition
+                targetContent.addEventListener('transitionend', function handler() {
+                    if (btn.getAttribute('aria-expanded') === 'true') {
+                        targetContent.style.height = 'auto';
+                    }
+                    targetContent.removeEventListener('transitionend', handler);
+                });
+            }
+        });
+    });
+
+    // Highlight Differences Logic
+    const toggleBtn = document.getElementById('highlight-toggle');
+    if(toggleBtn) {
+        toggleBtn.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            const rows = document.querySelectorAll('.comparison-row');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('.comparison-cell span');
+                if (cells.length > 1) {
+                    const firstValue = cells[0].textContent.trim();
+                    let hasDifference = false;
+                    for (let i = 1; i < cells.length; i++) {
+                        if (cells[i].textContent.trim() !== firstValue) {
+                            hasDifference = true;
+                            break;
+                        }
+                    }
+                    
+                    if (hasDifference && isChecked) {
+                        row.classList.add('bg-yellow-50/50');
+                        cells.forEach(cell => {
+                            cell.classList.add('text-yellow-800');
+                        });
+                    } else {
+                        row.classList.remove('bg-yellow-50/50');
+                        cells.forEach(cell => {
+                            cell.classList.remove('text-yellow-800');
+                        });
+                    }
+                }
+            });
+        });
+    }
+</script>
+{% endblock %}
+"""
+
+with open('templates/patient-compare-hospitals.html', 'w', encoding='utf-8') as f:
+    f.write(template_content)
+    
+print("patient-compare-hospitals.html updated successfully with dynamic jinja grid!")
