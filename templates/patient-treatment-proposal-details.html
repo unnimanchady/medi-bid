@@ -43,6 +43,13 @@
             
             <div class="flex flex-col sm:items-end gap-3 w-full sm:w-auto">
                 <div class="flex items-center gap-2 no-print self-start sm:self-auto">
+                    <form action="{{ url_for('patient_secure_messages_start') }}" method="POST" class="inline">
+                        <input type="hidden" name="treatment_request_id" value="{{ request.id }}">
+                        <input type="hidden" name="hospital_id" value="{{ hospital.id }}">
+                        <button type="submit" class="flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-bold text-[13.5px] hover:bg-blue-600 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+                            <i data-lucide="message-square" class="w-4 h-4"></i> Message Hospital
+                        </button>
+                    </form>
                     <button onclick="window.print()" class="text-textMuted hover:text-primary bg-white border border-gray-200 p-2 rounded-lg transition-colors focus:outline-none shadow-sm" aria-label="Print Proposal" title="Print">
                         <i data-lucide="printer" class="w-4 h-4"></i>
                     </button>
@@ -74,14 +81,20 @@
             
             <div class="flex flex-col flex-grow">
                 <div class="flex flex-wrap items-center gap-3 mb-1.5">
-                    <h2 class="text-[20px] sm:text-[22px] font-extrabold text-primary leading-tight">{{ hospital.display_name or hospital.legal_name }}</h2>
+                    <h2 class="text-[20px] sm:text-[22px] font-extrabold text-primary leading-tight">{{ hospital.display_name or hospital.legal_name or 'Not provided' }}</h2>
                     <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-2 py-0.5 rounded uppercase text-[10px] font-bold tracking-wider">
                         <i data-lucide="shield-check" class="w-3 h-3"></i> Verified Partner
                     </div>
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-y-1.5 gap-x-3 text-[13.5px] text-textMuted mb-3">
-                    <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4"></i> {{ hospital.city }}, {{ hospital.country }}</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4"></i> 
+                        {% set loc_parts = [] %}
+                        {% if hospital.city and hospital.city != 'None' %}{% set _ = loc_parts.append(hospital.city) %}{% endif %}
+                        {% if hospital.state_region and hospital.state_region != 'None' %}{% set _ = loc_parts.append(hospital.state_region) %}{% endif %}
+                        {% if hospital.country and hospital.country != 'None' %}{% set _ = loc_parts.append(hospital.country) %}{% endif %}
+                        {{ loc_parts|join(', ') if loc_parts else 'Not provided' }}
+                    </span>
                 </div>
             </div>
         </div>

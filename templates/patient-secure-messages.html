@@ -15,12 +15,12 @@
     <!-- MAIN CHAT INTERFACE -->
     <main class="w-full max-w-[1400px] mx-auto p-0 sm:p-4 md:p-6 flex flex-col flex-grow chat-container-height relative">
         
-        <!-- BREADCRUMBS (Hidden on small mobile for space) -->
+        <!-- BREADCRUMBS -->
         <div class="hidden sm:flex items-center justify-between mb-4 flex-shrink-0 px-4 sm:px-0">
             <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2">
                 <a href="{{ url_for('patient_dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
-                <a href="{{ url_for('patient_hospital_responses') }}" class="hover:text-primary transition-colors">My Requests</a>
+                <a href="{{ url_for('patient_requests') }}" class="hover:text-primary transition-colors">My Requests</a>
                 <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
                 <span class="text-textMain font-bold">Secure Communication</span>
             </nav>
@@ -39,281 +39,157 @@
                         <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                         <input type="text" placeholder="Search Hospital or Request ID..." class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors" aria-label="Search Messages">
                     </div>
-                    <!-- Filters -->
-                    <div class="flex gap-2 mt-4 overflow-x-auto hide-scrollbar pb-1">
-                        <button class="bg-primary text-white px-3.5 py-1.5 rounded-lg text-[12px] font-bold flex-shrink-0 focus:outline-none">All</button>
-                        <button class="bg-white border border-gray-200 text-textMuted hover:bg-gray-50 px-3.5 py-1.5 rounded-lg text-[12px] font-bold flex-shrink-0 flex items-center gap-1.5 focus:outline-none transition-colors">
-                            Action Required <span class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px]">1</span>
-                        </button>
-                        <button class="bg-white border border-gray-200 text-textMuted hover:bg-gray-50 px-3.5 py-1.5 rounded-lg text-[12px] font-bold flex-shrink-0 focus:outline-none transition-colors">Unread</button>
-                    </div>
                 </div>
 
                 <!-- List Items -->
-                <div class="flex-grow overflow-y-auto custom-scrollbar bg-white md:bg-transparent">
-                    
-                    <!-- Active/Selected Conversation -->
-                    <button class="conv-item w-full text-left p-4 border-b border-gray-100 bg-softBlue/30 hover:bg-softBlue/40 transition-colors flex gap-3 relative focus:outline-none">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
-                        <div class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="building-2" class="w-6 h-6 text-secondary opacity-80"></i>
+                <div class="flex-grow overflow-y-auto custom-scrollbar bg-white md:bg-transparent flex flex-col">
+                    {% if threads and threads|length > 0 %}
+                        {% for thread in threads %}
+                        <a href="{{ url_for('patient_secure_messages', thread_id=thread.id) }}" class="conv-item w-full text-left p-4 border-b border-gray-100 {% if active_thread and thread.id == active_thread.id %}bg-softBlue/30 hover:bg-softBlue/40{% else %}bg-white hover:bg-gray-50{% endif %} transition-colors flex gap-3 relative focus:outline-none">
+                            {% if active_thread and thread.id == active_thread.id %}
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+                            {% endif %}
+                            <div class="w-12 h-12 rounded-full {% if active_thread and thread.id == active_thread.id %}bg-white{% else %}bg-gray-50{% endif %} border border-gray-200 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="building-2" class="w-6 h-6 {% if active_thread and thread.id == active_thread.id %}text-secondary opacity-80{% else %}text-gray-400{% endif %}"></i>
+                            </div>
+                            <div class="flex-grow min-w-0 flex flex-col">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="font-bold text-[14px] text-primary truncate pr-2">{{ (thread.hospital.display_name or thread.hospital.legal_name) }}</span>
+                                    <span class="text-[11px] {% if active_thread and thread.id == active_thread.id %}text-secondary{% else %}text-textMuted{% endif %} font-bold whitespace-nowrap">{{ thread.updated_at.strftime('%b %d') }}</span>
+                                </div>
+                                <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: {{ thread.treatment_request.reference_id }}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[13px] text-textMain font-medium truncate pr-2">
+                                        {% set all_msgs = thread.messages.all() %}
+                                        {% set last_msg = all_msgs[-1] if all_msgs else None %}
+                                        {% if last_msg %}
+                                            {% if last_msg.sender_type == 'patient' %}You: {% endif %}{{ last_msg.message_body }}
+                                        {% else %}
+                                            <span class="italic text-gray-400">No messages yet</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <!-- SAFE EMPTY STATE -->
+                        <div class="flex-grow flex flex-col items-center justify-center text-center px-4 opacity-70 p-4">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-200">
+                                <i data-lucide="message-square-off" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-[16px] font-extrabold text-primary mb-1">No messages yet.</h3>
+                            <p class="text-[13px] text-textMuted max-w-[250px]">
+                                Messages with healthcare providers will appear here when a conversation is started.
+                            </p>
                         </div>
-                        <div class="flex-grow min-w-0 flex flex-col">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="font-bold text-[14px] text-primary truncate pr-2">Apollo Hospitals</span>
-                                <span class="text-[11px] text-secondary font-bold whitespace-nowrap">11:15 AM</span>
-                            </div>
-                            <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: MB-2026-8A39C2</div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[13px] text-textMain font-medium truncate pr-2">Thank you for getting back to me...</span>
-                                <!-- Unread dot/count if any -->
-                            </div>
-                            <div class="mt-2.5 flex flex-wrap gap-1.5">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-amberAccent bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded flex items-center gap-1"><i data-lucide="file-question" class="w-3 h-3"></i> Clarification</span>
-                            </div>
-                        </div>
-                    </button>
-
-                    <!-- Unread Conversation -->
-                    <button class="conv-item w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors flex gap-3 focus:outline-none bg-white">
-                        <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="building" class="w-6 h-6 text-gray-400"></i>
-                        </div>
-                        <div class="flex-grow min-w-0 flex flex-col">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="font-extrabold text-[14px] text-textMain truncate pr-2">Bumrungrad International</span>
-                                <span class="text-[11px] text-textMain font-bold whitespace-nowrap">Yesterday</span>
-                            </div>
-                            <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: MB-2026-8A39C2</div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[13px] font-bold text-textMain truncate pr-2">Please find the updated estimate attached...</span>
-                                <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">1</span>
-                            </div>
-                        </div>
-                    </button>
-
-                    <!-- Read Conversation -->
-                    <button class="conv-item w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors flex gap-3 focus:outline-none bg-white">
-                        <div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="building" class="w-6 h-6 text-gray-400"></i>
-                        </div>
-                        <div class="flex-grow min-w-0 flex flex-col">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="font-bold text-[14px] text-textMain truncate pr-2">Mount Elizabeth Hospital</span>
-                                <span class="text-[11px] text-textMuted font-medium whitespace-nowrap">Jul 12</span>
-                            </div>
-                            <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: MB-2026-B94F2X</div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-[13px] text-textMuted truncate pr-2">We look forward to receiving your reports.</span>
-                            </div>
-                        </div>
-                    </button>
-                    
+                    {% endif %}
                 </div>
             </div>
 
             <!-- RIGHT PANEL: Active Chat -->
-            <div id="active-chat" class="w-full flex flex-col flex-grow bg-white md:bg-bgLight relative z-10 h-full hidden md:flex">
+            <div id="active-chat" class="w-full flex flex-col flex-grow bg-white md:bg-bgLight relative z-10 h-full {% if not active_thread %}hidden md:flex items-center justify-center{% else %}flex{% endif %}">
+                {% if active_thread %}
                 
                 <!-- Chat Header (Sticky) -->
                 <div class="bg-white border-b border-gray-200 px-3 sm:px-5 py-3 sm:py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-sm relative">
                     <div class="flex items-center gap-2 sm:gap-4 min-w-0">
-                        <button id="back-to-list-btn" class="md:hidden p-2 -ml-2 text-textMuted hover:text-primary rounded-lg focus:outline-none transition-colors" aria-label="Back to Messages">
+                        <a href="{{ url_for('patient_secure_messages') }}" id="back-to-list-btn" class="md:hidden p-2 -ml-2 text-textMuted hover:text-primary rounded-lg focus:outline-none transition-colors" aria-label="Back to Messages">
                             <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        </button>
+                        </a>
                         <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
                             <i data-lucide="building-2" class="w-5 h-5 sm:w-6 sm:h-6 text-secondary opacity-70"></i>
                         </div>
                         <div class="flex flex-col min-w-0">
                             <div class="flex items-center gap-1.5 sm:gap-2">
-                                <span class="font-extrabold text-[15px] sm:text-[17px] text-primary truncate">Apollo Hospitals</span>
+                                <span class="font-extrabold text-[15px] sm:text-[17px] text-primary truncate">{{ (active_thread.hospital.display_name or active_thread.hospital.legal_name) }}</span>
                                 <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-greenAccent flex-shrink-0" title="Verified by MediBid"></i>
                             </div>
                             <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] sm:text-[12px] text-textMuted truncate mt-0.5">
-                                <span class="hidden sm:inline">New Delhi, India</span> <span class="text-gray-300 hidden sm:inline">•</span>
-                                <span class="uppercase tracking-widest font-mono font-medium">Req: MB-2026-8A39C2</span>
+                                <span class="uppercase tracking-widest font-mono font-medium">Req: {{ active_thread.treatment_request.reference_id }}</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
-                        <!-- Contextual Actions -->
-                        {% if proposal %}
-                        <a href="{{ url_for('patient_treatment_proposal_details', proposal_id=proposal.id) }}" class="hidden lg:flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 hover:text-secondary px-3.5 py-1.5 rounded-lg text-[12px] font-bold text-textMain transition-colors focus:outline-none shadow-sm">
-                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> View Proposal
-                        </a>
-                        {% endif %}
-                        <a href="{{ url_for('patient_hospital_profile') }}" class="hidden md:flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-50 hover:text-secondary px-3.5 py-1.5 rounded-lg text-[12px] font-bold text-textMain transition-colors focus:outline-none shadow-sm">
-                            <i data-lucide="building" class="w-3.5 h-3.5"></i> Profile
-                        </a>
-                        <!-- Mobile Dropdown Trigger -->
-                        <button class="p-2 text-textMuted hover:bg-gray-50 rounded-lg focus:outline-none transition-colors" aria-label="More Options">
-                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
-                        </button>
                     </div>
                 </div>
 
                 <!-- Emergency Notice -->
                 <div class="bg-red-50 border-b border-red-100 px-4 py-2 flex items-center justify-center gap-2 text-[11.5px] sm:text-[12px] text-danger font-medium flex-shrink-0 z-0">
                     <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-                    <span class="text-center">For medical emergencies, contact local emergency services. This chat is not an emergency service.</span>
+                    <span class="text-center">For medical emergencies, contact local emergency services.</span>
                 </div>
 
                 <!-- Messages Area (Scrollable) -->
                 <div class="flex-grow overflow-y-auto custom-scrollbar p-4 sm:p-5 flex flex-col gap-5 bg-white md:bg-bgLight">
+                    {% set msgs = active_thread.messages.all() %}
+                    {% if msgs %}
+                        {% for msg in msgs %}
+                            {% if msg.sender_type == 'hospital' %}
+                            <!-- Hospital Message -->
+                            <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] animate-fade-in">
+                                <div class="w-8 h-8 rounded-full bg-white border border-gray-200 items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
+                                    <i data-lucide="building" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                                <div class="flex flex-col gap-1 w-full">
+                                    <div class="flex items-baseline gap-2 ml-1">
+                                        <span class="text-[12px] font-bold text-textMuted">{{ (active_thread.hospital.display_name or active_thread.hospital.legal_name) }}</span>
+                                        <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tl-sm shadow-sm leading-relaxed whitespace-pre-wrap">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- Patient Message -->
+                            <div class="flex justify-end gap-3 max-w-[95%] lg:max-w-[80%] ml-auto mt-2 animate-fade-in">
+                                <div class="flex flex-col gap-1 items-end w-full">
+                                    <div class="flex items-baseline gap-2 mr-1">
+                                        <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                        <span class="text-[12px] font-bold text-textMuted">You</span>
+                                    </div>
+                                    <div class="bg-softBlue border border-blue-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tr-sm shadow-sm leading-relaxed text-left w-full sm:w-auto sm:max-w-full whitespace-pre-wrap">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="flex-grow flex flex-col items-center justify-center text-center px-4 opacity-70">
+                            <i data-lucide="message-square" class="w-8 h-8 text-gray-300 mb-2"></i>
+                            <p class="text-[13px] text-textMuted max-w-[250px]">Start the conversation by sending a message.</p>
+                        </div>
+                    {% endif %}
                     
-                    <!-- Date Separator -->
-                    <div class="flex justify-center my-2">
-                        <span class="bg-gray-100 text-textMuted text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Today, July 15</span>
-                    </div>
-
-                    <!-- System Event -->
-                    <div class="flex justify-center">
-                        <div class="bg-white border border-gray-200 text-textMuted text-[12px] font-medium px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-center max-w-sm">
-                            <i data-lucide="clipboard-check" class="w-4 h-4 text-secondary flex-shrink-0"></i> 
-                            Treatment Estimate & Proposal submitted by Apollo Hospitals.
-                        </div>
-                    </div>
-
-                    <!-- Hospital Message (Standard) -->
-                    <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] opacity-0 animate-fade-in stagger-1">
-                        <div class="w-8 h-8 rounded-full bg-white border border-gray-200 items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
-                            <i data-lucide="building" class="w-4 h-4 text-gray-400"></i>
-                        </div>
-                        <div class="flex flex-col gap-1 w-full">
-                            <div class="flex items-baseline gap-2 ml-1">
-                                <span class="text-[12px] font-bold text-textMuted">Apollo Hospitals</span>
-                                <span class="text-[11px] text-gray-400 font-medium">10:40 AM</span>
-                            </div>
-                            <div class="bg-white border border-gray-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tl-sm shadow-sm leading-relaxed">
-                                Dear Sarah, we have reviewed your initial inquiry and submitted our formal Treatment Proposal. To refine the clinical plan and confirm the suitability for the minimally invasive approach, our medical board requires a bit more information.
-                                
-                                <div class="mt-3 text-[11px] text-textMuted italic flex items-center gap-1.5 border-t border-gray-100 pt-2">
-                                    <i data-lucide="languages" class="w-3.5 h-3.5"></i> Translated from Hindi. <a href="#" class="text-secondary hover:underline font-medium ml-1">View Original</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hospital Message (Structured: Document Request) -->
-                    <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] opacity-0 animate-fade-in stagger-1">
-                        <div class="w-8 h-8 flex-shrink-0 hidden sm:block"></div>
-                        <div class="bg-softLavender/30 border border-purple-200 rounded-[16px] rounded-tl-sm p-4 sm:p-5 w-full shadow-sm">
-                            <div class="flex items-start sm:items-center gap-3 mb-4">
-                                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm border border-purple-100 flex-shrink-0">
-                                    <i data-lucide="file-text" class="w-4 h-4 text-lavenderAccent"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <h4 class="text-[14.5px] font-bold text-primary leading-tight">Medical Document Requested</h4>
-                                    <div class="text-[12px] text-textMuted mt-0.5">Requested by Dr. Amit Singh</div>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded-xl p-4 border border-purple-100 mb-4 shadow-sm">
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <div class="sm:col-span-1">
-                                        <div class="text-[11.5px] text-textMuted font-medium uppercase tracking-wider mb-1">Document Type</div>
-                                        <div class="text-[14px] font-bold text-textMain">Recent MRI Scan (Cardiac)</div>
-                                    </div>
-                                    <div class="sm:col-span-2">
-                                        <div class="text-[11.5px] text-textMuted font-medium uppercase tracking-wider mb-1">Instructions</div>
-                                        <div class="text-[13.5px] text-textMain leading-relaxed">Please provide the complete written report and DICOM image files if available, dated within the last 30 days.</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                                <div class="flex items-center justify-center gap-1.5 text-[12px] font-bold text-amberAccent bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg w-full sm:w-auto">
-                                    <i data-lucide="clock" class="w-3.5 h-3.5"></i> Pending Upload
-                                </div>
-                                <button class="bg-white border border-purple-200 text-lavenderAccent hover:bg-purple-50 hover:border-lavenderAccent px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all focus:outline-none flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm">
-                                    <i data-lucide="upload" class="w-4 h-4"></i> Upload Document
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hospital Message (Structured: Clarification) -->
-                    <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] opacity-0 animate-fade-in stagger-2">
-                        <div class="w-8 h-8 flex-shrink-0 hidden sm:block"></div>
-                        <div class="bg-softAmber/30 border border-amber-200 rounded-[16px] rounded-tl-sm p-4 sm:p-5 w-full shadow-sm">
-                            <div class="flex items-start sm:items-center gap-3 mb-4">
-                                <div class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-sm border border-amber-100 flex-shrink-0">
-                                    <i data-lucide="help-circle" class="w-4 h-4 text-amberAccent"></i>
-                                </div>
-                                <div class="flex flex-col">
-                                    <h4 class="text-[14.5px] font-bold text-primary leading-tight">Clarification Requested</h4>
-                                    <div class="text-[12px] text-textMuted mt-0.5">Regarding Travel Timeframe</div>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded-xl p-4 border border-amber-100 mb-4 shadow-sm text-[14px] text-textMain leading-relaxed">
-                                Could you confirm if you are able to travel within the next 2-3 weeks? This will help us tentatively block the primary surgeon's schedule and organize visa assistance letters if required.
-                            </div>
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                                <div class="text-[12.5px] font-medium text-textMuted text-center sm:text-left">
-                                    Awaiting your reply...
-                                </div>
-                                <button class="bg-white border border-amber-200 text-amberAccent hover:bg-amber-50 hover:border-amberAccent px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all focus:outline-none flex items-center justify-center gap-2 w-full sm:w-auto shadow-sm">
-                                    <i data-lucide="reply" class="w-4 h-4"></i> Provide Information
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Patient Message (Reply) -->
-                    <div class="flex justify-end gap-3 max-w-[95%] lg:max-w-[80%] ml-auto mt-2 opacity-0 animate-fade-in stagger-3">
-                        <div class="flex flex-col gap-1 items-end w-full">
-                            <div class="flex items-baseline gap-2 mr-1">
-                                <span class="text-[11px] text-gray-400 font-medium">11:15 AM</span>
-                                <span class="text-[12px] font-bold text-textMuted">You</span>
-                            </div>
-                            <div class="bg-softBlue border border-blue-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tr-sm shadow-sm leading-relaxed text-left w-full sm:w-auto sm:max-w-full">
-                                Thank you for getting back to me so quickly. Yes, I am able to travel within the next 2-3 weeks. I am working on getting the MRI report now and will upload it shortly.
-                            </div>
-                            <div class="flex items-center gap-1 text-[11.5px] text-secondary font-bold mr-1 mt-0.5">
-                                <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Read
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dummy div to force scroll to bottom padding -->
                     <div class="h-4 flex-shrink-0"></div>
-
                 </div>
 
                 <!-- Composer Area (Sticky Bottom) -->
                 <div class="bg-white border-t border-gray-200 p-3 sm:p-4 flex-shrink-0 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
-                    
-                    <!-- Quick Prompts -->
-                    <div class="flex gap-2 mb-3 overflow-x-auto hide-scrollbar pb-1">
-                        <button class="flex-shrink-0 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-textMuted hover:text-textMain text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-colors focus:outline-none">Ask about proposed treatment</button>
-                        <button class="flex-shrink-0 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-textMuted hover:text-textMain text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-colors focus:outline-none">Ask about estimated cost</button>
-                        <button class="flex-shrink-0 bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 text-textMuted hover:text-textMain text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-colors focus:outline-none">Ask about inclusions</button>
-                    </div>
-
-                    <!-- Input Box -->
-                    <div class="flex items-end gap-2 sm:gap-3 bg-gray-50 border border-gray-200 rounded-[16px] p-2 focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary transition-all">
-                        
-                        <!-- Attach Button -->
-                        <button class="p-2.5 sm:p-3 text-textMuted hover:text-secondary hover:bg-blue-50 rounded-xl transition-colors focus:outline-none flex-shrink-0" title="Attach Medical Document">
-                            <i data-lucide="paperclip" class="w-5 h-5"></i>
-                        </button>
-                        
-                        <!-- Textarea -->
-                        <textarea rows="1" class="w-full bg-transparent border-none focus:ring-0 text-[14px] sm:text-[14.5px] text-textMain placeholder-gray-400 resize-none py-3 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" placeholder="Write a secure message... (Shift + Enter for new line)"></textarea>
-                        
-                        <!-- Send Button -->
-                        <button class="bg-primary text-white hover:bg-blue-800 p-2.5 sm:p-3 rounded-xl transition-colors focus:outline-none flex-shrink-0 shadow-sm disabled:opacity-50" aria-label="Send Message" onclick="this.innerHTML='<i data-lucide=\'loader-2\' class=\'w-5 h-5 animate-spin\'></i>'; setTimeout(()=>{this.innerHTML='<i data-lucide=\'send\' class=\'w-5 h-5\'></i>'; lucide.createIcons();}, 1000);">
-                            <i data-lucide="send" class="w-5 h-5"></i>
-                        </button>
-
-                    </div>
-                    
-                    <!-- Privacy Note -->
+                    <form action="{{ url_for('patient_secure_messages_send', thread_id=active_thread.id) }}" method="POST">
+                        <div class="flex items-end gap-2 sm:gap-3 bg-gray-50 border border-gray-200 rounded-[16px] p-2 focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary transition-all">
+                            <!-- Textarea -->
+                            <textarea name="message_body" rows="1" class="w-full bg-transparent border-none focus:ring-0 text-[14px] sm:text-[14.5px] text-textMain placeholder-gray-400 resize-none py-3 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed pl-3" placeholder="Write a secure message..." required></textarea>
+                            
+                            <!-- Send Button -->
+                            <button type="submit" class="bg-primary text-white hover:bg-blue-800 p-2.5 sm:p-3 rounded-xl transition-colors focus:outline-none flex-shrink-0 shadow-sm" aria-label="Send Message">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </form>
                     <div class="text-[11px] text-textMuted mt-2.5 px-1 flex justify-between items-center">
                         <span class="flex items-center gap-1 font-medium text-gray-500"><i data-lucide="lock" class="w-3 h-3"></i> Secure End-to-End Environment</span>
-                        <span class="hidden sm:inline">Keep treatment communication within MediBid.</span>
                     </div>
                 </div>
 
+                {% else %}
+                    <!-- ACTIVE CHAT EMPTY STATE -->
+                    <div class="flex flex-col items-center justify-center text-center px-6 opacity-70">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-5 border border-gray-200 shadow-sm">
+                            <i data-lucide="message-circle" class="w-10 h-10 text-gray-300"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-primary mb-2">Select a Conversation</h3>
+                        <p class="text-[14px] text-textMuted max-w-[300px]">
+                            Choose a hospital from the list to view your secure messages.
+                        </p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </main>
@@ -368,7 +244,6 @@
 
         convItems.forEach(item => {
             item.addEventListener('click', () => {
-                // Only act if on mobile view (md breakpoint is 768px in Tailwind)
                 if (window.innerWidth < 768) {
                     listPanel.classList.add('hidden');
                     chatPanel.classList.remove('hidden');

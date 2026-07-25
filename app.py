@@ -842,7 +842,8 @@ def patient_request_details(reference_id):
 # =========================================================
 
 @app.route("/patient/hospital-responses")
-def patient_hospital_responses():
+@app.route("/patient/requests/<string:reference_id>/responses")
+def patient_hospital_responses(reference_id=None):
     user_id = session.get('registration_user_id')
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
@@ -855,7 +856,7 @@ def patient_hospital_responses():
         
     profile_ids = [p.id for p in profiles]
     
-    req_reference_id = request.args.get('reference_id')
+    req_reference_id = reference_id or request.args.get('reference_id')
     
     if req_reference_id:
         req = TreatmentRequest.query.filter_by(reference_id=req_reference_id).first()
@@ -885,29 +886,44 @@ def patient_hospital_responses():
     )
 
 
-@app.route("/patient/hospital-profile")
-def patient_hospital_profile():
+@app.route("/patient/treatment-proposal/<int:proposal_id>/hospital")
+def patient_hospital_profile_by_proposal(proposal_id):
     user_id = session.get('registration_user_id')
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
         
-    proposal = None
-    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
-    if profiles:
-        profile_ids = [p.id for p in profiles]
-        requests = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).all()
-        request_ids = [r.id for r in requests]
-        proposal = TreatmentProposal.query.filter(
-            TreatmentProposal.treatment_request_id.in_(request_ids)
-        ).order_by(TreatmentProposal.created_at.desc()).first()
+    proposal = TreatmentProposal.query.get(proposal_id)
+    if not proposal:
+        flash("Treatment proposal not found.", "error")
+        return redirect(url_for('patient_dashboard'))
         
-    return render_template("patient-hospital-profile.html", proposal=proposal)
+    # Authorization: Ensure this proposal belongs to a request owned by this patient
+    target_request = TreatmentRequest.query.get(proposal.treatment_request_id)
+    if not target_request:
+        flash("Treatment request not found.", "error")
+        return redirect(url_for('patient_dashboard'))
+        
+    patient_profile = PatientProfile.query.get(target_request.patient_profile_id)
+    if not patient_profile or patient_profile.user_id != user_id:
+        flash("Unauthorized access.", "error")
+        return redirect(url_for('patient_dashboard'))
+        
+    hospital = Hospital.query.get(proposal.hospital_id)
+    if not hospital:
+        flash("Hospital profile not found.", "error")
+        return redirect(url_for('patient_dashboard'))
+        
+    return render_template("patient-hospital-profile.html", proposal=proposal, hospital=hospital, target_req=target_request)
 
 
 @app.route("/patient/compare-hospitals")
 def patient_compare_hospitals():
     user_id = session.get('registration_user_id')
     if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    user = User.query.get(user_id)
+    if not user:
         return redirect(url_for('patient_registration_step1'))
         
     profiles = PatientProfile.query.filter_by(user_id=user_id).all()
@@ -944,7 +960,7 @@ def patient_compare_hospitals():
             if h:
                 compare_items.append({'proposal': p, 'hospital': h})
                 
-    return render_template("patient-compare-hospitals.html", compare_items=compare_items, target_req=target_req)
+    return render_template("patient-compare-hospitals.html", compare_items=compare_items, target_req=target_req, user=user)
 
 
 @app.route("/patient/treatment-proposal/<int:proposal_id>")
@@ -984,17 +1000,107 @@ def patient_secure_messages():
     if not user_id:
         return redirect(url_for('patient_registration_step1'))
         
-    proposal = None
+    user = User.query.get(user_id)
+    
+    threads = []
+    active_thread = None
+    
     profiles = PatientProfile.query.filter_by(user_id=user_id).all()
     if profiles:
         profile_ids = [p.id for p in profiles]
         requests = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).all()
-        request_ids = [r.id for r in requests]
-        proposal = TreatmentProposal.query.filter(
-            TreatmentProposal.treatment_request_id.in_(request_ids)
-        ).order_by(TreatmentProposal.created_at.desc()).first()
+        if requests:
+            request_ids = [r.id for r in requests]
+            from models import MessageThread, Message
+            
+            # Subquery to order threads by their most recent message, or creation date
+            threads = MessageThread.query.filter(MessageThread.treatment_request_id.in_(request_ids)).order_by(MessageThread.updated_at.desc()).all()
+            
+            thread_id = request.args.get('thread_id', type=int)
+            if thread_id:
+                # Security: Verify the requested thread is actually in the patient's authorized threads
+                active_thread = next((t for t in threads if t.id == thread_id), None)
+                if not active_thread:
+                    flash("Unauthorized access or thread not found.", "error")
+                    return redirect(url_for('patient_secure_messages'))
+
+    return render_template("patient-secure-messages.html", user=user, threads=threads, active_thread=active_thread)
+
+@app.route("/patient/secure-messages/start", methods=["POST"])
+def patient_secure_messages_start():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
         
-    return render_template("patient-secure-messages.html", proposal=proposal)
+    treatment_request_id = request.form.get('treatment_request_id', type=int)
+    hospital_id = request.form.get('hospital_id', type=int)
+    
+    if not treatment_request_id or not hospital_id:
+        flash("Invalid request parameters.", "error")
+        return redirect(url_for('patient_hospital_responses'))
+        
+    # Authorization check
+    req = TreatmentRequest.query.get(treatment_request_id)
+    if not req:
+        abort(404)
+        
+    profile = PatientProfile.query.filter_by(id=req.patient_profile_id, user_id=user_id).first()
+    if not profile:
+        abort(403) # Not authorized
+        
+    # Verify hospital actually submitted a proposal for this request (V1 rule)
+    proposal = TreatmentProposal.query.filter_by(treatment_request_id=treatment_request_id, hospital_id=hospital_id).first()
+    if not proposal:
+        flash("Hospital has not submitted a proposal for this request.", "error")
+        return redirect(url_for('patient_hospital_responses'))
+        
+    from models import MessageThread
+    
+    # Check if thread exists
+    thread = MessageThread.query.filter_by(treatment_request_id=treatment_request_id, hospital_id=hospital_id).first()
+    
+    if not thread:
+        thread = MessageThread(treatment_request_id=treatment_request_id, hospital_id=hospital_id)
+        db.session.add(thread)
+        db.session.commit()
+        
+    return redirect(url_for('patient_secure_messages', thread_id=thread.id))
+
+@app.route("/patient/secure-messages/<int:thread_id>/send", methods=["POST"])
+def patient_secure_messages_send(thread_id):
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    message_body = request.form.get('message_body', '').strip()
+    if not message_body:
+        return redirect(url_for('patient_secure_messages', thread_id=thread_id))
+        
+    from models import MessageThread, Message
+    thread = MessageThread.query.get_or_404(thread_id)
+    
+    # Authorization Check
+    req = thread.treatment_request
+    profile = PatientProfile.query.filter_by(id=req.patient_profile_id, user_id=user_id).first()
+    if not profile:
+        abort(403)
+        
+    msg = Message(
+        thread_id=thread_id,
+        sender_type='patient',
+        sender_user_id=user_id,
+        message_body=message_body
+    )
+    
+    # Update thread's updated_at timestamp to bubble it up
+    from datetime import datetime
+    thread.updated_at = datetime.utcnow()
+    
+    db.session.add(msg)
+    db.session.commit()
+    
+    return redirect(url_for('patient_secure_messages', thread_id=thread_id))
+
 
 
 @app.route("/patient/profile-settings")
@@ -2621,6 +2727,80 @@ def patient_request_add_document(reference_id):
         
     return jsonify({'error': 'Invalid file type'}), 400
 
+
+
+@app.route("/patient/treatment-proposal/<int:proposal_id>/shortlist", methods=['POST'])
+def patient_proposal_shortlist(proposal_id):
+    user_id = session.get("registration_user_id")
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    proposal = TreatmentProposal.query.get_or_404(proposal_id)
+    if proposal.treatment_request.patient_profile.user_id != user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    data = request.get_json()
+    proposal.patient_shortlisted = data.get('shortlisted', False)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'shortlisted': proposal.patient_shortlisted})
+
+@app.route("/patient/treatment-proposal/<int:proposal_id>/notes", methods=['POST'])
+def patient_proposal_notes(proposal_id):
+    user_id = session.get("registration_user_id")
+    if not user_id:
+        return jsonify({'error': 'Unauthorized'}), 401
+        
+    proposal = TreatmentProposal.query.get_or_404(proposal_id)
+    if proposal.treatment_request.patient_profile.user_id != user_id:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    data = request.get_json()
+    proposal.patient_notes = data.get('notes', '')
+    db.session.commit()
+    
+    return jsonify({'success': True})
+
+@app.route('/patient/requests')
+def patient_requests():
+    user_id = session.get('registration_user_id')
+    if not user_id:
+        return redirect(url_for('patient_registration_step1'))
+        
+    user = User.query.get(user_id)
+    if not user:
+        return redirect(url_for('patient_registration_step1'))
+        
+    profiles = PatientProfile.query.filter_by(user_id=user_id).all()
+    profile_ids = [p.id for p in profiles]
+    
+    if profile_ids:
+        requests_query = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).order_by(TreatmentRequest.created_at.desc()).all()
+        for req in requests_query:
+            proposals = [p for p in req.proposals if p.status == 'submitted']
+            if proposals:
+                latest_proposal_time = max((p.submitted_at for p in proposals if p.submitted_at), default=req.created_at)
+                req._latest_response_time = latest_proposal_time
+            else:
+                req._latest_response_time = None
+
+        requests = sorted(
+            requests_query,
+            key=lambda r: (r._latest_response_time is not None, r._latest_response_time or r.created_at),
+            reverse=True
+        )
+    else:
+        requests = []
+        
+    context = request.args.get('context')
+    if context == 'responses':
+        page_title = "Hospital Responses"
+        page_desc = "Select a treatment request to review responses from healthcare providers."
+    else:
+        page_title = "My Requests"
+        page_desc = "Manage and track your submitted treatment requests."
+        
+    return render_template('patient-requests.html', user=user, requests=requests, page_title=page_title, page_desc=page_desc)
 
 if __name__ == "__main__":
     app.run(debug=True)

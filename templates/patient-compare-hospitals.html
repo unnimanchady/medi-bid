@@ -3,11 +3,25 @@
 {% block title %}Compare Proposals - MediBid{% endblock %}
 
 {% block content %}
+
+<style>
+@media print {
+    .no-print { display: none !important; }
+    body { background-color: white !important; }
+    .bg-bgLight { background-color: white !important; }
+    .shadow-sm, .shadow-dropdown, .shadow-card { box-shadow: none !important; }
+    * { color: black !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    /* Expand all accordions for print */
+    .comparison-section-content { height: auto !important; overflow: visible !important; }
+    .lucide-chevron-down, .lucide-chevron-up { display: none !important; }
+}
+</style>
+
         <!-- PAGE HEADER -->
-        <header class="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm no-print">
+        <header class="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm print:static print:border-none print:shadow-none">
             <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 max-w-[1400px] w-full mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg bg-gray-50 border border-gray-100" aria-label="Open Menu">
+                    <button id="mobile-menu-btn" class="md:hidden p-2 no-print text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg bg-gray-50 border border-gray-100" aria-label="Open Menu">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                     </button>
                     <div>
@@ -16,11 +30,11 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3 self-end sm:self-auto">
-                    <button class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all">
+                <div class="flex items-center gap-3 self-end sm:self-auto no-print">
+                    <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all">
                         <i data-lucide="printer" class="w-4 h-4 text-textMuted"></i> Print
                     </button>
-                    <button class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all">
+                    <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm transition-all">
                         <i data-lucide="download" class="w-4 h-4 text-textMuted"></i> Export PDF
                     </button>
                 </div>
@@ -45,13 +59,13 @@
             {% else %}
             
             <!-- CONTROLS & INFO -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-0 animate-fade-in no-print">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-0 animate-fade-in">
                 <div class="flex items-center gap-2 text-[13px] text-textMuted">
                     <i data-lucide="info" class="w-4 h-4 text-secondary"></i>
-                    Comparing <strong class="text-textMain">{{ compare_items|length }}</strong> proposals for <strong class="text-textMain">{{ target_req.primary_diagnosis or target_req.treatment_category or "Treatment" }}</strong>.
+                    Comparing <strong class="text-textMain">{{ compare_items|length }}</strong> proposals for <strong class="text-textMain">{{ target_req.condition or target_req.specialty or target_req.diagnosis or "Treatment" }}</strong>.
                 </div>
                 <!-- Toggle Switch -->
-                <div class="flex items-center gap-3 self-end sm:self-auto bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm">
+                <div class="flex items-center gap-3 self-end sm:self-auto bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm no-print">
                     <span class="text-[13px] font-bold text-textMain">Highlight Differences</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="highlight-toggle" class="sr-only peer">
@@ -62,7 +76,7 @@
 
             <!-- COMPARISON HEADERS (STICKY ON SCROLL) -->
             <!-- We dynamically size the grid based on how many items + 1 label column -->
-            <div class="grid grid-cols-1 md:grid-cols-{{ 1 + compare_items|length }} gap-4 opacity-0 animate-fade-in stagger-1 sticky top-[73px] sm:top-[85px] z-20 bg-bgLight pt-2 pb-4 no-print">
+            <div class="grid grid-cols-1 md:grid-cols-{{ 1 + compare_items|length }} gap-4 opacity-0 animate-fade-in stagger-1 sticky top-[73px] sm:top-[85px] z-20 bg-bgLight pt-2 pb-4 print:static">
                 <!-- Label Column (Empty in Header) -->
                 <div class="hidden md:block col-span-1"></div>
                 
@@ -86,8 +100,15 @@
                         {% endif %}
                     </div>
                     <div class="flex flex-col mt-auto">
-                        <h3 class="text-[15px] font-bold text-textMain leading-tight truncate" title="{{ item.hospital.display_name or item.hospital.legal_name or 'Hospital name not available' }}">{{ item.hospital.display_name or item.hospital.legal_name or 'Hospital name not available' }}</h3>
-                        <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5 truncate"><i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i> {{ item.hospital.city }}, {{ item.hospital.country }}</span>
+                        <h3 class="text-[15px] font-bold text-textMain leading-tight truncate" title="{{ item.hospital.display_name or item.hospital.legal_name or 'Not provided' }}">{{ item.hospital.display_name or item.hospital.legal_name or 'Not provided' }}</h3>
+                        <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5 truncate">
+                            <i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i>
+                            {% set loc_parts = [] %}
+                            {% if item.hospital.city %}{% set _ = loc_parts.append(item.hospital.city) %}{% endif %}
+                            {% if item.hospital.state_region %}{% set _ = loc_parts.append(item.hospital.state_region) %}{% endif %}
+                            {% if item.hospital.country %}{% set _ = loc_parts.append(item.hospital.country) %}{% endif %}
+                            {{ loc_parts|join(', ') if loc_parts else 'Not provided' }}
+                        </span>
                     </div>
                 </div>
                 {% endfor %}
@@ -98,7 +119,7 @@
                 
                 <!-- Category 1: Hospital Overview -->
                 <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
-                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-overview">
+                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn" aria-expanded="true" data-target="section-overview">
                         <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="building-2" class="w-5 h-5 text-secondary"></i> Hospital Overview</h2>
                         <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
                     </button>
@@ -110,7 +131,7 @@
                                 {% for item in compare_items %}
                                 <div class="md:col-span-1 flex items-start gap-3 md:block">
                                     <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
-                                    <div class="flex flex-col"><span class="text-[14px] text-textMain font-medium">{{ item.hospital.has_accreditations and 'Yes' or 'No' }}</span></div>
+                                    <div class="flex flex-col"><span class="text-[14px] text-textMain font-medium">{{ 'Yes' if item.hospital.has_accreditations is true else ('No' if item.hospital.has_accreditations is false else 'Not provided') }}</span></div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -130,7 +151,7 @@
 
                 <!-- Category 2: Medical Expertise -->
                 <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
-                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-expertise">
+                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn" aria-expanded="true" data-target="section-expertise">
                         <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="stethoscope" class="w-5 h-5 text-secondary"></i> Medical Expertise</h2>
                         <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
                     </button>
@@ -152,7 +173,7 @@
 
                 <!-- Category 3: Proposal Details -->
                 <div class="bg-white border border-gray-200 rounded-[16px] overflow-hidden shadow-sm">
-                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn no-print" aria-expanded="true" data-target="section-financials">
+                    <button class="w-full flex items-center justify-between p-4 sm:p-5 bg-gray-50 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary accordion-btn" aria-expanded="true" data-target="section-financials">
                         <h2 class="text-[16px] sm:text-[18px] font-extrabold text-primary flex items-center gap-2"><i data-lucide="wallet" class="w-5 h-5 text-secondary"></i> Financials & Timeline</h2>
                         <i data-lucide="chevron-up" class="w-5 h-5 text-textMuted transition-transform duration-300 transform"></i>
                     </button>
@@ -164,7 +185,9 @@
                                 {% for item in compare_items %}
                                 <div class="md:col-span-1 flex items-start gap-3 md:block comparison-cell">
                                     <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
-                                    <div class="flex flex-col"><span class="text-[16px] font-extrabold text-primary">{{ item.proposal.currency or '$' }}{{ item.proposal.estimated_cost_min or '0' }}{% if item.proposal.estimated_cost_max %} - {{ item.proposal.estimated_cost_max }}{% endif %}</span></div>
+                                    <div class="flex flex-col"><span class="text-[16px] font-extrabold text-primary">
+                                        {{ item.proposal.currency or 'USD' }} {% if item.proposal.estimated_cost_min is not none %}{{ "{:,.2f}".format(item.proposal.estimated_cost_min) }}{% else %}0.00{% endif %}{% if item.proposal.estimated_cost_max is not none %} &ndash; {{ "{:,.2f}".format(item.proposal.estimated_cost_max) }}{% endif %}
+                                    </span></div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -174,7 +197,7 @@
                                 {% for item in compare_items %}
                                 <div class="md:col-span-1 flex items-start gap-3 md:block comparison-cell">
                                     <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
-                                    <div class="flex flex-col"><span class="text-[14px] font-bold text-textMain">{% if item.proposal.estimated_duration_value %}{{ item.proposal.estimated_duration_value }} {{ item.proposal.estimated_duration_unit or 'Days' }}{% else %}Not provided{% endif %}</span></div>
+                                    <div class="flex flex-col"><span class="text-[14px] font-bold text-textMain">{% if item.proposal.estimated_duration_value is not none %}{{ item.proposal.estimated_duration_value }} {{ item.proposal.estimated_duration_unit or 'Days' }}{% else %}Not provided{% endif %}</span></div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -185,11 +208,11 @@
                                 <div class="md:col-span-1 flex items-start gap-3 md:block">
                                     <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
                                     <div class="flex flex-col gap-2">
-                                        <div class="text-[13px] text-textMain whitespace-pre-line">{% if item.proposal.inclusions %}<strong>Inclusions:</strong>
+                                        <div class="text-[13px] text-textMain whitespace-pre-line">{% if item.proposal.inclusions and item.proposal.inclusions != 'None' and item.proposal.inclusions != 'null' and item.proposal.inclusions != '[]' and item.proposal.inclusions != '{}' %}<strong>Inclusions:</strong>
 {{ item.proposal.inclusions }}
 
-{% endif %}{% if item.proposal.exclusions %}<strong>Exclusions:</strong>
-{{ item.proposal.exclusions }}{% endif %}{% if not item.proposal.inclusions and not item.proposal.exclusions %}Not provided{% endif %}</div>
+{% endif %}{% if item.proposal.exclusions and item.proposal.exclusions != 'None' and item.proposal.exclusions != 'null' and item.proposal.exclusions != '[]' and item.proposal.exclusions != '{}' %}<strong>Exclusions:</strong>
+{{ item.proposal.exclusions }}{% endif %}{% if (not item.proposal.inclusions or item.proposal.inclusions in ['None', 'null', '[]', '{}']) and (not item.proposal.exclusions or item.proposal.exclusions in ['None', 'null', '[]', '{}']) %}Not provided{% endif %}</div>
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -200,7 +223,7 @@
                                 {% for item in compare_items %}
                                 <div class="md:col-span-1 flex items-start gap-3 md:block">
                                     <div class="w-5 h-5 rounded {{ bg_colors[loop.index0 % 3] }} text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5 md:hidden">{{ loop.index }}</div>
-                                    <div class="flex flex-col"><span class="text-[13px] text-textMuted flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Valid until {{ item.proposal.valid_until.strftime('%b %d, %Y') if item.proposal.valid_until else 'Not specified' }}</span></div>
+                                    <div class="flex flex-col"><span class="text-[13px] text-textMuted flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Valid until {{ item.proposal.valid_until.strftime('%b %d, %Y') if item.proposal.valid_until else 'Not provided' }}</span></div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -228,11 +251,11 @@
                             <a href="{{ url_for('patient_treatment_proposal_details', proposal_id=item.proposal.id) }}" class="bg-primary text-white font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-blue-800 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-primary">
                                 View Full Proposal
                             </a>
-                            <a href="{{ url_for('patient_hospital_profile', hospital_id=item.hospital.id) }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            <a href="{{ url_for('patient_hospital_profile_by_proposal', proposal_id=item.proposal.id) }}" class="bg-white border border-gray-200 text-textMain font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all hover:bg-gray-50 text-center shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-gray-300">
                                 View Hospital Profile
                             </a>
-                            <button class="bg-white border border-gray-200 font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all flex items-center justify-center gap-2 w-full focus:outline-none {% if item.proposal.patient_shortlisted %}bg-softLavender text-lavenderAccent border-purple-100 hover:bg-purple-100{% else %}text-textMuted hover:text-lavenderAccent hover:bg-purple-50{% endif %}">
-                                <i data-lucide="star" class="w-4 h-4 {% if item.proposal.patient_shortlisted %}fill-lavenderAccent{% endif %}"></i> {% if item.proposal.patient_shortlisted %}Shortlisted{% else %}Shortlist{% endif %}
+                            <button data-proposal-id="{{ item.proposal.id }}" class="shortlist-btn bg-white border border-gray-200 font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all flex items-center justify-center gap-2 w-full focus:outline-none {% if item.proposal.patient_shortlisted %}bg-softLavender text-lavenderAccent border-purple-100 hover:bg-purple-100{% else %}text-textMuted hover:text-lavenderAccent hover:bg-purple-50{% endif %}">
+                                <i data-lucide="star" class="w-4 h-4 {% if item.proposal.patient_shortlisted %}fill-lavenderAccent{% endif %}"></i> <span>{% if item.proposal.patient_shortlisted %}Shortlisted{% else %}Shortlist{% endif %}</span>
                             </button>
                             
                             <div class="mt-3">
@@ -240,7 +263,7 @@
                                     My Notes
                                     <i data-lucide="lock" class="w-3 h-3 text-gray-300" title="Private to you"></i>
                                 </label>
-                                <textarea class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[13px] text-textMain focus:outline-none focus:ring-2 focus:ring-secondary resize-none transition-shadow focus:bg-white" rows="3" placeholder="Add a private note...">{{ item.proposal.patient_notes or "" }}</textarea>
+                                <textarea data-proposal-id="{{ item.proposal.id }}" class="notes-textarea w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-[13px] text-textMain focus:outline-none focus:ring-2 focus:ring-secondary resize-none transition-shadow focus:bg-white" rows="3" placeholder="Add a private note...">{{ item.proposal.patient_notes or "" }}</textarea>
                             </div>
                         </div>
                         {% endfor %}
@@ -252,7 +275,7 @@
         </main>
 {% endblock %}
 
-{% block scripts %}
+{% block page_scripts %}
 <script>
     // Accordion Logic
     document.querySelectorAll('.accordion-btn').forEach(btn => {
@@ -328,5 +351,62 @@
             });
         });
     }
+
+    // Shortlist Button Logic
+    document.querySelectorAll('.shortlist-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const proposalId = btn.getAttribute('data-proposal-id');
+            if (!proposalId) return;
+
+            const icon = btn.querySelector('i[data-lucide="star"]');
+            const textSpan = btn.querySelector('span');
+            const isShortlisted = textSpan.innerText.trim() === 'Shortlisted';
+
+            try {
+                const response = await fetch(`/patient/treatment-proposal/${proposalId}/shortlist`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shortlisted: !isShortlisted })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.shortlisted) {
+                        btn.className = "shortlist-btn bg-softLavender border border-purple-100 font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all flex items-center justify-center gap-2 w-full focus:outline-none text-lavenderAccent hover:bg-purple-100";
+                        textSpan.innerText = 'Shortlisted';
+                        icon.classList.add('fill-lavenderAccent');
+                    } else {
+                        btn.className = "shortlist-btn bg-white border border-gray-200 font-bold px-4 py-2.5 rounded-xl text-[13.5px] transition-all flex items-center justify-center gap-2 w-full focus:outline-none text-textMuted hover:text-lavenderAccent hover:bg-purple-50";
+                        textSpan.innerText = 'Shortlist';
+                        icon.classList.remove('fill-lavenderAccent');
+                    }
+                }
+            } catch (err) {
+                console.error("Error updating shortlist status:", err);
+            }
+        });
+    });
+
+    // My Notes Auto-save Logic
+    let typingTimer;
+    document.querySelectorAll('.notes-textarea').forEach(textarea => {
+        textarea.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            const proposalId = textarea.getAttribute('data-proposal-id');
+            const notes = textarea.value;
+            
+            typingTimer = setTimeout(async () => {
+                try {
+                    await fetch(`/patient/treatment-proposal/${proposalId}/notes`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ notes: notes })
+                    });
+                } catch (err) {
+                    console.error("Error saving notes:", err);
+                }
+            }, 1000); // Auto-save after 1s of typing
+        });
+    });
 </script>
 {% endblock %}

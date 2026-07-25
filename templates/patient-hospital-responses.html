@@ -83,7 +83,7 @@
                 </div>
                 <div class="bg-softLavender border border-purple-50 rounded-[16px] p-4 flex flex-col justify-center min-w-[120px] flex-1">
                     <span class="text-[12px] font-bold text-lavenderAccent uppercase tracking-wide mb-1">Shortlisted</span>
-                    <span class="text-[24px] font-extrabold text-primary leading-none">0</span>
+                    <span class="text-[24px] font-extrabold text-primary leading-none">{{ responses|selectattr('patient_shortlisted')|list|length }}</span>
                 </div>
             </div>
 
@@ -134,7 +134,7 @@
                         <div class="p-6 flex-grow">
                             <h3 class="font-bold text-textMain text-[16px] mb-1">{{ response.hospital.display_name or response.hospital.legal_name }}</h3>
                             <p class="text-[13px] text-textMuted flex items-center gap-1.5 mb-4">
-                                <i data-lucide="map-pin" class="w-4 h-4"></i> {{ response.hospital.city }}, {{ response.hospital.country }}
+                                <i data-lucide="map-pin" class="w-4 h-4"></i> {% if response.hospital.city and response.hospital.country %}{{ response.hospital.city }}, {{ response.hospital.country }}{% elif response.hospital.country %}{{ response.hospital.country }}{% elif response.hospital.city %}{{ response.hospital.city }}{% else %}Not provided{% endif %}
                             </p>
                             
                             <div class="space-y-3 mb-5">
@@ -144,11 +144,11 @@
                                 </div>
                                 <div class="flex justify-between items-center text-[13px] border-b border-gray-100 pb-2">
                                     <span class="text-textMuted font-medium">Duration</span>
-                                    <span class="font-bold text-primary">{{ response.estimated_duration_value }} {{ response.estimated_duration_unit }}s</span>
+                                    <span class="font-bold text-primary">{% if response.estimated_duration_value and response.estimated_duration_unit %}{{ response.estimated_duration_value }} {{ response.estimated_duration_unit }}{% if response.estimated_duration_value != 1 and response.estimated_duration_value != '1' %}s{% endif %}{% else %}Not provided{% endif %}</span>
                                 </div>
                                 <div class="flex justify-between items-center text-[13px] border-b border-gray-100 pb-2">
                                     <span class="text-textMuted font-medium">Submitted</span>
-                                    <span class="font-bold text-primary">{{ response.submitted_at.strftime('%b %d, %Y') }}</span>
+                                    <span class="font-bold text-primary">{% if response.submitted_at %}{{ response.submitted_at.strftime('%b %d, %Y') }}{% else %}Not provided{% endif %}</span>
                                 </div>
                                 {% if response.valid_until %}
                                 <div class="flex justify-between items-center text-[13px] pb-2">

@@ -59,9 +59,9 @@
                 <!-- Details Header -->
                 <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mt-2">
                     <div class="flex flex-col">
-                        <h1 class="text-[24px] sm:text-[30px] font-extrabold text-primary leading-tight">Apollo Hospitals</h1>
+                        <h1 class="text-[24px] sm:text-[30px] font-extrabold text-primary leading-tight">{{ hospital.display_name or hospital.legal_name or "Not provided" }}</h1>
                         <div class="text-[14px] text-textMuted flex items-center gap-1.5 mt-1.5 font-medium">
-                            <i data-lucide="map-pin" class="w-4 h-4"></i> New Delhi, India
+                            <i data-lucide="map-pin" class="w-4 h-4"></i> {% set loc_parts=[] %}{% if hospital.city and hospital.city != "None" %}{% set _ = loc_parts.append(hospital.city) %}{% endif %}{% if hospital.state_region and hospital.state_region != "None" %}{% set _ = loc_parts.append(hospital.state_region) %}{% endif %}{% if hospital.country and hospital.country != "None" %}{% set _ = loc_parts.append(hospital.country) %}{% endif %}{{ loc_parts|join(", ") if loc_parts else "Not provided" }}
                         </div>
                     </div>
                     
@@ -93,7 +93,7 @@
             <div class="flex flex-col sm:flex-row items-center justify-between bg-white rounded-xl p-4 border border-blue-50 shadow-sm gap-4">
                 <div class="flex flex-col gap-1 w-full sm:w-auto">
                     <span class="text-[12px] text-textMuted font-medium">Proposed Treatment</span>
-                    <span class="text-[14.5px] font-bold text-textMain">Minimally Invasive CABG</span>
+                    <span class="text-[14.5px] font-bold text-textMain">{{ target_req.condition if target_req else "Treatment Type Not specified" }}</span>
                     <div class="text-[12.5px] font-bold text-secondary bg-softBlue px-2.5 py-0.5 rounded-md inline-flex items-center gap-1.5 w-max mt-1">
                         <i data-lucide="clock" class="w-3.5 h-3.5"></i> Under Consideration
                     </div>
@@ -117,12 +117,7 @@
             <div class="flex flex-col md:flex-row gap-8">
                 <!-- About Text -->
                 <div class="md:w-3/5">
-                    <p class="text-[14.5px] text-textMain leading-relaxed mb-4">
-                        Apollo Hospitals, New Delhi is a leading comprehensive multispecialty hospital in India. Established with the goal of bringing world-class healthcare within the reach of every individual, it is known for pioneering advanced medical procedures.
-                    </p>
-                    <p class="text-[14.5px] text-textMain leading-relaxed">
-                        The facility integrates clinical excellence with state-of-the-art medical technology. The international patient department is dedicated to providing seamless, personalized care for global patients traveling for specialized treatment.
-                    </p>
+                    <p class="text-[14.5px] text-textMain leading-relaxed mb-4">{{ hospital.description or "Hospital description not provided." }}</p>
                     <div class="mt-4 flex items-center gap-1.5 text-[11.5px] text-textMuted italic">
                         <i data-lucide="info" class="w-3.5 h-3.5"></i> Information provided by hospital.
                     </div>
@@ -134,22 +129,22 @@
                     <div class="flex flex-col gap-3">
                         <div class="flex justify-between items-center text-[14px]">
                             <span class="text-textMuted font-medium">Established</span>
-                            <span class="font-bold text-textMain">1996</span>
+                            <span class="font-bold text-textMain">{{ hospital.year_established or "Not provided" }}</span>
                         </div>
                         <div class="w-full h-px bg-gray-200"></div>
                         <div class="flex justify-between items-center text-[14px]">
                             <span class="text-textMuted font-medium">Bed Capacity</span>
-                            <span class="font-bold text-textMain">718</span>
+                            <span class="font-bold text-textMain">{{ hospital.inpatient_rooms or "Not provided" }}</span>
                         </div>
                         <div class="w-full h-px bg-gray-200"></div>
                         <div class="flex justify-between items-center text-[14px]">
                             <span class="text-textMuted font-medium">ICU Beds</span>
-                            <span class="font-bold text-textMain">120+</span>
+                            <span class="font-bold text-textMain">Not provided</span>
                         </div>
                         <div class="w-full h-px bg-gray-200"></div>
                         <div class="flex justify-between items-center text-[14px]">
                             <span class="text-textMuted font-medium">Emergency Care</span>
-                            <span class="font-bold text-textMain">24/7</span>
+                            <span class="font-bold text-textMain">Not provided</span>
                         </div>
                     </div>
                 </div>
@@ -157,110 +152,26 @@
         </div>
 
         <!-- 4. ACCREDITATION & CERTIFICATIONS -->
+        {% if hospital.has_accreditations %}
         <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
             <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
                 <i data-lucide="award" class="w-5 h-5 text-secondary"></i> Accreditation & Certifications
             </h2>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- JCI -->
-                <div class="border border-green-100 bg-softGreen/30 rounded-xl p-4 flex items-start gap-4 hover:bg-softGreen/50 transition-colors">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-green-200 shadow-sm">
-                        <i data-lucide="award" class="w-6 h-6 text-greenAccent"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[15px] font-bold text-textMain">JCI</h3>
-                        <p class="text-[13px] text-textMuted mt-0.5">Joint Commission International</p>
-                        <div class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-[11px] font-bold mt-2 w-max">
-                            <i data-lucide="check" class="w-3 h-3"></i> Verified Active
-                        </div>
-                    </div>
-                </div>
-
-                <!-- NABH -->
-                <div class="border border-green-100 bg-softGreen/30 rounded-xl p-4 flex items-start gap-4 hover:bg-softGreen/50 transition-colors">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0 border border-green-200 shadow-sm">
-                        <i data-lucide="award" class="w-6 h-6 text-greenAccent"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <h3 class="text-[15px] font-bold text-textMain">NABH</h3>
-                        <p class="text-[13px] text-textMuted mt-0.5">National Accreditation Board for Hospitals</p>
-                        <div class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 py-0.5 rounded text-[11px] font-bold mt-2 w-max">
-                            <i data-lucide="check" class="w-3 h-3"></i> Verified Active
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-4 flex items-center gap-1.5 text-[11.5px] text-textMuted italic">
-                <i data-lucide="shield" class="w-3.5 h-3.5"></i> Accreditation records verified by MediBid.
-            </div>
+            <div class="text-[14px] text-textMain">Accreditation information available.</div>
         </div>
+        {% endif %}
 
         <!-- 5. MEDICAL SPECIALTIES -->
+        {% if hospital.treatments or hospital.centers_of_excellence %}
         <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
             <h2 class="text-[18px] font-extrabold text-primary mb-5 flex items-center gap-2">
                 <i data-lucide="stethoscope" class="w-5 h-5 text-secondary"></i> Medical Specialties
             </h2>
-            
-            <div class="flex flex-wrap gap-2.5">
-                <!-- Highlighted Specialty -->
-                <span class="bg-softBlue border border-blue-200 text-secondary px-4 py-2 rounded-xl text-[13.5px] font-bold shadow-sm flex items-center gap-1.5 ring-2 ring-secondary/20">
-                    <i data-lucide="heart-pulse" class="w-4 h-4"></i> Cardiology (Relevant)
-                </span>
-                
-                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Oncology</span>
-                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Orthopedics</span>
-                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Neurology</span>
-                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Gastroenterology</span>
-                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Transplant Medicine</span>
-                <span class="bg-gray-50 border border-gray-200 text-textMain px-4 py-2 rounded-xl text-[13.5px] font-medium">Urology</span>
-            </div>
+            <div class="text-[14px] text-textMain">{{ hospital.treatments or hospital.centers_of_excellence }}</div>
         </div>
+        {% endif %}
 
-        <!-- 6. DOCTORS & MEDICAL TEAM -->
-        <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
-            <div class="flex items-center justify-between mb-5">
-                <h2 class="text-[18px] font-extrabold text-primary flex items-center gap-2">
-                    <i data-lucide="users" class="w-5 h-5 text-secondary"></i> Doctors & Medical Team
-                </h2>
-                <!-- Developer Note: Connect to doctor listing route if applicable -->
-                <a href="#" class="text-[13px] font-bold text-secondary hover:underline focus:outline-none">View All Directory</a>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                <!-- Doctor Card (Relevant) -->
-                <div class="border-2 border-blue-100 bg-softBlue/10 rounded-xl p-4 flex gap-4 hover:border-blue-200 transition-colors relative">
-                    <div class="absolute top-2 right-2 text-[10px] font-bold uppercase text-secondary bg-softBlue px-2 py-0.5 rounded">Proposed Doctor</div>
-                    <div class="w-16 h-16 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-200 mt-2">
-                        <i data-lucide="user" class="w-8 h-8 text-gray-400"></i>
-                    </div>
-                    <div class="flex flex-col pt-1">
-                        <h3 class="text-[15.5px] font-bold text-textMain">Dr. Amit Singh</h3>
-                        <span class="text-[13px] font-medium text-textMain">Cardiothoracic Surgery</span>
-                        <span class="text-[12px] text-textMuted mt-1">15+ years experience</span>
-                        <span class="text-[12px] text-textMuted mt-0.5">English, Hindi</span>
-                        <a href="#" class="text-[12.5px] font-bold text-secondary mt-2 w-max hover:underline focus:outline-none">View Profile</a>
-                    </div>
-                </div>
-
-                <!-- Doctor Card -->
-                <div class="border border-gray-200 bg-white rounded-xl p-4 flex gap-4 hover:border-gray-300 transition-colors">
-                    <div class="w-16 h-16 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-200">
-                        <i data-lucide="user" class="w-8 h-8 text-gray-400"></i>
-                    </div>
-                    <div class="flex flex-col pt-1">
-                        <h3 class="text-[15.5px] font-bold text-textMain">Dr. R. K. Sharma</h3>
-                        <span class="text-[13px] font-medium text-textMain">Interventional Cardiology</span>
-                        <span class="text-[12px] text-textMuted mt-1">20+ years experience</span>
-                        <span class="text-[12px] text-textMuted mt-0.5">English, Hindi</span>
-                        <a href="#" class="text-[12.5px] font-bold text-secondary mt-2 w-max hover:underline focus:outline-none">View Profile</a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <!-- 6. DOCTORS & MEDICAL TEAM (Omitted - Not Provided) -->
 
         <!-- 7. FACILITIES, TECH & ROOMS -->
         <div class="bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden p-5 sm:p-7 opacity-0 animate-fade-in stagger-3">
@@ -354,8 +265,8 @@
                 </div>
                 
                 <div class="flex flex-col justify-center flex-grow w-full md:w-auto">
-                    <h3 class="text-[16px] font-bold text-textMain mb-1">Apollo Hospitals</h3>
-                    <p class="text-[14.5px] text-textMuted mb-5 leading-relaxed max-w-md">Indraprastha, Mathura Road, New Delhi, Delhi 110076, India</p>
+                    <h3 class="text-[16px] font-bold text-textMain mb-1">{{ hospital.display_name or hospital.legal_name or "Not provided" }}</h3>
+                    <p class="text-[14.5px] text-textMuted mb-5 leading-relaxed max-w-md">{{ hospital.address or "Address not provided." }}</p>
                     <a href="#" class="text-[13.5px] font-bold text-secondary border border-gray-200 rounded-xl px-5 py-2.5 inline-flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors w-full sm:w-max focus:outline-none">
                         Get Directions <i data-lucide="external-link" class="w-4 h-4"></i>
                     </a>

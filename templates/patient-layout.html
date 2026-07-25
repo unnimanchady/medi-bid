@@ -115,7 +115,7 @@
     <aside class="hidden md:flex flex-col w-64 lg:w-[280px] bg-[#051126] min-h-screen sticky top-0 flex-shrink-0 z-40 border-r border-gray-800 shadow-xl">
         <!-- Logo Area -->
         <div class="h-[70px] lg:h-[80px] flex items-center px-6 lg:px-8 border-b border-white/5">
-            <a href="{{ url_for('patient_dashboard') }}" class="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
+            <a href="{{ url_for('patient_requests') }}" class="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
                 <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 lg:w-8 lg:h-8 flex-shrink-0">
                     <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.2" stroke="#0082CA" stroke-width="2"/>
                     <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
@@ -138,18 +138,15 @@
                 <i data-lucide="layout-dashboard" class="w-5 h-5 text-secondary"></i> Dashboard
             </a>
             
-            <button disabled title="Feature coming soon" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 hover:text-white/60 bg-transparent hover:bg-white/5 transition-all cursor-not-allowed group text-left">
-                <div class="flex items-center gap-3 font-medium">
-                    <i data-lucide="file-text" class="w-5 h-5"></i> My Requests
-                </div>
-                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
-            </button>
+            <a href="{{ url_for('patient_requests') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="file-text" class="w-5 h-5 group-hover:text-white transition-colors"></i> My Requests
+            </a>
             
-            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+            <a href="{{ url_for('patient_requests', context='responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
                 <i data-lucide="building-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Hospital Responses
             </a>
             
-            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+            <a href="{{ url_for('patient_compare_hospitals', request_id=request.id) if request and request.reference_id else url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
                 <i data-lucide="bar-chart-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Compare Proposals
             </a>
             
@@ -215,16 +212,15 @@
                 <i data-lucide="layout-dashboard" class="w-5 h-5 text-secondary"></i> Dashboard
             </a>
             
-            <button disabled class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-white/50 bg-transparent transition-all cursor-not-allowed text-left">
-                <div class="flex items-center gap-3 font-medium"><i data-lucide="file-text" class="w-5 h-5"></i> My Requests</div>
-                <span class="text-[9px] font-extrabold bg-white/10 text-white/60 px-2 py-0.5 rounded-md uppercase">Soon</span>
-            </button>
-            
-            <a href="{{ url_for('patient_hospital_responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
-                <i data-lucide="building-2" class="w-5 h-5"></i> Hospital Responses
+            <a href="{{ url_for('patient_requests') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all group">
+                <i data-lucide="file-text" class="w-5 h-5"></i> My Requests
             </a>
             
-            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+            <a href="{{ url_for('patient_requests', context='responses') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
+                <i data-lucide="building-2" class="w-5 h-5 group-hover:text-white transition-colors"></i> Hospital Responses
+            </a>
+            
+            <a href="{{ url_for('patient_compare_hospitals', request_id=request.id) if request and request.reference_id else url_for('patient_compare_hospitals') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium transition-all">
                 <i data-lucide="bar-chart-2" class="w-5 h-5"></i> Compare Proposals
             </a>
             
@@ -250,7 +246,7 @@
     <div class="flex-grow flex flex-col min-w-0 bg-bgLight relative">
         
         <!-- TOP HEADER -->
-        <header class="bg-white border-b border-gray-200 h-[70px] lg:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
+        <header class="bg-white border-b border-gray-200 h-[70px] lg:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-50 shadow-sm no-print">
             
             <!-- Mobile Header Left -->
             <div class="flex items-center md:hidden">

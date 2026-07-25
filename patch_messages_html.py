@@ -1,0 +1,170 @@
+import re
+
+with open('templates/patient-secure-messages.html', 'r', encoding='utf-8') as f:
+    c = f.read()
+
+replacement = """<!-- List Items -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar bg-white md:bg-transparent flex flex-col">
+                    {% if threads and threads|length > 0 %}
+                        {% for thread in threads %}
+                        <a href="{{ url_for('patient_secure_messages', thread_id=thread.id) }}" class="conv-item w-full text-left p-4 border-b border-gray-100 {% if active_thread and thread.id == active_thread.id %}bg-softBlue/30 hover:bg-softBlue/40{% else %}bg-white hover:bg-gray-50{% endif %} transition-colors flex gap-3 relative focus:outline-none">
+                            {% if active_thread and thread.id == active_thread.id %}
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+                            {% endif %}
+                            <div class="w-12 h-12 rounded-full {% if active_thread and thread.id == active_thread.id %}bg-white{% else %}bg-gray-50{% endif %} border border-gray-200 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="building-2" class="w-6 h-6 {% if active_thread and thread.id == active_thread.id %}text-secondary opacity-80{% else %}text-gray-400{% endif %}"></i>
+                            </div>
+                            <div class="flex-grow min-w-0 flex flex-col">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="font-bold text-[14px] text-primary truncate pr-2">{{ thread.hospital.name }}</span>
+                                    <span class="text-[11px] {% if active_thread and thread.id == active_thread.id %}text-secondary{% else %}text-textMuted{% endif %} font-bold whitespace-nowrap">{{ thread.updated_at.strftime('%b %d') }}</span>
+                                </div>
+                                <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: {{ thread.treatment_request.reference_id }}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[13px] text-textMain font-medium truncate pr-2">
+                                        {% set last_msg = thread.messages.order_by(thread.messages._klass.created_at.desc()).first() %}
+                                        {% if last_msg %}
+                                            {% if last_msg.sender_type == 'patient' %}You: {% endif %}{{ last_msg.message_body }}
+                                        {% else %}
+                                            <span class="italic text-gray-400">No messages yet</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <!-- SAFE EMPTY STATE -->
+                        <div class="flex-grow flex flex-col items-center justify-center text-center px-4 opacity-70 p-4">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-200">
+                                <i data-lucide="message-square-off" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-[16px] font-extrabold text-primary mb-1">No messages yet.</h3>
+                            <p class="text-[13px] text-textMuted max-w-[250px]">
+                                Messages with healthcare providers will appear here when a conversation is started.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>"""
+
+c = re.sub(
+    r'<!-- List Items -->.*?<!-- RIGHT PANEL: Active Chat -->',
+    replacement + '\n            </div>\n\n            <!-- RIGHT PANEL: Active Chat -->',
+    c,
+    flags=re.DOTALL
+)
+
+active_chat_replacement = """<!-- RIGHT PANEL: Active Chat -->
+            <div id="active-chat" class="w-full flex flex-col flex-grow bg-white md:bg-bgLight relative z-10 h-full {% if not active_thread %}hidden md:flex items-center justify-center{% else %}flex{% endif %}">
+                {% if active_thread %}
+                
+                <!-- Chat Header (Sticky) -->
+                <div class="bg-white border-b border-gray-200 px-3 sm:px-5 py-3 sm:py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-sm relative">
+                    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                        <a href="{{ url_for('patient_secure_messages') }}" id="back-to-list-btn" class="md:hidden p-2 -ml-2 text-textMuted hover:text-primary rounded-lg focus:outline-none transition-colors" aria-label="Back to Messages">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </a>
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building-2" class="w-5 h-5 sm:w-6 sm:h-6 text-secondary opacity-70"></i>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="font-extrabold text-[15px] sm:text-[17px] text-primary truncate">{{ active_thread.hospital.name }}</span>
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-greenAccent flex-shrink-0" title="Verified by MediBid"></i>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] sm:text-[12px] text-textMuted truncate mt-0.5">
+                                <span class="uppercase tracking-widest font-mono font-medium">Req: {{ active_thread.treatment_request.reference_id }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Notice -->
+                <div class="bg-red-50 border-b border-red-100 px-4 py-2 flex items-center justify-center gap-2 text-[11.5px] sm:text-[12px] text-danger font-medium flex-shrink-0 z-0">
+                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                    <span class="text-center">For medical emergencies, contact local emergency services.</span>
+                </div>
+
+                <!-- Messages Area (Scrollable) -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar p-4 sm:p-5 flex flex-col gap-5 bg-white md:bg-bgLight">
+                    {% set msgs = active_thread.messages.all() %}
+                    {% if msgs %}
+                        {% for msg in msgs %}
+                            {% if msg.sender_type == 'hospital' %}
+                            <!-- Hospital Message -->
+                            <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] animate-fade-in">
+                                <div class="w-8 h-8 rounded-full bg-white border border-gray-200 items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
+                                    <i data-lucide="building" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                                <div class="flex flex-col gap-1 w-full">
+                                    <div class="flex items-baseline gap-2 ml-1">
+                                        <span class="text-[12px] font-bold text-textMuted">{{ active_thread.hospital.name }}</span>
+                                        <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tl-sm shadow-sm leading-relaxed whitespace-pre-wrap">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- Patient Message -->
+                            <div class="flex justify-end gap-3 max-w-[95%] lg:max-w-[80%] ml-auto mt-2 animate-fade-in">
+                                <div class="flex flex-col gap-1 items-end w-full">
+                                    <div class="flex items-baseline gap-2 mr-1">
+                                        <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                        <span class="text-[12px] font-bold text-textMuted">You</span>
+                                    </div>
+                                    <div class="bg-softBlue border border-blue-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tr-sm shadow-sm leading-relaxed text-left w-full sm:w-auto sm:max-w-full whitespace-pre-wrap">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="flex-grow flex flex-col items-center justify-center text-center px-4 opacity-70">
+                            <i data-lucide="message-square" class="w-8 h-8 text-gray-300 mb-2"></i>
+                            <p class="text-[13px] text-textMuted max-w-[250px]">Start the conversation by sending a message.</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="h-4 flex-shrink-0"></div>
+                </div>
+
+                <!-- Composer Area (Sticky Bottom) -->
+                <div class="bg-white border-t border-gray-200 p-3 sm:p-4 flex-shrink-0 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+                    <form action="{{ url_for('patient_secure_messages_send', thread_id=active_thread.id) }}" method="POST">
+                        <div class="flex items-end gap-2 sm:gap-3 bg-gray-50 border border-gray-200 rounded-[16px] p-2 focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary transition-all">
+                            <!-- Textarea -->
+                            <textarea name="message_body" rows="1" class="w-full bg-transparent border-none focus:ring-0 text-[14px] sm:text-[14.5px] text-textMain placeholder-gray-400 resize-none py-3 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed pl-3" placeholder="Write a secure message..." required></textarea>
+                            
+                            <!-- Send Button -->
+                            <button type="submit" class="bg-primary text-white hover:bg-blue-800 p-2.5 sm:p-3 rounded-xl transition-colors focus:outline-none flex-shrink-0 shadow-sm" aria-label="Send Message">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-[11px] text-textMuted mt-2.5 px-1 flex justify-between items-center">
+                        <span class="flex items-center gap-1 font-medium text-gray-500"><i data-lucide="lock" class="w-3 h-3"></i> Secure End-to-End Environment</span>
+                    </div>
+                </div>
+
+                {% else %}
+                    <!-- ACTIVE CHAT EMPTY STATE -->
+                    <div class="flex flex-col items-center justify-center text-center px-6 opacity-70">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-5 border border-gray-200 shadow-sm">
+                            <i data-lucide="message-circle" class="w-10 h-10 text-gray-300"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-primary mb-2">Select a Conversation</h3>
+                        <p class="text-[14px] text-textMuted max-w-[300px]">
+                            Choose a hospital from the list to view your secure messages.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>"""
+
+c = re.sub(
+    r'<!-- RIGHT PANEL: Active Chat -->.*?</div>\s*</div>\s*</main>',
+    active_chat_replacement + '\n        </div>\n    </main>',
+    c,
+    flags=re.DOTALL
+)
+
+with open('templates/patient-secure-messages.html', 'w', encoding='utf-8') as f:
+    f.write(c)
