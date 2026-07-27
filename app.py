@@ -834,14 +834,52 @@ def patient_dashboard():
             status='submitted'
         ).count()
         total_responses += req.response_count
+
+    from models import MessageThread, Message
+
+    recent_responses = []
+    recent_messages = []
+    unread_messages_count = 0
     
+    for req in active_requests:
+        # Get recent responses
+        proposals = TreatmentProposal.query.filter_by(
+            treatment_request_id=req.id,
+            status='submitted'
+        ).order_by(TreatmentProposal.submitted_at.desc()).all()
+        recent_responses.extend(proposals)
+        
+        # Get recent messages
+        threads = MessageThread.query.filter_by(treatment_request_id=req.id).all()
+        for thread in threads:
+            latest_msg = thread.messages.order_by(Message.created_at.desc()).first()
+            if latest_msg:
+                recent_messages.append({
+                    'thread': thread,
+                    'latest_message': latest_msg
+                })
+            
+            # Count unread messages from hospital
+            unread_count = thread.messages.filter_by(sender_type='hospital', is_read=False).count()
+            unread_messages_count += unread_count
+
+    # Sort and limit
+    recent_responses.sort(key=lambda x: x.submitted_at or x.created_at, reverse=True)
+    recent_responses = recent_responses[:5]
+    
+    recent_messages.sort(key=lambda x: x['latest_message'].created_at, reverse=True)
+    recent_messages = recent_messages[:5]
+
     return render_template(
         "patient-dashboard.html",
         user=user,
         profile=profile,
         active_requests=active_requests,
         profiles=profiles,
-        total_responses=total_responses
+        total_responses=total_responses,
+        recent_responses=recent_responses,
+        recent_messages=recent_messages,
+        unread_messages_count=unread_messages_count
     )
 
 

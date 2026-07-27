@@ -1,4 +1,6 @@
 {% extends "patient-layout.html" %}
+{% set page_title = "Patient Dashboard" %}
+{% set active_page = "dashboard" %}
 
 {% block title %}Patient Dashboard | MediBid{% endblock %}
 
@@ -16,55 +18,58 @@
                 <!-- Action CTA Removed per Sprint 4 instructions -->
             </div>
             
-            <!-- COMPACT DASHBOARD SUMMARY -->
-            <div class="flex flex-wrap gap-4 sm:gap-6 opacity-0 animate-fade-in stagger-1 bg-white p-4 sm:p-5 rounded-[20px] border border-gray-200 shadow-sm">
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 opacity-0 animate-fade-in stagger-1 mb-6">
+                
                 <!-- Active Requests -->
-                <div class="flex items-center gap-4 flex-1 min-w-[150px]">
-                    <div class="w-10 h-10 rounded-[12px] bg-softBlue border border-blue-100 flex items-center justify-center text-secondary shadow-sm">
-                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                <div class="bg-[linear-gradient(135deg,#F6F0FF,#F1EBFF)] p-5 sm:p-6 rounded-[16px] border border-[#E4D8FF] shadow-premium hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-premium">
+                            <i data-lucide="file-text" class="w-5 h-5 text-[#6D28D9]"></i>
+                        </div>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-[20px] font-extrabold text-primary leading-none">{{ active_requests|length }}</span>
-                        <span class="text-[13px] font-bold text-textMuted">Active Requests</span>
+                        <span class="text-[26px] font-black text-textMain leading-none">{{ active_requests|length }}</span>
+                        <span class="text-[13px] font-bold text-textMuted mt-1">Active Treatment Requests</span>
                     </div>
                 </div>
-
-                <div class="hidden sm:block w-[1px] bg-gray-100"></div>
 
                 <!-- Hospital Responses -->
-                <div class="flex items-center gap-4 flex-1 min-w-[150px]">
-                    <div class="w-10 h-10 rounded-[12px] bg-softTeal border border-teal-100 flex items-center justify-center text-tealAccent shadow-sm">
-                        <i data-lucide="building-2" class="w-5 h-5"></i>
+                <div class="bg-[linear-gradient(135deg,#F2F6FF,#EDF4FF)] p-5 sm:p-6 rounded-[16px] border border-[#D7E4FF] shadow-premium hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-premium">
+                            <i data-lucide="building-2" class="w-5 h-5 text-[#2563EB]"></i>
+                        </div>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-[20px] font-extrabold text-primary leading-none">{{ total_responses }}</span>
-                        <span class="text-[13px] font-bold text-textMuted">Responses</span>
+                        <span class="text-[26px] font-black text-textMain leading-none">{{ total_responses }}</span>
+                        <span class="text-[13px] font-bold text-textMuted mt-1">Hospital Responses</span>
                     </div>
                 </div>
 
-                <div class="hidden sm:block w-[1px] bg-gray-100"></div>
+                <!-- Shortlisted Hospitals -->
+                <div class="bg-[linear-gradient(135deg,#F0FBFB,#EBF9FA)] p-5 sm:p-6 rounded-[16px] border border-[#D0EEEE] shadow-premium hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-premium">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-[#0EA5A5]"></i>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[26px] font-black text-textMain leading-none">{{ shortlisted_hospitals_count }}</span>
+                        <span class="text-[13px] font-bold text-textMuted mt-1">Shortlisted Hospitals</span>
+                    </div>
+                </div>
 
                 <!-- Unread Messages -->
-                <div class="flex items-center gap-4 flex-1 min-w-[150px]">
-                    <div class="w-10 h-10 rounded-[12px] bg-softLavender border border-purple-100 flex items-center justify-center text-lavenderAccent shadow-sm">
-                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                <div class="bg-[linear-gradient(135deg,#FFF3F8,#FFF0F6)] p-5 sm:p-6 rounded-[16px] border border-[#F8D7E7] shadow-premium hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-premium">
+                            <i data-lucide="message-circle" class="w-5 h-5 text-[#DB2777]"></i>
+                        </div>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-[20px] font-extrabold text-primary leading-none">0</span>
-                        <span class="text-[13px] font-bold text-textMuted">Messages</span>
-                    </div>
-                </div>
-
-                <div class="hidden sm:block w-[1px] bg-gray-100"></div>
-
-                <!-- Notifications -->
-                <div class="flex items-center gap-4 flex-1 min-w-[150px]">
-                    <div class="w-10 h-10 rounded-[12px] bg-softAmber border border-amber-100 flex items-center justify-center text-amberAccent shadow-sm">
-                        <i data-lucide="bell" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-[14px] font-bold text-amberAccent">Up to date</span>
-                        <span class="text-[13px] font-bold text-textMuted">Notifications</span>
+                        <span class="text-[26px] font-black text-textMain leading-none">{{ unread_messages_count }}</span>
+                        <span class="text-[13px] font-bold text-textMuted mt-1">Unread Messages</span>
                     </div>
                 </div>
             </div>
@@ -79,7 +84,7 @@
                     <section class="flex flex-col">
                         <div class="flex items-center justify-between mb-5">
                             <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Active Treatment Requests</h2>
-                            <a href="{{ url_for('patient_registration_who') }}" class="bg-secondary text-white font-bold px-5 py-2.5 rounded-xl text-[14px] hover:bg-blue-600 hover:shadow-sm transition-all flex items-center gap-2">
+                            <a href="{{ url_for('patient_registration_who') }}" class="bg-secondary text-white font-bold px-5 py-2.5 rounded-xl text-[14px] hover:bg-blue-600 hover:shadow-premium transition-all flex items-center gap-2">
                                 <i data-lucide="plus" class="w-4 h-4"></i> Start New Treatment Request
                             </a>
                         </div>
@@ -87,7 +92,7 @@
                         {% if active_requests %}
                         {% for req in active_requests %}
                         <!-- ACTUAL REQUEST CARD -->
-                        <div class="bg-white rounded-[16px] border border-gray-200 shadow-sm flex flex-col relative hover:border-blue-200 hover:shadow-card transition-all duration-300 mb-4 p-5 sm:p-6">
+                        <div class="bg-white rounded-[16px] border border-[#E8E8F0] shadow-premium flex flex-col relative hover:border-blue-200 hover:shadow-card transition-all duration-300 mb-4 p-5 sm:p-6">
                             
                             <!-- Top row: ID, Status -->
                             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
@@ -95,7 +100,7 @@
                                     <span class="text-[13px] font-bold text-primary tracking-widest uppercase font-mono bg-gray-100 px-2.5 py-1 rounded-md">{{ req.reference_id }}</span>
                                     <span class="text-[13px] text-textMuted font-medium"><i data-lucide="calendar" class="w-3.5 h-3.5 inline mb-0.5"></i> {{ req.created_at.strftime('%d %b %Y') }}</span>
                                 </div>
-                                <div class="flex items-center gap-2 bg-softBlue border border-blue-100 text-secondary px-3 py-1 rounded-md shadow-sm">
+                                <div class="flex items-center gap-2 bg-softBlue border border-blue-100 text-secondary px-3 py-1 rounded-md shadow-premium">
                                     <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
                                     <span class="text-[12px] font-bold uppercase tracking-wider">{{ req.status }}</span>
                                 </div>
@@ -151,11 +156,11 @@
                                 </div>
                                 
                                 <div class="flex flex-wrap items-center gap-3">
-                                    <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="bg-white border border-gray-200 text-primary font-bold px-4 py-2 rounded-lg text-[13px] hover:bg-gray-50 hover:shadow-sm transition-all flex items-center gap-2">
+                                    <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="bg-white border border-[#E8E8F0] text-primary font-bold px-4 py-2 rounded-lg text-[13px] hover:bg-gray-50 hover:shadow-premium transition-all flex items-center gap-2">
                                         View Request
                                     </a>
                                     
-                                    <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="flex items-center gap-2 text-[14px] font-bold text-secondary hover:text-blue-700 bg-softBlue hover:bg-blue-100 px-4 py-2.5 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary shadow-sm">
+                                    <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="flex items-center gap-2 text-[14px] font-bold text-secondary hover:text-blue-700 bg-softBlue hover:bg-blue-100 px-4 py-2.5 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary shadow-premium">
                                         View Responses <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                     </a>
                                     
@@ -169,15 +174,15 @@
                         {% endfor %}
                         {% else %}
                         <!-- EMPTY STATE -->
-                        <div class="bg-white rounded-[24px] border border-gray-200 border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center shadow-sm">
-                            <div class="w-20 h-20 rounded-full bg-softBlue flex items-center justify-center mb-5 border-[6px] border-white shadow-sm ring-1 ring-gray-100">
+                        <div class="bg-white rounded-[24px] border border-[#E8E8F0] border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center shadow-premium">
+                            <div class="w-20 h-20 rounded-full bg-softBlue flex items-center justify-center mb-5 border-[6px] border-white shadow-premium ring-1 ring-gray-100">
                                 <i data-lucide="file-plus" class="w-8 h-8 text-secondary"></i>
                             </div>
                             <h3 class="text-[20px] font-extrabold text-primary mb-2">No treatment requests yet</h3>
                             <p class="text-[14.5px] text-textMuted max-w-[450px] mb-8 leading-relaxed font-medium">
                                 Create a treatment request to connect with relevant healthcare providers and explore treatment options globally.
                             </p>
-                            <a href="{{ url_for('patient_registration_who') }}" class="bg-secondary text-white font-bold px-8 py-3.5 rounded-full text-[14.5px] hover:bg-blue-600 shadow-sm flex items-center gap-2 transition-all">
+                            <a href="{{ url_for('patient_registration_who') }}" class="bg-secondary text-white font-bold px-8 py-3.5 rounded-full text-[14.5px] hover:bg-blue-600 shadow-premium flex items-center gap-2 transition-all">
                                 Create Treatment Request
                             </a>
                         </div>
@@ -190,7 +195,7 @@
                 <div class="xl:col-span-1 flex flex-col gap-8">
                     
                     <!-- NOTIFICATIONS -->
-                    <section class="bg-white rounded-[24px] border border-gray-200 p-6 sm:p-8 shadow-sm">
+                    <section class="bg-white rounded-[24px] border border-[#E8E8F0] p-6 sm:p-8 shadow-premium">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-[17px] font-extrabold text-primary">Recent Updates</h2>
                         </div>
@@ -204,11 +209,11 @@
                     </section>
                     
                     <!-- QUICK ACTIONS -->
-                    <section class="bg-white rounded-[24px] border border-gray-200 p-6 sm:p-8 shadow-sm">
+                    <section class="bg-white rounded-[24px] border border-[#E8E8F0] p-6 sm:p-8 shadow-premium">
                         <h2 class="text-[17px] font-extrabold text-primary mb-5">Quick Actions</h2>
                         
                         <div class="flex flex-col gap-3">
-                            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all duration-200 group">
+                            <a href="{{ url_for('patient_compare_hospitals') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-premium transition-all duration-200 group">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full bg-softBlue flex items-center justify-center group-hover:bg-secondary transition-colors">
                                         <i data-lucide="bar-chart-2" class="w-4 h-4 text-secondary group-hover:text-white transition-colors"></i>
@@ -218,7 +223,7 @@
                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-secondary transition-colors"></i>
                             </a>
 
-                            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group">
+                            <a href="{{ url_for('patient_profile_settings') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-premium transition-all duration-200 group">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-gray-200 transition-colors">
                                         <i data-lucide="user" class="w-4 h-4 text-textMuted group-hover:text-textMain transition-colors"></i>
@@ -228,7 +233,7 @@
                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-textMain transition-colors"></i>
                             </a>
                             
-                            <a href="{{ url_for('patient_medical_documents') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all duration-200 group">
+                            <a href="{{ url_for('patient_medical_documents') }}" class="flex items-center justify-between bg-white px-4 py-3.5 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-premium transition-all duration-200 group">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-gray-200 transition-colors">
                                         <i data-lucide="folder-plus" class="w-4 h-4 text-textMuted group-hover:text-textMain transition-colors"></i>

@@ -120,72 +120,79 @@
     
         <!-- MAIN CONTENT (THREAD) -->
         <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-white">
-            <header class="bg-white border-b border-gray-200 px-6 sm:px-8 py-4 sm:py-5 flex items-center gap-4 flex-shrink-0">
-                <a href="{{ url_for('hospital_messages') }}" class="p-2 -ml-2 text-textMuted hover:text-primary rounded-lg transition-colors focus:outline-none">
+            <header class="bg-white border-b border-gray-100 px-5 sm:px-8 py-4 flex items-center gap-4 flex-shrink-0 shadow-sm z-10">
+                <a href="{{ url_for('hospital_messages') }}" class="p-2 -ml-2 text-textMuted hover:text-primary hover:bg-blue-50 rounded-xl transition-colors focus:outline-none flex-shrink-0">
                     <i data-lucide="arrow-left" class="w-5 h-5"></i>
                 </a>
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="user" class="w-5 h-5 sm:w-6 sm:h-6 text-secondary"></i>
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user" class="w-5 h-5 text-indigo-600"></i>
                 </div>
-                <div>
-                    <h1 class="text-[16px] sm:text-[18px] font-extrabold text-primary tracking-tight leading-tight">Patient ({{ thread.treatment_request.reference_id }})</h1>
-                    <div class="text-[12px] sm:text-[13px] text-textMuted font-medium mt-0.5">Secure End-to-End Communication</div>
+                <div class="flex flex-col min-w-0">
+                    <h1 class="text-[16px] sm:text-[17px] font-extrabold text-slate-800 tracking-tight leading-tight truncate">Patient</h1>
+                    <div class="flex items-center gap-2 text-[12px] sm:text-[13px] mt-0.5">
+                        <span class="text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded-md">{{ thread.treatment_request.reference_id }}</span>
+                        <span class="text-slate-400 font-medium hidden sm:inline-flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Secure Communication</span>
+                    </div>
                 </div>
             </header>
             
-            <div id="message-history-container" class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-bgLight flex flex-col space-y-4">
-                {% if not messages %}
-                    <div class="text-center py-8 text-textMuted text-[14px]">No messages yet. Send a message to start the conversation.</div>
-                {% endif %}
+            <div id="message-history-container" class="flex-1 overflow-y-auto custom-scrollbar bg-[#F8FAFC] flex flex-col relative">
                 
-                {% for msg in messages %}
-                    {% if msg.sender_type == 'patient' %}
-                        <!-- Patient Message -->
-                        <div class="flex gap-3 max-w-[95%] lg:max-w-[80%]">
-                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
-                                <i data-lucide="user" class="w-4 h-4 text-gray-500"></i>
+                <div class="flex-1 min-h-[24px]"></div>
+                
+                <div class="w-full max-w-4xl mx-auto flex flex-col space-y-6 px-4 sm:px-6 lg:px-8 pb-6 mt-auto">
+                    {% if not messages %}
+                        <div class="flex flex-col items-center justify-center py-10 opacity-70">
+                            <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mb-3">
+                                <i data-lucide="message-square" class="w-5 h-5 text-slate-400"></i>
                             </div>
-                            <div class="flex flex-col gap-1 w-full">
-                                <div class="flex items-baseline gap-2 ml-1">
-                                    <span class="text-[12px] font-bold text-textMain">Patient</span>
-                                    <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
-                                </div>
-                                <div class="bg-white border border-gray-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tl-sm shadow-sm leading-relaxed whitespace-pre-wrap w-full sm:w-auto sm:max-w-full">{{ msg.message_body }}</div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <!-- Hospital Message -->
-                        <div class="flex justify-end gap-3 max-w-[95%] lg:max-w-[80%] ml-auto mt-2">
-                            <div class="flex flex-col gap-1 items-end w-full">
-                                <div class="flex items-baseline gap-2 mr-1">
-                                    <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
-                                    <span class="text-[12px] font-bold text-textMuted">You</span>
-                                </div>
-                                <div class="bg-softBlue border border-blue-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tr-sm shadow-sm leading-relaxed whitespace-pre-wrap text-left w-full sm:w-auto sm:max-w-full">{{ msg.message_body }}</div>
-                                {% if msg.is_read %}
-                                <div class="flex items-center gap-1 text-[11.5px] text-secondary font-bold mr-1 mt-0.5">
-                                    <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Read
-                                </div>
-                                {% endif %}
-                            </div>
+                            <div class="text-slate-500 text-[14px] font-medium text-center">No messages yet. Send a message to start the conversation.</div>
                         </div>
                     {% endif %}
-                {% endfor %}
+                    
+                    {% for msg in messages %}
+                        {% if msg.sender_type == 'patient' %}
+                            <!-- Patient Message -->
+                            <div class="flex gap-3 max-w-[95%] sm:max-w-[85%] lg:max-w-[75%]">
+                                <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
+                                    <i data-lucide="user" class="w-4 h-4 text-slate-500"></i>
+                                </div>
+                                <div class="flex flex-col gap-1.5 w-full">
+                                    <div class="flex items-baseline gap-2 ml-1">
+                                        <span class="text-[12px] sm:text-[13px] font-bold text-slate-700">Patient</span>
+                                        <span class="text-[11px] text-slate-400 font-semibold">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                    </div>
+                                    <div class="bg-white border border-slate-200 text-slate-800 text-[14.5px] p-3.5 sm:p-4 rounded-[20px] rounded-tl-sm shadow-sm leading-relaxed whitespace-pre-wrap break-words w-fit">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Hospital Message -->
+                            <div class="flex justify-end gap-3 max-w-[95%] sm:max-w-[85%] lg:max-w-[75%] ml-auto">
+                                <div class="flex flex-col gap-1.5 items-end w-full">
+                                    <div class="flex items-baseline gap-2 mr-1">
+                                        <span class="text-[11px] text-slate-400 font-semibold">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                        <span class="text-[12px] sm:text-[13px] font-bold text-slate-700">You</span>
+                                    </div>
+                                    <div class="bg-blue-50 border border-blue-100 text-slate-800 text-[14.5px] p-3.5 sm:p-4 rounded-[20px] rounded-tr-sm shadow-sm leading-relaxed whitespace-pre-wrap break-words text-left w-fit">{{ msg.message_body }}</div>
+                                    {% if msg.is_read %}
+                                    <div class="flex items-center gap-1 text-[11px] text-blue-600 font-bold mr-1 mt-0.5">
+                                        <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Read
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
             
-            <div class="bg-white border-t border-gray-200 p-4 sm:p-5 flex-shrink-0 z-20">
+            <div class="bg-white border-t border-gray-200 p-4 sm:p-5 flex-shrink-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
                 <form action="{{ url_for('hospital_send_message', thread_id=thread.id) }}" method="POST" class="max-w-4xl mx-auto">
-                    <div class="flex items-end gap-3 bg-gray-50 border border-gray-200 rounded-2xl p-2.5 focus-within:ring-2 focus-within:ring-secondary focus-within:border-secondary transition-all">
-                        <textarea name="message_body" rows="1" required class="w-full bg-transparent border-none focus:ring-0 text-[14px] sm:text-[15px] text-textMain placeholder-gray-400 resize-none py-2.5 px-3 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" placeholder="Write your reply to the patient..."></textarea>
+                    <div class="flex items-end gap-3 bg-slate-50 border border-slate-200 rounded-[28px] p-2 focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary transition-all shadow-inner">
+                        <textarea name="message_body" rows="1" required class="w-full bg-transparent border-none focus:ring-0 text-[14.5px] sm:text-[15px] text-slate-800 placeholder-slate-400 resize-none py-3 px-4 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" placeholder="Write your reply to the patient..." oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px'"></textarea>
                         
-                        <button type="submit" class="bg-primary text-white hover:bg-blue-800 p-3 sm:p-3.5 rounded-xl transition-colors focus:outline-none flex-shrink-0 shadow-sm disabled:opacity-50" aria-label="Send Message" onclick="this.innerHTML='<i data-lucide=\'loader-2\' class=\'w-5 h-5 animate-spin\'></i>'; setTimeout(()=>{this.innerHTML='<i data-lucide=\'send\' class=\'w-5 h-5\'></i>'; lucide.createIcons();
-
-        const chatContainer = document.getElementById('message-history-container');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-}, 1000);">
-                            <i data-lucide="send" class="w-5 h-5"></i>
+                        <button type="submit" class="bg-primary text-white hover:bg-blue-700 p-3.5 rounded-full transition-all focus:outline-none flex-shrink-0 shadow-md disabled:opacity-50 disabled:cursor-not-allowed mb-0.5 mr-0.5 hover:shadow-lg active:scale-95" aria-label="Send Message" onclick="if(this.form.checkValidity()) { this.innerHTML='<i data-lucide=\'loader-2\' class=\'w-5 h-5 animate-spin\'></i>'; setTimeout(()=>{this.innerHTML='<i data-lucide=\'send\' class=\'w-5 h-5 ml-0.5\'></i>'; lucide.createIcons(); const chatContainer = document.getElementById('message-history-container'); if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight; }, 1000); }">
+                            <i data-lucide="send" class="w-5 h-5 ml-0.5"></i>
                         </button>
                     </div>
                 </form>

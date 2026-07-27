@@ -1,4 +1,6 @@
 {% extends "patient-layout.html" %}
+{% set page_title = "Medical Documents" %}
+{% set active_page = "documents" %}
 
 {% block title %}Patient Medical Documents | MediBid{% endblock %}
 
@@ -14,7 +16,7 @@
                     <p class="text-[14px] sm:text-[15px] text-textMuted font-medium mt-1">Manage and securely share your health records.</p>
                 </div>
                 
-                <button onclick="document.getElementById('uploadModal').classList.remove('hidden');" class="bg-secondary text-white font-bold px-6 py-3.5 rounded-full shadow-sm hover:bg-blue-600 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-2 self-start sm:self-auto whitespace-nowrap transition-all">
+                <button onclick="document.getElementById('uploadModal').classList.remove('hidden');" class="bg-cta-gradient text-white font-bold px-6 py-3.5 rounded-full shadow-sm hover:bg-blue-600 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-2 self-start sm:self-auto whitespace-nowrap transition-all">
                     <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Document
                 </button>
             </div>

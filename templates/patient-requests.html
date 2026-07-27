@@ -1,22 +1,16 @@
 {% extends "patient-layout.html" %}
+{% if request.args.get('context') == 'responses' %}
+{% set page_title = "Hospital Responses" %}
+{% set active_page = "hospital_responses" %}
+{% else %}
+{% set page_title = "My Requests" %}
+{% set active_page = "requests" %}
+{% endif %}
 
 {% block title %}My Requests | MediBid{% endblock %}
 
 {% block content %}
-        <!-- PAGE HEADER -->
-        <header class="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm print:static print:border-none print:shadow-none">
-            <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5 max-w-[1400px] w-full mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <button id="mobile-menu-btn" class="md:hidden p-2 text-textMuted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg bg-gray-50 border border-gray-100 no-print" aria-label="Open Menu">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
-                    </button>
-                    <div>
-                        <h1 class="text-[20px] sm:text-[24px] font-extrabold text-primary tracking-tight">{{ page_title | default('My Requests') }}</h1>
-                        <p class="text-[13px] text-textMuted mt-0.5">{{ page_desc | default('Manage and track your submitted treatment requests.') }}</p>
-                    </div>
-                </div>
-            </div>
-        </header>
+        
 
         <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-[1400px] w-full mx-auto">
             {% if not requests %}
@@ -27,7 +21,7 @@
                 </div>
                 <h2 class="text-xl font-extrabold text-primary mb-2">No Requests Found</h2>
                 <p class="text-textMuted text-[14px] max-w-md mx-auto mb-6">You haven't submitted any treatment requests yet.</p>
-                <a href="{{ url_for('patient_dashboard') }}" class="bg-primary text-white px-6 py-2.5 rounded-xl font-bold text-[14px] hover:bg-blue-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                <a href="{{ url_for('patient_dashboard') }}" class="bg-cta-gradient text-white px-6 py-2.5 rounded-xl font-bold text-[14px] hover:bg-violet-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary">
                     Return to Dashboard
                 </a>
             </div>
@@ -58,7 +52,7 @@
                             <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-4 py-2 border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 text-center transition-colors shadow-sm whitespace-nowrap">
                                 View Request
                             </a>
-                            <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-4 py-2 bg-secondary text-white text-[13px] font-bold rounded-xl hover:bg-blue-600 text-center transition-colors shadow-sm whitespace-nowrap">
+                            <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-4 py-2 bg-cta-gradient text-white text-[13px] font-bold rounded-xl hover:bg-blue-600 text-center transition-colors shadow-sm whitespace-nowrap">
                                 Hospital Responses
                             </a>
                         </div>

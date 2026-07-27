@@ -1,4 +1,6 @@
 {% extends "patient-layout.html" %}
+{% set page_title = "Notifications" %}
+{% set active_page = "notifications" %}
 
 {% block title %}Patient Notifications | MediBid{% endblock %}
 
@@ -36,7 +38,7 @@
                              data-read="{{ 'true' if notif.is_read else 'false' }}" 
                              onclick="handleNotifClick({{ notif.id }}, '{{ notif.target_url or '#' }}', {{ 'true' if notif.is_read else 'false' }})">
                             
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 {{ 'bg-secondary text-white' if not notif.is_read else 'bg-gray-100 text-textMuted group-hover:bg-gray-200' }} transition-colors">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 {{ 'bg-cta-gradient text-white' if not notif.is_read else 'bg-gray-100 text-textMuted group-hover:bg-gray-200' }} transition-colors">
                                 {% if notif.notification_type == 'proposal_submitted' or notif.notification_type == 'proposal_updated' %}
                                     <i data-lucide="file-text" class="w-5 h-5"></i>
                                 {% elif notif.notification_type == 'new_message' %}
