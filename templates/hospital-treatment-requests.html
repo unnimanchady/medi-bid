@@ -65,11 +65,10 @@
             </div>
             {% endif %}
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Proposals</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
+                <span>Proposals</span>
+            </a>
             
             <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
                 <i data-lucide="message-square" class="w-5 h-5"></i>
@@ -170,10 +169,19 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-5">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold whitespace-nowrap">
-                                        <i data-lucide="activity" class="w-3.5 h-3.5"></i>
-                                        {{ req.status }}
-                                    </span>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold whitespace-nowrap">
+                                            <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+                                            {{ req.status }}
+                                        </span>
+                                        {% set proposal = hospital.proposals | selectattr('treatment_request_id', 'equalto', req.id) | first %}
+                                        {% if proposal and proposal.status != 'draft' %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-200 text-xs font-bold whitespace-nowrap">
+                                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                            Proposal Submitted
+                                        </span>
+                                        {% endif %}
+                                    </div>
                                 </td>
                                 <td class="px-6 py-5 text-right">
                                     <a href="{{ url_for('hospital_treatment_request_detail', reference_id=req.reference_id) }}" class="inline-flex items-center justify-center bg-white border border-slate-200 text-slate-700 hover:text-accent hover:border-accent hover:bg-blue-50 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-sm">

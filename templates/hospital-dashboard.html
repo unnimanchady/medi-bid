@@ -72,41 +72,40 @@
                 <span>Treatment Requests</span>
             </a>
             {% else %}
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Account verification required">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Treatment Requests</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
+            <div class=\"px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-70 group\" title="Account verification required">
+                <i data-lucide=\"file-text\" class="w-5 h-5"></i>
+                <span class=\"font-medium\">Treatment Requests</span>
+                <span class=\"ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-400 px-2 py-0.5 rounded\">Lock</span>
             </div>
             {% endif %}
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Proposals</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+                <span>Proposals</span>
+            </a>
+            
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+                <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+                <span>Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="font-medium">Messages</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+                <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
+                <span>Hospital Profile</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="building" class="w-5 h-5"></i>
-                <span class="font-medium">Hospital Profile</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+                <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+                <span>Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="font-medium">Notifications</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="font-medium">Account / Settings</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+                <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+                <span>Account / Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
         </nav>
         
@@ -122,16 +121,88 @@
     <main class="flex-1 flex flex-col h-screen overflow-y-auto">
         <!-- Mobile Header -->
         <header class="md:hidden bg-white border-b border-gray-100 p-4 flex justify-between items-center sticky top-0 z-50">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <div class="flex items-center gap-3">
+                <button id="mobile-menu-btn" class="p-2 -ml-2 text-textMuted hover:bg-gray-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
                     <i data-lucide="building-2" class="text-white w-4 h-4"></i>
                 </div>
                 <span class="font-bold text-lg tracking-tight text-textMain">MediBid</span>
             </div>
-            <a href="{{ url_for('hospital_logout') }}" class="p-2 text-textMuted hover:text-red-600 transition-colors">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-            </a>
         </header>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="mobile-drawer-overlay" class="fixed inset-0 bg-slate-900/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
+        <div id="mobile-drawer" class="fixed inset-y-0 left-0 w-[280px] bg-white z-[70] transform -translate-x-full transition-transform duration-300 md:hidden flex flex-col shadow-2xl">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+                        <i data-lucide="building-2" class="text-white w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight text-textMain">MediBid</span>
+                </div>
+                <button id="close-drawer-btn" class="p-2 -mr-2 text-textMuted hover:bg-gray-50 rounded-lg transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-5 px-3 space-y-1">
+                <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    Dashboard
+                </a>
+                
+                {% if hospital.verification_status == 'verified' %}
+                <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span>Treatment Requests</span>
+                </a>
+                {% else %}
+                <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-70 group" title="Account verification required">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span class="font-medium">Treatment Requests</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-400 px-2 py-0.5 rounded">Lock</span>
+                </div>
+                {% endif %}
+                
+                <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span>Proposals</span>
+                </a>
+                
+                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                    <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+                    <span>Messages</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+                </div>
+                
+                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                    <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
+                    <span>Hospital Profile</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+                </div>
+                
+                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                    <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+                    <span>Notifications</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+                </div>
+                
+                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                    <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+                    <span>Account / Settings</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-100">
+                <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    Log Out
+                </a>
+            </div>
+        </div>
 
         <div class="p-6 md:p-10 lg:p-12 max-w-6xl mx-auto w-full">
             <div class="mb-8 flex justify-between items-end">
@@ -143,22 +214,30 @@
 
             <!-- Hospital Summary Card -->
             <div class="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100">
-                        <i data-lucide="building" class="w-8 h-8"></i>
+                <div class="flex items-start md:items-center gap-4 min-w-0 w-full">
+                    <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100">
+                        <i data-lucide="building" class="w-7 h-7 md:w-8 md:h-8"></i>
                     </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-textMain">{{ hospital.legal_name }}</h2>
-                        <p class="text-sm text-textMuted flex items-center gap-1 mt-1">
-                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                            {{ hospital.city }}, {{ hospital.country }}
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-xl md:text-2xl font-extrabold text-textMain truncate whitespace-normal break-words">{{ hospital.legal_name }}</h2>
+                        <p class="text-sm md:text-base text-textMuted flex items-center gap-1.5 mt-1">
+                            <i data-lucide="map-pin" class="w-4 h-4 shrink-0"></i>
+                            {% set loc_parts = [] %}
+                            {% if hospital.city and hospital.city != 'None' %}{% set _ = loc_parts.append(hospital.city) %}{% endif %}
+                            {% if hospital.state and hospital.state != 'None' %}{% set _ = loc_parts.append(hospital.state) %}{% endif %}
+                            {% if hospital.country and hospital.country != 'None' %}{% set _ = loc_parts.append(hospital.country) %}{% endif %}
+                            {% if loc_parts %}
+                                <span class="truncate whitespace-normal">{{ loc_parts | join(', ') }}</span>
+                            {% else %}
+                                <span>Location not specified</span>
+                            {% endif %}
                         </p>
                     </div>
                 </div>
-                <div class="bg-gray-50 border border-gray-100 px-5 py-3 rounded-2xl md:text-right shrink-0 min-w-[200px]">
-                    <p class="text-[10px] font-bold text-textMuted uppercase tracking-wider mb-1">Primary Contact</p>
-                    <p class="text-sm font-bold text-textMain">{{ user.first_name }} {{ user.last_name }}</p>
-                    <p class="text-xs text-textMuted">{{ user.work_email }}</p>
+                <div class="bg-gray-50 border border-gray-100 px-5 py-4 rounded-2xl md:text-right shrink-0 w-full md:w-auto md:min-w-[220px]">
+                    <p class="text-[11px] font-bold text-textMuted uppercase tracking-wider mb-1">Primary Contact</p>
+                    <p class="text-sm font-bold text-textMain break-words">{{ user.first_name }} {{ user.last_name }}</p>
+                    <p class="text-xs text-textMuted break-all">{{ user.work_email }}</p>
                 </div>
             </div>
 
@@ -253,28 +332,36 @@
             </div>
             
             {% elif hospital.verification_status == 'verified' %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <!-- Stat Card: Eligible Requests -->
-                <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex items-center justify-between group cursor-pointer hover:border-primary transition-colors" onclick="window.location.href='{{ url_for('hospital_treatment_requests') }}'">
-                    <div>
-                        <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Eligible Patient Requests</p>
-                        <p class="text-4xl font-extrabold text-textMain">{{ eligible_requests_count }}</p>
-                    </div>
-                    <div class="w-14 h-14 bg-blue-50 text-primary rounded-2xl flex items-center justify-center shadow-inner group-hover:bg-primary group-hover:text-white transition-colors">
-                        <i data-lucide="stethoscope" class="w-7 h-7"></i>
-                    </div>
-                </div>
-            </div>
             
-            <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm flex flex-col items-center justify-center text-center">
-                <div class="w-16 h-16 bg-blue-50 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="check-circle" class="w-8 h-8"></i>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                <!-- Eligible Requests Card (Prominent CTA) -->
+                <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-50 text-primary rounded-2xl flex items-center justify-center shrink-0 border border-blue-100">
+                            <i data-lucide="stethoscope" class="w-7 h-7 md:w-8 md:h-8"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] md:text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Eligible Patient Requests</p>
+                            <p class="text-4xl md:text-5xl font-extrabold text-textMain">{{ eligible_requests_count }}</p>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-auto mt-2 md:mt-0">
+                        <a href="{{ url_for('hospital_treatment_requests') }}" class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 md:py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm min-h-[44px]">
+                            View Treatment Requests <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </a>
+                    </div>
                 </div>
-                <h2 class="text-2xl font-bold text-textMain mb-2">Your Account is Verified</h2>
-                <p class="text-textMuted max-w-lg mx-auto mb-6">Your hospital has full access to the MediBid network. You can now review patient treatment requests that match your registered specialties.</p>
-                <a href="{{ url_for('hospital_treatment_requests') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm">
-                    View Treatment Requests <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
+
+                <!-- Verified Status (Subtle) -->
+                <div class="lg:col-span-5 xl:col-span-4 bg-white rounded-3xl border border-teal-100 p-6 md:p-8 shadow-sm flex flex-col justify-center">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center shrink-0 border border-teal-100">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        </div>
+                        <h2 class="text-lg md:text-xl font-bold text-textMain">Your Account is Verified</h2>
+                    </div>
+                    <p class="text-sm text-textMuted leading-relaxed">Your hospital has full access to the MediBid network. You can now review matching patient treatment requests.</p>
+                </div>
             </div>
             
             {% elif hospital.verification_status == 'rejected' %}
@@ -316,6 +403,34 @@
 
     <script>
         lucide.createIcons();
+
+        // Mobile Drawer Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('mobile-drawer-overlay');
+
+        function openDrawer() {
+            if (mobileDrawer) mobileDrawer.classList.remove('-translate-x-full');
+            if (overlay) {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+            }
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            if (mobileDrawer) mobileDrawer.classList.add('-translate-x-full');
+            if (overlay) {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+            }
+            document.body.style.overflow = '';
+        }
+
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openDrawer);
+        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
     </script>
 </body>
 </html>

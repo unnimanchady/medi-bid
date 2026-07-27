@@ -158,7 +158,15 @@
                         </div>
                         <div class="md:col-span-2">
                             <span class="text-textMuted block mb-1">Location</span>
-                            <span class="font-medium">{{ hospital.address }}, {{ hospital.city }}, {{ hospital.state_region }}, {{ hospital.postal_code }}, {{ hospital.country }}</span>
+                            <span class="font-medium">
+                                {% set loc = [] %}
+                                {% if hospital.address and hospital.address != 'None' %}{% set _ = loc.append(hospital.address) %}{% endif %}
+                                {% if hospital.city and hospital.city != 'None' %}{% set _ = loc.append(hospital.city) %}{% endif %}
+                                {% if hospital.state_region and hospital.state_region != 'None' %}{% set _ = loc.append(hospital.state_region) %}{% endif %}
+                                {% if hospital.postal_code and hospital.postal_code != 'None' %}{% set _ = loc.append(hospital.postal_code) %}{% endif %}
+                                {% if hospital.country and hospital.country != 'None' %}{% set _ = loc.append(hospital.country) %}{% endif %}
+                                {{ loc | join(', ') }}
+                            </span>
                         </div>
                         <div class="md:col-span-2">
                             <span class="text-textMuted block mb-1">Description</span>

@@ -1,0 +1,81 @@
+<!-- admin-sidebar.html -->
+<aside class="w-64 bg-primary text-slate-300 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+    <div class="p-6 border-b border-slate-700/50">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <i data-lucide="shield-check" class="text-primary w-5 h-5"></i>
+            </div>
+            <span class="font-extrabold text-lg tracking-tight text-white">MediBid Admin</span>
+        </div>
+    </div>
+    
+    <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+        <a href="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3 px-4 py-3 {% if request.endpoint == 'admin_dashboard' %}bg-slate-800 text-white font-bold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium{% endif %} rounded-xl transition-colors">
+            <i data-lucide="layout-dashboard" class="w-5 h-5 {% if request.endpoint == 'admin_dashboard' %}text-accent{% endif %}"></i>
+            Dashboard
+        </a>
+        
+        <a href="{{ url_for('admin_applications') }}" class="flex items-center justify-between px-4 py-3 {% if request.endpoint in ['admin_applications', 'admin_application_review'] %}bg-slate-800 text-white font-bold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium{% endif %} rounded-xl transition-colors">
+            <div class="flex items-center gap-3">
+                <i data-lucide="clipboard-check" class="w-5 h-5 {% if request.endpoint in ['admin_applications', 'admin_application_review'] %}text-accent{% endif %}"></i>
+                Hospital Applications
+            </div>
+            {% if pending_count and pending_count > 0 %}
+            <span class="bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ pending_count }}</span>
+            {% endif %}
+        </a>
+        
+        <a href="{{ url_for('admin_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 {% if request.endpoint in ['admin_treatment_requests', 'admin_treatment_request_detail'] %}bg-slate-800 text-white font-bold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium{% endif %} rounded-xl transition-colors">
+            <i data-lucide="file-text" class="w-5 h-5 {% if request.endpoint in ['admin_treatment_requests', 'admin_treatment_request_detail'] %}text-accent{% endif %}"></i>
+            Treatment Requests
+        </a>
+        
+        <a href="{{ url_for('admin_proposals') }}" class="flex items-center gap-3 px-4 py-3 {% if request.endpoint in ['admin_proposals', 'admin_proposal_view'] %}bg-slate-800 text-white font-bold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium{% endif %} rounded-xl transition-colors">
+            <i data-lucide="file-check" class="w-5 h-5 {% if request.endpoint in ['admin_proposals', 'admin_proposal_view'] %}text-accent{% endif %}"></i>
+            Submitted Proposals
+        </a>
+        
+        <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="font-medium">Patients</span>
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+        </div>
+        
+        <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <i data-lucide="building-2" class="w-5 h-5"></i>
+            <span class="font-medium">Hospitals</span>
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+        </div>
+        
+        <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <i data-lucide="message-square" class="w-5 h-5"></i>
+            <span class="font-medium">Messages</span>
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+        </div>
+        
+        <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span class="font-medium">Notifications</span>
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+        </div>
+        
+        <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="font-medium">Platform Settings</span>
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+        </div>
+
+        <div class="px-4 py-3 text-slate-500 flex items-center gap-3 rounded-xl cursor-not-allowed group" title="Coming Soon">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+            <span class="font-medium">Audit Logs</span>
+            <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+        </div>
+    </nav>
+    
+    <div class="p-4 border-t border-slate-700/50">
+        <a href="{{ url_for('admin_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:text-white hover:bg-red-500/20 font-bold rounded-xl transition-colors">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+            Log Out
+        </a>
+    </div>
+</aside>

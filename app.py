@@ -22,6 +22,38 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 app = Flask(__name__)
+
+@app.template_filter('format_location')
+def format_location(hospital):
+    if not hospital:
+        return "Unknown Location"
+    parts = []
+    if getattr(hospital, 'city', None) and str(hospital.city).lower() not in ('none', ''):
+        parts.append(str(hospital.city).strip())
+    if getattr(hospital, 'state_region', None) and str(hospital.state_region).lower() not in ('none', ''):
+        parts.append(str(hospital.state_region).strip())
+    if getattr(hospital, 'country', None) and str(hospital.country).lower() not in ('none', ''):
+        parts.append(str(hospital.country).strip())
+    return ", ".join(parts) if parts else "Unknown Location"
+
+@app.template_filter('format_duration')
+def format_duration(val, unit):
+    val_str = str(val) if val is not None else ""
+    unit_str = str(unit) if unit else ""
+    
+    if not val_str or val_str.lower() == 'none':
+        return "Not specified"
+        
+    val_lower = val_str.lower()
+    
+    if any(u in val_lower for u in ['day', 'week', 'month', 'year']):
+        val_str = val_str.replace("dayss", "days").replace("Dayss", "Days")
+        return val_str.title()
+    else:
+        unit_str = unit_str.replace("dayss", "days")
+        if not unit_str or unit_str.lower() == 'none':
+            unit_str = "days"
+        return f"{val_str} {unit_str.capitalize()}"
 app.config.from_object(Config)
 
 db.init_app(app)
@@ -994,6 +1026,93 @@ def patient_treatment_proposal_details(proposal_id):
 # SECURE MESSAGES
 # =========================================================
 
+@app.route("/hospital/messages")
+def hospital_messages():
+    hospital_user_id = session.get('hospital_user_id')
+    if not hospital_user_id:
+        return redirect(url_for('hospital_login'))
+        
+    from models import HospitalUser
+    hospital_user = HospitalUser.query.get(hospital_user_id)
+    if not hospital_user:
+        return redirect(url_for('hospital_login'))
+    hospital = hospital_user.hospital
+
+    from models import MessageThread, HospitalUser, Message
+    threads = MessageThread.query.filter_by(hospital_id=hospital.id).order_by(MessageThread.updated_at.desc()).all()
+    
+    sidebar_threads = []
+    for t in threads:
+        all_msgs = t.messages.all()
+        sidebar_threads.append({
+            'thread': t,
+            'latest_message': all_msgs[-1] if all_msgs else None,
+            'unread_count': 0 # For future implementation
+        })
+
+    return render_template("hospital-messages.html", hospital=hospital, sidebar_threads=sidebar_threads)
+
+@app.route("/hospital/messages/<int:thread_id>")
+def hospital_message_thread(thread_id):
+    hospital_user_id = session.get('hospital_user_id')
+    if not hospital_user_id:
+        return redirect(url_for('hospital_login'))
+        
+    from models import HospitalUser
+    hospital_user = HospitalUser.query.get(hospital_user_id)
+    if not hospital_user:
+        return redirect(url_for('hospital_login'))
+    hospital = hospital_user.hospital
+
+    from models import MessageThread, HospitalUser, Message
+    thread = MessageThread.query.get_or_404(thread_id)
+    
+    # Authorization Check
+    if thread.hospital_id != hospital.id:
+        abort(403)
+        
+    messages = thread.messages.all()
+
+    return render_template("hospital-message-thread.html", hospital=hospital, thread=thread, messages=messages)
+
+@app.route("/hospital/messages/<int:thread_id>/send", methods=["POST"])
+def hospital_send_message(thread_id):
+    hospital_user_id = session.get('hospital_user_id')
+    if not hospital_user_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital_user = HospitalUser.query.get(hospital_user_id)
+    if not hospital_user:
+        return redirect(url_for('hospital_login'))
+    hospital = hospital_user.hospital
+        
+    message_body = request.form.get('message_body', '').strip()
+    if not message_body:
+        return redirect(url_for('hospital_message_thread', thread_id=thread_id))
+
+    from models import MessageThread, Message
+    thread = MessageThread.query.get_or_404(thread_id)
+    
+    # Authorization Check
+    if thread.hospital_id != hospital.id:
+        abort(403)
+        
+    msg = Message(
+        thread_id=thread_id,
+        sender_type='hospital',
+        sender_hospital_id=hospital.id,
+        message_body=message_body
+    )
+    
+    from datetime import datetime
+    thread.updated_at = datetime.utcnow()
+    
+    db.session.add(msg)
+    db.session.commit()
+    
+    return redirect(url_for('hospital_message_thread', thread_id=thread_id))
+
+
 @app.route("/patient/secure-messages")
 def patient_secure_messages():
     user_id = session.get('registration_user_id')
@@ -1352,9 +1471,9 @@ def hospital_register_capabilities():
             
         if not error:
             try:
-                # Update specialties relationship
-                hospital.specialties = [] # Clear existing
+                # Update specialties relationship only if new valid specialties are provided
                 if selected_specialty_ids:
+                    hospital.specialties = [] # Clear existing
                     specialties_to_add = Specialty.query.filter(Specialty.id.in_(selected_specialty_ids)).all()
                     hospital.specialties.extend(specialties_to_add)
                 
@@ -1880,6 +1999,29 @@ def hospital_treatment_request_document_download(doc_id):
         
     return send_from_directory(UPLOAD_FOLDER, doc.storage_filename, as_attachment=True, download_name=doc.original_filename)
 
+@app.route("/hospital/proposals")
+def hospital_proposals():
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital or hospital.verification_status != 'verified':
+        abort(403)
+        
+    proposals = TreatmentProposal.query.filter_by(hospital_id=hospital.id).order_by(TreatmentProposal.created_at.desc()).all()
+    
+    today = datetime.now(timezone.utc).date()
+    for prop in proposals:
+        if prop.status == 'submitted' and prop.valid_until and prop.valid_until < today:
+            prop.display_status = 'Expired'
+        elif prop.status == 'submitted':
+            prop.display_status = 'Submitted'
+        else:
+            prop.display_status = 'Draft'
+            
+    return render_template("hospital-proposals.html", hospital=hospital, proposals=proposals)
+
 @app.route("/hospital/treatment-requests/<string:reference_id>/proposal/edit", methods=['GET', 'POST'])
 def hospital_proposal_edit(reference_id):
     hospital_id = session.get("hospital_id")
@@ -1942,11 +2084,25 @@ def hospital_proposal_edit(reference_id):
         proposal.additional_notes = data.get('additional_notes')
         
         valid_until_str = data.get('valid_until')
-        if valid_until_str:
+        if not valid_until_str:
+            return jsonify({'status': 'error', 'message': 'Proposal Validity Date is required.'}), 400
+            
+        try:
+            parsed_date = datetime.strptime(valid_until_str, '%Y-%m-%d').date()
+            today = datetime.now(timezone.utc).date()
             try:
-                proposal.valid_until = datetime.strptime(valid_until_str, '%Y-%m-%d').date()
+                max_date = today.replace(year=today.year + 1)
             except ValueError:
-                pass
+                max_date = today.replace(year=today.year + 1, month=2, day=28)
+                
+            if parsed_date < today:
+                return jsonify({'status': 'error', 'message': 'Proposal Validity Date cannot be in the past.'}), 400
+            if parsed_date > max_date:
+                return jsonify({'status': 'error', 'message': 'Proposal Validity Date cannot be more than 1 year from today.'}), 400
+                
+            proposal.valid_until = parsed_date
+        except ValueError:
+            return jsonify({'status': 'error', 'message': 'Invalid Proposal Validity Date format.'}), 400
                 
         # Line items
         # First clear old
@@ -1997,6 +2153,16 @@ def hospital_proposal_review(reference_id):
     if proposal.status == 'submitted':
         return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
         
+    today = datetime.now(timezone.utc).date()
+    try:
+        max_date = today.replace(year=today.year + 1)
+    except ValueError:
+        max_date = today.replace(year=today.year + 1, month=2, day=28)
+        
+    if not proposal.valid_until or proposal.valid_until < today or proposal.valid_until > max_date:
+        flash("Please provide a valid Proposal Validity Date before reviewing.", "error")
+        return redirect(url_for('hospital_proposal_edit', reference_id=reference_id))
+        
     return render_template("hospital-proposal-review.html", req=req, hospital=hospital, proposal=proposal)
 
 @app.route("/hospital/treatment-requests/<string:reference_id>/proposal/submit", methods=['POST'])
@@ -2035,8 +2201,18 @@ def hospital_proposal_submit(reference_id):
         flash("Validity date is required.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
-    if proposal.valid_until < datetime.now(timezone.utc).date():
+    today = datetime.now(timezone.utc).date()
+    try:
+        max_date = today.replace(year=today.year + 1)
+    except ValueError:
+        max_date = today.replace(year=today.year + 1, month=2, day=28)
+        
+    if proposal.valid_until < today:
         flash("Validity date cannot be in the past.", "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
+        
+    if proposal.valid_until > max_date:
+        flash("Validity date cannot be more than 1 year from today.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
     proposal.status = "submitted"
@@ -2139,7 +2315,7 @@ def admin_dashboard():
     for h in recent_hospitals:
         recent_activity.append({
             'type': 'hospital',
-            'title': f'Hospital Registration ({h.hospital_name})',
+            'title': f'Hospital Registration ({h.legal_name})',
             'time': h.created_at,
             'url': url_for('admin_application_review', hospital_id=h.id)
         })
@@ -2327,22 +2503,21 @@ def admin_patient_detail(user_id):
 @app.route("/admin/proposals")
 @admin_required
 def admin_proposals():
-    hospital_id = request.args.get('hospital_id')
-    status_filter = request.args.get('status')
+    q = request.args.get('q', '').strip()
     
-    query = TreatmentProposal.query.join(TreatmentRequest)
+    query = TreatmentProposal.query.join(TreatmentRequest).join(Hospital).filter(TreatmentProposal.status == 'submitted')
     
-    if hospital_id:
-        query = query.filter(TreatmentProposal.hospital_id == hospital_id)
+    if q:
+        query = query.filter(
+            db.or_(
+                TreatmentRequest.reference_id.ilike(f'%{q}%'),
+                Hospital.legal_name.ilike(f'%{q}%')
+            )
+        )
         
-    if status_filter:
-        query = query.filter(TreatmentProposal.status == status_filter)
-        
-    proposals = query.order_by(TreatmentProposal.created_at.desc()).all()
+    proposals = query.order_by(TreatmentProposal.submitted_at.desc().nullslast(), TreatmentProposal.created_at.desc()).all()
     
-    hospitals = Hospital.query.order_by(Hospital.hospital_name.asc()).all()
-    
-    return render_template("admin-proposals.html", proposals=proposals, hospitals=hospitals, current_status=status_filter, current_hospital=hospital_id)
+    return render_template("admin-proposals.html", proposals=proposals, q=q)
 
 
 # =========================================================

@@ -61,11 +61,10 @@
             </div>
             {% endif %}
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Proposals</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
+                <span>Proposals</span>
+            </a>
             
             <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
                 <i data-lucide="message-square" class="w-5 h-5"></i>
@@ -251,9 +250,6 @@
                         <h2 class="text-lg font-bold text-textMain flex items-center gap-2">
                             <i data-lucide="list-collapse" class="w-5 h-5 text-accent"></i> 4. Cost Breakdown
                         </h2>
-                        <button type="button" onclick="addLineItem()" class="text-sm font-bold text-accent hover:text-blue-700 flex items-center gap-1">
-                            <i data-lucide="plus" class="w-4 h-4"></i> Add Item
-                        </button>
                     </div>
                     
                     <p class="text-sm text-textMuted mb-4">Provide a granular breakdown of the estimate. (Optional but highly recommended).</p>
@@ -263,7 +259,7 @@
                         <div class="line-item flex gap-3 items-center">
                             <input type="text" class="li-desc flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="e.g. Diagnostics & Imaging" value="{{ item.description }}">
                             <input type="number" step="0.01" min="0" class="li-amount w-32 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Amount" value="{{ item.amount }}">
-                            <button type="button" onclick="this.parentElement.remove()" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                            <button type="button" onclick="this.parentElement.remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -307,6 +303,7 @@
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Proposal Validity Date <span class="text-red-500">*</span></label>
                             <input type="date" id="valid_until" name="valid_until" value="{{ proposal.valid_until.strftime('%Y-%m-%d') if proposal.valid_until else '' }}" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent transition-all font-medium text-textMain" required>
+                            <p id="valid_until_error" class="text-red-500 text-sm mt-1 hidden"></p>
                         </div>
                     </div>
                 </div>
@@ -333,9 +330,35 @@
     <script>
         lucide.createIcons();
         
+        // Setup Validity Date min and max
+        document.addEventListener("DOMContentLoaded", () => {
+            const validUntilInput = document.getElementById('valid_until');
+            if (validUntilInput) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                validUntilInput.min = `${yyyy}-${mm}-${dd}`;
+                
+                const maxDate = new Date(today);
+                maxDate.setFullYear(maxDate.getFullYear() + 1);
+                const maxYyyy = maxDate.getFullYear();
+                const maxMm = String(maxDate.getMonth() + 1).padStart(2, '0');
+                const maxDd = String(maxDate.getDate()).padStart(2, '0');
+                validUntilInput.max = `${maxYyyy}-${maxMm}-${maxDd}`;
+                
+                validUntilInput.addEventListener('input', function() {
+                    this.setCustomValidity('');
+                    document.getElementById('valid_until_error').classList.add('hidden');
+                });
+            }
+        });
+        
         // Add default line item if none exist
         if (document.querySelectorAll('.line-item').length === 0) {
             addLineItem();
+        } else {
+            updateAddButton();
         }
 
         function addLineItem() {
@@ -345,11 +368,33 @@
             div.innerHTML = `
                 <input type="text" class="li-desc flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="e.g. Surgeon Fees">
                 <input type="number" step="0.01" min="0" class="li-amount w-32 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Amount">
-                <button type="button" onclick="this.parentElement.remove()" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                <button type="button" onclick="this.parentElement.remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
             `;
             container.appendChild(div);
+            lucide.createIcons();
+            updateAddButton();
+        }
+
+        function updateAddButton() {
+            // Remove existing add buttons
+            document.querySelectorAll('.add-item-btn').forEach(btn => btn.remove());
+            
+            const items = document.querySelectorAll('.line-item');
+            if (items.length === 0) {
+                // If user deleted the last row, automatically add a blank one
+                addLineItem();
+                return;
+            }
+            
+            const lastItem = items[items.length - 1];
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'add-item-btn px-2 py-2 text-accent hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center shrink-0';
+            addBtn.onclick = addLineItem;
+            addBtn.innerHTML = '<i data-lucide="plus" class="w-4 h-4"></i><span class="text-sm font-bold ml-1 hidden sm:inline">Add Item</span>';
+            lastItem.appendChild(addBtn);
             lucide.createIcons();
         }
 
@@ -358,6 +403,40 @@
             if(!proceedToReview) {
                 btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...`;
                 lucide.createIcons();
+            }
+            
+            // Validate validity date
+            const validUntilInput = document.getElementById('valid_until');
+            const errorMsg = document.getElementById('valid_until_error');
+            
+            if (!validUntilInput.value) {
+                errorMsg.textContent = "Proposal Validity Date is required.";
+                errorMsg.classList.remove('hidden');
+                if(!proceedToReview) {
+                    btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
+                    lucide.createIcons();
+                }
+                return;
+            }
+            
+            const selectedDate = new Date(validUntilInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const maxDate = new Date(today);
+            maxDate.setFullYear(maxDate.getFullYear() + 1);
+            
+            if (selectedDate < today || selectedDate > maxDate) {
+                const maxDateStr = validUntilInput.max;
+                errorMsg.textContent = `Please select a validity date between today and ${maxDateStr}.`;
+                errorMsg.classList.remove('hidden');
+                if(!proceedToReview) {
+                    btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
+                    lucide.createIcons();
+                }
+                return;
+            } else {
+                errorMsg.classList.add('hidden');
             }
             
             // Gather basic fields

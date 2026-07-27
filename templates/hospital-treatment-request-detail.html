@@ -38,10 +38,10 @@
     <aside class="w-64 bg-white border-r border-gray-100 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
         <div class="p-6 border-b border-gray-100">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-600/20">
                     <i data-lucide="building-2" class="text-white w-4 h-4"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight text-textMain">MediBid <span class="text-primary">Hospitals</span></span>
+                <span class="font-bold text-lg tracking-tight text-textMain">MediBid <span class="text-blue-600">Hospitals</span></span>
             </div>
         </div>
         
@@ -59,40 +59,39 @@
             </a>
             {% else %}
             <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Account verification required">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
+                <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
                 <span class="font-medium">Treatment Requests</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2.5 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
             </div>
             {% endif %}
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Proposals</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+                <span>Proposals</span>
+            </a>
+            
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+                <span>Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="font-medium">Messages</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
+                <span>Hospital Profile</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="building" class="w-5 h-5"></i>
-                <span class="font-medium">Hospital Profile</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+                <span>Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="font-medium">Notifications</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="font-medium">Account / Settings</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+                <span>Account / Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
         </nav>
         
@@ -109,8 +108,8 @@
         <!-- Header -->
         <header class="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <button class="md:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
+                <button class="md:hidden p-2 -ml-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-2 text-textMuted hover:text-textMain font-semibold transition-colors text-sm">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Requests
@@ -118,63 +117,63 @@
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+                <div class="h-9 w-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
                     {{ hospital.legal_name[0] }}
                 </div>
             </div>
         </header>
 
-        <div class="p-6 md:p-10 max-w-5xl mx-auto w-full">
+        <div class="p-6 md:p-10 max-w-6xl mx-auto w-full">
             <!-- Request Header -->
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 mb-8">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100 text-xs font-bold whitespace-nowrap">
-                                <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i>
+            <div class="bg-white border border-slate-200 rounded-3xl shadow-sm p-6 md:p-10 mb-8">
+                <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-6 mb-8 pb-8 border-b border-slate-100">
+                    <div class="flex-1">
+                        <div class="flex flex-wrap items-center gap-3 mb-4">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 text-sm font-bold whitespace-nowrap">
+                                <i data-lucide="stethoscope" class="w-4 h-4"></i>
                                 {{ req.specialty }}
                             </span>
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold whitespace-nowrap">
-                                <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 text-sm font-bold whitespace-nowrap">
+                                <i data-lucide="activity" class="w-4 h-4"></i>
                                 {{ req.status }}
                             </span>
                         </div>
-                        <h1 class="text-2xl font-extrabold tracking-tight text-textMain">Request {{ req.reference_id }}</h1>
-                        <p class="text-sm text-textMuted mt-1">Submitted on {{ req.created_at.strftime('%B %d, %Y') }}</p>
+                        <h1 class="text-3xl font-extrabold tracking-tight text-textMain mb-2">Request {{ req.reference_id }}</h1>
+                        <p class="text-base text-textMuted">Submitted on <span class="font-semibold text-textMain">{{ req.created_at.strftime('%B %d, %Y') }}</span></p>
                     </div>
                     
-                    <div>
+                    <div class="w-full lg:w-auto shrink-0 pt-2 lg:pt-0">
                         {% set proposal = hospital.proposals | selectattr('treatment_request_id', 'equalto', req.id) | first %}
                         {% if not proposal or proposal.status == 'draft' %}
-                        <a href="{{ url_for('hospital_proposal_edit', reference_id=req.reference_id) }}" class="bg-accent text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2">
-                            <i data-lucide="edit" class="w-4 h-4"></i> {% if proposal %}Edit Draft{% else %}Submit Proposal{% endif %}
+                        <a href="{{ url_for('hospital_proposal_edit', reference_id=req.reference_id) }}" class="w-full lg:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-sm text-base min-h-[48px]">
+                            <i data-lucide="edit" class="w-5 h-5"></i> {% if proposal %}Edit Draft{% else %}Submit Proposal{% endif %}
                         </a>
                         {% else %}
-                        <a href="{{ url_for('hospital_proposal_view', reference_id=req.reference_id) }}" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> View Submitted Proposal
+                        <a href="{{ url_for('hospital_proposal_view', reference_id=req.reference_id) }}" class="w-full lg:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-sm text-base min-h-[48px]">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i> View Submitted Proposal
                         </a>
                         {% endif %}
                     </div>
                 </div>
 
                 <!-- Patient Summary -->
-                <div class="mb-8">
-                    <h2 class="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                        <i data-lucide="user" class="w-5 h-5 text-accent"></i> Patient Summary
+                <div class="mb-10">
+                    <h2 class="text-xl font-extrabold text-primary mb-5 flex items-center gap-2.5">
+                        <i data-lucide="user" class="w-6 h-6 text-blue-600"></i> Patient Summary
                     </h2>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
                         <div>
-                            <p class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-1">Relationship</p>
-                            <p class="font-bold text-textMain">{{ req.patient_profile.relationship_type }}</p>
+                            <p class="text-xs md:text-sm font-bold text-textMuted uppercase tracking-wider mb-1.5">Relationship</p>
+                            <p class="text-lg font-bold text-textMain">{{ req.patient_profile.relationship_type }}</p>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-1">Gender</p>
-                            <p class="font-bold text-textMain capitalize">{{ req.patient_profile.gender|default('Unspecified', true) }}</p>
+                            <p class="text-xs md:text-sm font-bold text-textMuted uppercase tracking-wider mb-1.5">Gender</p>
+                            <p class="text-lg font-bold text-textMain capitalize">{{ req.patient_profile.gender|default('Unspecified', true) }}</p>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-1">Age</p>
-                            <p class="font-bold text-textMain">
+                            <p class="text-xs md:text-sm font-bold text-textMuted uppercase tracking-wider mb-1.5">Age</p>
+                            <p class="text-lg font-bold text-textMain">
                                 {% if req.patient_profile.date_of_birth %}
                                     {% set age = 2026 - req.patient_profile.date_of_birth.year - ((7, 22) < (req.patient_profile.date_of_birth.month, req.patient_profile.date_of_birth.day)) %}
                                     {{ age }} years old
@@ -184,42 +183,42 @@
                             </p>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-1">Location</p>
-                            <p class="font-bold text-textMain">{{ req.patient_profile.country_of_residence|default('Unknown', true) }}</p>
+                            <p class="text-xs md:text-sm font-bold text-textMuted uppercase tracking-wider mb-1.5">Location</p>
+                            <p class="text-lg font-bold text-textMain">{{ req.patient_profile.country_of_residence|default('Unknown', true) }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Clinical Details -->
-                <div class="mb-8">
-                    <h2 class="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                        <i data-lucide="clipboard-list" class="w-5 h-5 text-accent"></i> Clinical Overview
+                <div class="mb-10">
+                    <h2 class="text-xl font-extrabold text-primary mb-5 flex items-center gap-2.5">
+                        <i data-lucide="clipboard-list" class="w-6 h-6 text-blue-600"></i> Clinical Overview
                     </h2>
                     
-                    <div class="space-y-6 border border-slate-100 rounded-xl p-6">
+                    <div class="space-y-8 border border-slate-100 rounded-2xl p-6 md:p-8">
                         <div>
-                            <p class="text-sm font-bold text-textMuted mb-2">Condition / Diagnosis</p>
-                            <p class="text-textMain whitespace-pre-wrap leading-relaxed">{{ req.condition|default('Not provided.', true) }}</p>
+                            <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Condition / Diagnosis</p>
+                            <p class="text-lg text-textMain whitespace-pre-wrap leading-relaxed">{{ req.condition|default('Not provided.', true) }}</p>
                         </div>
                         
-                        <div class="border-t border-slate-100 pt-6">
-                            <p class="text-sm font-bold text-textMuted mb-2">Current Symptoms</p>
-                            <p class="text-textMain whitespace-pre-wrap leading-relaxed">{{ req.symptoms|default('Not provided.', true) }}</p>
+                        <div class="border-t border-slate-100 pt-8">
+                            <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Current Symptoms</p>
+                            <p class="text-lg text-textMain whitespace-pre-wrap leading-relaxed">{{ req.symptoms|default('Not provided.', true) }}</p>
                         </div>
                         
-                        <div class="border-t border-slate-100 pt-6">
-                            <p class="text-sm font-bold text-textMuted mb-2">Current Medications</p>
-                            <p class="text-textMain whitespace-pre-wrap leading-relaxed">{{ req.medications|default('Not provided.', true) }}</p>
+                        <div class="border-t border-slate-100 pt-8">
+                            <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Current Medications</p>
+                            <p class="text-lg text-textMain whitespace-pre-wrap leading-relaxed">{{ req.medications|default('Not provided.', true) }}</p>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-100 pt-8">
                             <div>
-                                <p class="text-sm font-bold text-textMuted mb-1">Previous Treatments / Surgeries</p>
-                                <p class="text-textMain">{{ req.previous_treatments|default('None / Not provided', true) }}</p>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Previous Treatments / Surgeries</p>
+                                <p class="text-lg text-textMain leading-relaxed">{{ req.previous_treatments|default('None / Not provided', true) }}</p>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-textMuted mb-1">Allergies</p>
-                                <p class="text-textMain">
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Allergies</p>
+                                <p class="text-lg text-textMain leading-relaxed">
                                     {% if req.allergies %}
                                         {{ req.allergies | join(', ') }}
                                         {% if req.allergy_other_text %}
@@ -235,14 +234,14 @@
                         </div>
                         
                         {% if req.patient_profile.height_cm or req.patient_profile.weight_kg %}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-100 pt-8">
                             <div>
-                                <p class="text-sm font-bold text-textMuted mb-1">Height</p>
-                                <p class="text-textMain">{{ req.patient_profile.height_cm|default('Unspecified', true) }} cm</p>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Height</p>
+                                <p class="text-lg font-bold text-textMain">{{ req.patient_profile.height_cm|default('Unspecified', true) }} cm</p>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-textMuted mb-1">Weight</p>
-                                <p class="text-textMain">{{ req.patient_profile.weight_kg|default('Unspecified', true) }} kg</p>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3">Weight</p>
+                                <p class="text-lg font-bold text-textMain">{{ req.patient_profile.weight_kg|default('Unspecified', true) }} kg</p>
                             </div>
                         </div>
                         {% endif %}
@@ -251,41 +250,41 @@
                 
                 <!-- Medical Documents -->
                 <div>
-                    <h2 class="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                        <i data-lucide="file-check-2" class="w-5 h-5 text-accent"></i> Medical Documents
+                    <h2 class="text-xl font-extrabold text-primary mb-5 flex items-center gap-2.5">
+                        <i data-lucide="file-check-2" class="w-6 h-6 text-blue-600"></i> Medical Documents
                     </h2>
                     
                     {% if req.medical_documents %}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         {% for doc in req.medical_documents %}
-                        <div class="border border-slate-200 rounded-xl p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
-                            <div class="flex items-center gap-4 overflow-hidden">
-                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                        <div class="border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors group">
+                            <div class="flex items-center gap-4 min-w-0">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
                                     <i data-lucide="file-text" class="w-6 h-6"></i>
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="text-sm font-bold text-textMain truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</p>
-                                    <p class="text-xs text-textMuted capitalize mt-0.5">Uploaded {{ doc.uploaded_at.strftime('%b %d, %Y') }}</p>
+                                    <p class="text-base font-bold text-textMain truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</p>
+                                    <p class="text-sm text-textMuted capitalize mt-1">Uploaded {{ doc.uploaded_at.strftime('%b %d, %Y') }}</p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2 mt-3 sm:mt-0">
-                                <a href="{{ url_for('hospital_treatment_request_document', doc_id=doc.id) }}" target="_blank" class="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1.5">
-                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> View
+                            <div class="flex items-center gap-3 shrink-0">
+                                <a href="{{ url_for('hospital_treatment_request_document', doc_id=doc.id) }}" target="_blank" class="flex-1 sm:flex-none justify-center px-4 py-2.5 text-sm font-bold text-blue-700 bg-blue-50 border border-blue-100 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]">
+                                    <i data-lucide="eye" class="w-4 h-4"></i> View
                                 </a>
-                                <a href="{{ url_for('hospital_treatment_request_document_download', doc_id=doc.id) }}" class="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:text-accent hover:border-accent hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1.5">
-                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Download
+                                <a href="{{ url_for('hospital_treatment_request_document_download', doc_id=doc.id) }}" class="flex-1 sm:flex-none justify-center px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:text-blue-600 hover:border-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]">
+                                    <i data-lucide="download" class="w-4 h-4"></i> Download
                                 </a>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-6 text-center">
-                        <div class="w-12 h-12 bg-white shadow-sm text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i data-lucide="file-x" class="w-6 h-6"></i>
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
+                        <div class="w-16 h-16 bg-white shadow-sm text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
+                            <i data-lucide="file-x" class="w-8 h-8"></i>
                         </div>
-                        <p class="text-sm font-bold text-textMain">No Documents Attached</p>
-                        <p class="text-xs text-textMuted mt-1">The patient has not provided any medical reports or imaging.</p>
+                        <p class="text-lg font-bold text-textMain mb-1">No Documents Attached</p>
+                        <p class="text-base text-textMuted">The patient has not provided any medical reports or imaging.</p>
                     </div>
                     {% endif %}
                 </div>

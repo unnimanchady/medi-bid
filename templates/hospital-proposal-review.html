@@ -12,6 +12,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+        }
+    </style>
+    
     <script>
         tailwind.config = {
             theme: {
@@ -32,13 +41,17 @@
         }
     </script>
 </head>
-<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex">
+<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex print:block print:h-auto print:min-h-0 print:overflow-visible print:bg-white">
     
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col hidden md:flex">
+    <aside class="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col hidden md:flex print:hidden">
         <div class="p-6 border-b border-slate-100">
-            <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-700 tracking-tight">MediBid</h2>
-            <p class="text-xs font-bold text-slate-400 tracking-wider uppercase mt-1">Hospital Portal</p>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-600/20">
+                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-textMain">MediBid <span class="text-blue-600">Hospitals</span></span>
+            </div>
         </div>
         
         <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
@@ -54,58 +67,58 @@
                 <span>Treatment Requests</span>
             </a>
             {% else %}
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Account verification required">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Treatment Requests</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Account verification required">
+                <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
+                <span>Treatment Requests</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Lock</span>
             </div>
             {% endif %}
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
                 <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Proposals</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+                <span>Proposals</span>
+            </a>
+            
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+                <span>Messages</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="font-medium">Messages</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
+                <span>Hospital Profile</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="building" class="w-5 h-5"></i>
-                <span class="font-medium">Hospital Profile</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+                <span>Notifications</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
             
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="font-medium">Notifications</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="font-medium">Account / Settings</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
+            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+                <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+                <span>Account / Settings</span>
+                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
             </div>
         </nav>
         
         <div class="p-4 border-t border-slate-100">
-            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 transition-all">
-                <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
+            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
+                <i data-lucide="log-out" class="w-5 h-5"></i>
+                Log Out
             </a>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+    <main class="flex-1 flex flex-col h-screen overflow-y-auto print:block print:h-auto print:overflow-visible">
         <!-- Header -->
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-4 flex items-center justify-between">
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-4 flex items-center justify-between print:hidden">
             <div class="flex items-center gap-4">
-                <button class="md:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
+                <button class="md:hidden p-2 -ml-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <a href="{{ url_for('hospital_treatment_request_detail', reference_id=req.reference_id) }}" class="flex items-center gap-2 text-textMuted hover:text-textMain font-semibold transition-colors text-sm">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Request
@@ -113,96 +126,111 @@
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+                <div class="h-9 w-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
                     {{ hospital.legal_name[0] }}
                 </div>
             </div>
         </header>
 
-        <div class="p-6 md:p-10 max-w-4xl mx-auto w-full pb-32">
+        <div class="p-4 md:p-8 lg:p-10 max-w-[1000px] mx-auto w-full pb-32 print:p-0 print:max-w-none print:pb-0">
             
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="mb-6 p-4 rounded-xl flex items-start gap-3 {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %}">
+                        <div class="mb-8 p-5 rounded-2xl flex items-start gap-4 {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %} print:hidden">
                             {% if category == 'error' %}
-                                <i data-lucide="alert-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                                <i data-lucide="alert-circle" class="w-6 h-6 shrink-0 mt-0.5"></i>
                             {% elif category == 'success' %}
-                                <i data-lucide="check-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                                <i data-lucide="check-circle" class="w-6 h-6 shrink-0 mt-0.5"></i>
                             {% else %}
-                                <i data-lucide="info" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                                <i data-lucide="info" class="w-6 h-6 shrink-0 mt-0.5"></i>
                             {% endif %}
-                            <p class="font-medium text-sm">{{ message }}</p>
+                            <p class="font-medium text-base">{{ message }}</p>
                         </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
 
-            <div class="mb-8">
+            <div class="mb-10">
                 {% if is_view_only %}
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold mb-3">
-                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> SUBMITTED PROPOSAL
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-bold mb-4 print:hidden">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> SUBMITTED PROPOSAL
                 </div>
-                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Submitted Treatment Proposal</h1>
-                <p class="text-textMuted">This proposal was finalized on {{ proposal.submitted_at.strftime('%B %d, %Y') if proposal.submitted_at else 'Unknown Date' }} and cannot be edited.</p>
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-4">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Submitted Treatment Proposal</h1>
+                    <div class="flex flex-col sm:flex-row items-center gap-3 print:hidden shrink-0 w-full lg:w-auto">
+                        <button onclick="window.print()" class="w-full sm:w-auto justify-center px-6 py-3.5 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2 text-base min-h-[48px]">
+                            <i data-lucide="printer" class="w-5 h-5"></i> Print
+                        </button>
+                        <button onclick="downloadPDF()" class="w-full sm:w-auto justify-center px-6 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2 text-base min-h-[48px]">
+                            <i data-lucide="download" class="w-5 h-5"></i> Download PDF
+                        </button>
+                    </div>
+                </div>
+                <p class="text-lg text-textMuted">This proposal was finalized on <span class="font-semibold text-textMain">{{ proposal.submitted_at.strftime('%B %d, %Y') if proposal.submitted_at else 'Unknown Date' }}</span> and cannot be edited.</p>
                 {% else %}
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-50 text-yellow-700 border border-yellow-200 text-xs font-bold mb-3">
-                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> REVIEW PROPOSAL
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-200 text-sm font-bold mb-4">
+                    <i data-lucide="eye" class="w-4 h-4"></i> REVIEW PROPOSAL
                 </div>
-                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Review & Submit Proposal</h1>
-                <p class="text-textMuted">Please review the details below before finalizing your proposal for Patient Request {{ req.reference_id }}.</p>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-4">Review & Submit Proposal</h1>
+                <p class="text-lg text-textMuted">Please review the details below before finalizing your proposal for Patient Request <span class="font-semibold text-textMain">{{ req.reference_id }}</span>.</p>
                 {% endif %}
             </div>
 
             <!-- Review Card -->
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div id="proposal-card" class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden print:border-none print:shadow-none print:rounded-none">
                 
                 <!-- Hospital Info Header -->
-                <div class="bg-slate-50 border-b border-slate-200 p-6 flex flex-col md:flex-row gap-6 justify-between">
+                <div class="bg-slate-50 border-b border-slate-200 p-8 md:p-10 flex flex-col sm:flex-row gap-6 justify-between items-start sm:items-center print:bg-white print:p-0 print:border-b-2 print:border-slate-800 print:mb-8 print:pb-8">
                     <div>
-                        <h2 class="text-xl font-bold text-primary">{{ hospital.legal_name }}</h2>
-                        <p class="text-textMuted text-sm mt-1 flex items-center gap-1.5">
-                            <i data-lucide="map-pin" class="w-4 h-4"></i> {{ hospital.city }}, {{ hospital.country }}
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-primary">{{ hospital.legal_name }}</h2>
+                        <p class="text-textMuted text-base mt-2 flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-5 h-5 shrink-0"></i>
+                            {% set loc = [] %}
+                            {% if hospital.city and hospital.city != 'None' %}{% set _ = loc.append(hospital.city) %}{% endif %}
+                            {% if hospital.state and hospital.state != 'None' %}{% set _ = loc.append(hospital.state) %}{% endif %}
+                            {% if hospital.country and hospital.country != 'None' %}{% set _ = loc.append(hospital.country) %}{% endif %}
+                            {{ loc | join(', ') }}
                         </p>
                     </div>
-                    <div class="md:text-right">
-                        <p class="text-xs font-semibold text-textMuted uppercase tracking-wider mb-1">Proposal For</p>
-                        <p class="font-bold text-primary">Request {{ req.reference_id }}</p>
+                    <div class="sm:text-right bg-white sm:bg-transparent p-4 sm:p-0 rounded-xl border sm:border-none border-slate-200 w-full sm:w-auto">
+                        <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Proposal For</p>
+                        <p class="text-xl font-bold text-primary">Request {{ req.reference_id }}</p>
                     </div>
                 </div>
 
-                <div class="p-6 md:p-8 space-y-10">
+                <div class="p-6 md:p-10 lg:p-12 space-y-12 md:space-y-16 print:p-0 print:space-y-10">
                     <!-- Section 1: Treatment -->
                     <div>
-                        <h3 class="text-sm font-bold text-accent uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Treatment Plan</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Treatment Plan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div class="md:col-span-2">
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Proposed Treatment</p>
-                                <p class="font-bold text-lg text-primary">{{ proposal.proposed_treatment|default('Not specified', true) }}</p>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Proposed Treatment</p>
+                                <p class="font-bold text-2xl text-primary">{{ proposal.proposed_treatment|default('Not specified', true) }}</p>
                             </div>
                             <div class="md:col-span-2">
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Clinical Assessment</p>
-                                <div class="text-textMain bg-slate-50 p-4 rounded-xl text-sm whitespace-pre-wrap leading-relaxed">{{ proposal.treatment_plan|default('Not specified', true) }}</div>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Clinical Assessment</p>
+                                <div class="text-textMain text-lg bg-slate-50 print:bg-transparent print:p-0 print:border-none border border-slate-100 p-6 rounded-2xl whitespace-pre-wrap leading-relaxed">{{ proposal.treatment_plan|default('Not specified', true) }}</div>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Treating Department</p>
-                                <p class="font-semibold text-primary">{{ proposal.specialty|default('Not specified', true) }}</p>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Treating Department</p>
+                                <p class="text-lg font-bold text-primary">{{ proposal.specialty|default('Not specified', true) }}</p>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Lead Doctor / Specialist</p>
-                                <p class="font-semibold text-primary">{{ proposal.lead_doctor|default('Not specified', true) }}</p>
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Lead Doctor / Specialist</p>
+                                <p class="text-lg font-bold text-primary">{{ proposal.lead_doctor|default('Not specified', true) }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Section 2: Timeline -->
-                    <div>
-                        <h3 class="text-sm font-bold text-accent uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Treatment Timeline</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Total Duration</p>
-                                <p class="font-bold text-primary flex items-center gap-2">
-                                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                    <div class="print:break-inside-avoid">
+                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Treatment Timeline</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 print:border-none print:p-0 print:bg-transparent">
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Total Duration</p>
+                                <p class="font-bold text-xl text-primary flex items-center gap-2.5">
+                                    <i data-lucide="calendar" class="w-5 h-5 text-slate-400"></i>
                                     {% if proposal.estimated_duration_value %}
                                         {{ proposal.estimated_duration_value }} {{ proposal.estimated_duration_unit|default('days', true)|capitalize }}
                                     {% else %}
@@ -210,10 +238,10 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Hospital Stay</p>
-                                <p class="font-bold text-primary flex items-center gap-2">
-                                    <i data-lucide="bed" class="w-4 h-4 text-slate-400"></i>
+                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 print:border-none print:p-0 print:bg-transparent">
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Hospital Stay</p>
+                                <p class="font-bold text-xl text-primary flex items-center gap-2.5">
+                                    <i data-lucide="bed" class="w-5 h-5 text-slate-400"></i>
                                     {% if proposal.hospital_stay_nights is not none %}
                                         {{ proposal.hospital_stay_nights }} Nights
                                     {% else %}
@@ -221,10 +249,10 @@
                                     {% endif %}
                                 </p>
                             </div>
-                            <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Recovery Stay</p>
-                                <p class="font-bold text-primary flex items-center gap-2">
-                                    <i data-lucide="home" class="w-4 h-4 text-slate-400"></i>
+                            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 print:border-none print:p-0 print:bg-transparent">
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Recovery Stay</p>
+                                <p class="font-bold text-xl text-primary flex items-center gap-2.5">
+                                    <i data-lucide="home" class="w-5 h-5 text-slate-400"></i>
                                     {% if proposal.recovery_stay_days is not none %}
                                         {{ proposal.recovery_stay_days }} Days
                                     {% else %}
@@ -237,89 +265,91 @@
 
                     <!-- Section 3: Cost -->
                     <div>
-                        <h3 class="text-sm font-bold text-accent uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Estimated Cost & Breakdown</h3>
+                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Estimated Cost & Breakdown</h3>
                         
                         <!-- Total Box -->
-                        <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white mb-6 flex flex-col md:flex-row gap-4 justify-between items-center shadow-lg">
+                        <div class="bg-gradient-to-r from-slate-800 to-slate-900 print:bg-none print:bg-white print:border-2 print:border-slate-800 print:text-black rounded-3xl p-8 md:p-10 text-white mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center shadow-xl print:shadow-none print:break-inside-avoid">
                             <div>
-                                <p class="text-sm text-slate-300 font-semibold mb-1">Estimated Total Cost Range</p>
-                                <h4 class="text-3xl font-extrabold">
-                                    {{ proposal.currency }} 
+                                <p class="text-sm md:text-base text-slate-300 print:text-slate-600 font-bold uppercase tracking-wider mb-2">Estimated Total Cost Range</p>
+                                <h4 class="text-4xl md:text-5xl font-extrabold break-words">
+                                    <span class="text-blue-400 print:text-black mr-1">{{ proposal.currency }}</span> 
                                     {{ "{:,.2f}".format(proposal.estimated_cost_min) if proposal.estimated_cost_min else "0.00" }} 
-                                    <span class="text-slate-400 mx-1 font-medium">-</span> 
+                                    <span class="text-slate-400 mx-2 font-medium">-</span> 
                                     {{ "{:,.2f}".format(proposal.estimated_cost_max) if proposal.estimated_cost_max else "0.00" }}
                                 </h4>
                             </div>
-                            <div class="bg-white/10 px-4 py-2 rounded-lg text-sm font-medium">
-                                Valid until: {{ proposal.valid_until.strftime('%B %d, %Y') if proposal.valid_until else 'Not specified' }}
+                            <div class="bg-white/10 print:bg-slate-100 px-5 py-3 rounded-xl text-sm font-bold shrink-0">
+                                Valid until: <span class="text-white print:text-black">{{ proposal.valid_until.strftime('%B %d, %Y') }}</span>
                             </div>
                         </div>
 
                         <!-- Line Items -->
                         {% if proposal.line_items %}
-                        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-textMuted uppercase tracking-wider">
-                                    <tr>
-                                        <th class="px-5 py-3">Description</th>
-                                        <th class="px-5 py-3 text-right">Amount ({{ proposal.currency }})</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    {% for item in proposal.line_items %}
-                                    <tr class="hover:bg-slate-50 transition-colors">
-                                        <td class="px-5 py-3 font-medium text-textMain">{{ item.description }}</td>
-                                        <td class="px-5 py-3 font-bold text-primary text-right">{{ "{:,.2f}".format(item.amount) }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden print:border-slate-300">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-base whitespace-nowrap md:whitespace-normal">
+                                    <thead class="bg-slate-50 print:bg-slate-100 border-b border-slate-200 text-sm font-bold text-textMuted uppercase tracking-wider">
+                                        <tr>
+                                            <th class="px-6 py-4">Description</th>
+                                            <th class="px-6 py-4 text-right">Amount ({{ proposal.currency }})</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 print:divide-slate-300">
+                                        {% for item in proposal.line_items %}
+                                        <tr class="hover:bg-slate-50 transition-colors print:break-inside-avoid">
+                                            <td class="px-6 py-4 font-semibold text-textMain min-w-[200px]">{{ item.description }}</td>
+                                            <td class="px-6 py-4 font-bold text-primary text-right">{{ "{:,.2f}".format(item.amount) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         {% else %}
-                        <p class="text-sm text-textMuted italic bg-slate-50 p-4 rounded-xl">No detailed cost breakdown provided.</p>
+                        <p class="text-base text-textMuted italic bg-slate-50 p-6 rounded-2xl border border-slate-100">No detailed cost breakdown provided.</p>
                         {% endif %}
                     </div>
 
                     <!-- Section 4: Details -->
                     <div>
-                        <h3 class="text-sm font-bold text-accent uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">Inclusions, Exclusions & Notes</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Included in Estimate</p>
+                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Inclusions, Exclusions & Notes</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            <div class="print:break-inside-avoid">
+                                <p class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-2 print:text-black"><i data-lucide="check" class="w-5 h-5 print:text-black"></i> Included in Estimate</p>
                                 {% if proposal.inclusions %}
-                                <div class="text-sm text-textMain whitespace-pre-wrap pl-5 border-l-2 border-emerald-100">{{ proposal.inclusions }}</div>
+                                <div class="text-base text-textMain whitespace-pre-wrap pl-6 border-l-4 border-emerald-400 leading-relaxed">{{ proposal.inclusions }}</div>
                                 {% else %}
-                                <p class="text-sm text-textMuted italic">None specified</p>
+                                <p class="text-base text-textMuted italic pl-6 border-l-4 border-emerald-200">None specified</p>
                                 {% endif %}
                             </div>
-                            <div>
-                                <p class="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i data-lucide="x" class="w-4 h-4"></i> Excluded from Estimate</p>
+                            <div class="print:break-inside-avoid">
+                                <p class="text-sm font-bold text-red-600 uppercase tracking-wider mb-3 flex items-center gap-2 print:text-black"><i data-lucide="x" class="w-5 h-5 print:text-black"></i> Excluded from Estimate</p>
                                 {% if proposal.exclusions %}
-                                <div class="text-sm text-textMain whitespace-pre-wrap pl-5 border-l-2 border-red-100">{{ proposal.exclusions }}</div>
+                                <div class="text-base text-textMain whitespace-pre-wrap pl-6 border-l-4 border-red-400 leading-relaxed">{{ proposal.exclusions }}</div>
                                 {% else %}
-                                <p class="text-sm text-textMuted italic">None specified</p>
+                                <p class="text-base text-textMuted italic pl-6 border-l-4 border-red-200">None specified</p>
                                 {% endif %}
                             </div>
                             
                             {% if proposal.requirements %}
-                            <div class="md:col-span-2">
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-4 h-4 text-amber-500"></i> Pre-treatment Requirements</p>
-                                <div class="text-sm text-textMain bg-amber-50 p-4 rounded-xl border border-amber-100 whitespace-pre-wrap">{{ proposal.requirements }}</div>
+                            <div class="md:col-span-2 mt-4 print:break-inside-avoid">
+                                <p class="text-sm font-bold text-amber-600 uppercase tracking-wider mb-3 flex items-center gap-2 print:text-black"><i data-lucide="alert-circle" class="w-5 h-5 print:text-black"></i> Pre-treatment Requirements</p>
+                                <div class="text-base text-textMain bg-amber-50 print:bg-transparent print:border-l-4 print:border-amber-400 p-6 rounded-2xl border border-amber-100 whitespace-pre-wrap leading-relaxed">{{ proposal.requirements }}</div>
                             </div>
                             {% endif %}
                             
                             {% if proposal.additional_notes %}
-                            <div class="md:col-span-2">
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2 flex items-center gap-1.5"><i data-lucide="file-text" class="w-4 h-4"></i> Additional Notes</p>
-                                <div class="text-sm text-textMain whitespace-pre-wrap bg-slate-50 p-4 rounded-xl">{{ proposal.additional_notes }}</div>
+                            <div class="md:col-span-2 mt-4 print:break-inside-avoid">
+                                <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-3 flex items-center gap-2 print:text-black"><i data-lucide="file-text" class="w-5 h-5 print:text-black"></i> Additional Notes</p>
+                                <div class="text-base text-textMain whitespace-pre-wrap bg-slate-50 print:bg-transparent print:border-l-4 print:border-slate-400 p-6 rounded-2xl border border-slate-100 leading-relaxed">{{ proposal.additional_notes }}</div>
                             </div>
                             {% endif %}
                         </div>
                     </div>
                     
                     <!-- Standard Disclaimer -->
-                    <div class="mt-8 p-4 bg-slate-100 rounded-xl text-xs text-textMuted leading-relaxed">
-                        <strong>Disclaimer:</strong> This Treatment Estimate & Proposal is based on the medical information currently available. Final treatment plans and costs may change following specialist consultation, physical examination, additional investigations, or changes in the patient's clinical condition. MediBid estimates may vary by ±10% based on actual medical requirements at the time of admission.
+                    <div class="mt-12 p-6 bg-slate-100 rounded-2xl border border-slate-200 text-sm text-textMuted leading-relaxed print:bg-transparent print:border-slate-300 print:text-black print:break-inside-avoid">
+                        <strong class="text-slate-700 print:text-black">Disclaimer:</strong> This Treatment Estimate & Proposal is based on the medical information currently available. Final treatment plans and costs may change following specialist consultation, physical examination, additional investigations, or changes in the patient's clinical condition. MediBid estimates may vary by ±10% based on actual medical requirements at the time of admission.
                     </div>
                 </div>
             </div>
@@ -327,15 +357,15 @@
 
         <!-- Sticky Bottom Action Bar -->
         {% if not is_view_only %}
-        <div class="fixed bottom-0 right-0 left-0 md:left-64 bg-white border-t border-slate-200 p-4 md:p-6 z-30 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.1)]">
-            <div class="max-w-4xl mx-auto flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
-                <a href="{{ url_for('hospital_proposal_edit', reference_id=req.reference_id) }}" class="w-full sm:w-auto text-center px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="edit" class="w-4 h-4"></i> Edit Proposal
+        <div class="fixed bottom-0 right-0 left-0 md:left-64 bg-white border-t border-slate-200 p-4 md:p-6 z-30 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.1)] print:hidden">
+            <div class="max-w-[1000px] mx-auto flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
+                <a href="{{ url_for('hospital_proposal_edit', reference_id=req.reference_id) }}" class="w-full sm:w-auto text-center px-8 py-3.5 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 min-h-[48px]">
+                    <i data-lucide="edit" class="w-5 h-5"></i> Edit Proposal
                 </a>
                 
                 <form id="proposal-submit-form" action="{{ url_for('hospital_proposal_submit', reference_id=req.reference_id) }}" method="POST" class="w-full sm:w-auto m-0">
-                    <button type="button" onclick="openSubmitModal()" class="w-full sm:w-auto px-8 py-3 bg-accent text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2">
-                        Submit Final Proposal <i data-lucide="send" class="w-4 h-4"></i>
+                    <button type="button" onclick="openSubmitModal()" class="w-full sm:w-auto px-10 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 min-h-[48px]">
+                        Submit Final Proposal <i data-lucide="send" class="w-5 h-5"></i>
                     </button>
                 </form>
             </div>
@@ -347,28 +377,26 @@
             <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeSubmitModal()"></div>
             
             <!-- Modal Card -->
-            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="submit-modal-card">
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="submit-modal-card">
                 <!-- Header -->
-                <div class="p-6 sm:p-8 flex items-start gap-4">
-                    <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-                        <i data-lucide="alert-triangle" class="w-6 h-6 text-amber-500"></i>
+                <div class="p-8 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mb-5">
+                        <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-500"></i>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-extrabold text-primary mb-2">Submit Final Proposal?</h3>
-                        <div class="text-sm text-textMuted space-y-3 leading-relaxed">
-                            <p>You are about to submit this Treatment Estimate & Proposal to the patient.</p>
-                            <p class="text-primary font-bold">Once submitted, the proposal cannot be edited.</p>
-                            <p>Please make sure all treatment details, estimated costs, inclusions, exclusions, requirements, and validity information are correct before continuing.</p>
-                        </div>
+                    <h3 class="text-2xl font-extrabold text-primary mb-4">Submit Final Proposal?</h3>
+                    <div class="text-base text-textMuted space-y-4 leading-relaxed">
+                        <p>You are about to submit this Treatment Estimate & Proposal to the patient.</p>
+                        <p class="text-primary font-bold">Once submitted, the proposal cannot be edited.</p>
+                        <p>Please make sure all treatment details, estimated costs, inclusions, exclusions, requirements, and validity information are correct before continuing.</p>
                     </div>
                 </div>
                 
                 <!-- Actions -->
-                <div class="p-4 sm:p-6 bg-slate-50 flex items-center justify-end gap-3 rounded-b-2xl border-t border-slate-100">
-                    <button type="button" onclick="closeSubmitModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-colors">
+                <div class="p-6 bg-slate-50 flex flex-col-reverse sm:flex-row items-center justify-end gap-4 rounded-b-3xl border-t border-slate-100">
+                    <button type="button" onclick="closeSubmitModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-colors min-h-[48px]">
                         Cancel
                     </button>
-                    <button type="button" onclick="confirmSubmit()" id="modal-submit-btn" class="px-6 py-2.5 rounded-xl font-bold text-white bg-accent hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[160px] disabled:opacity-70 disabled:cursor-not-allowed">
+                    <button type="button" onclick="confirmSubmit()" id="modal-submit-btn" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 min-w-[180px] disabled:opacity-70 disabled:cursor-not-allowed min-h-[48px]">
                         Submit Proposal
                     </button>
                 </div>
@@ -376,6 +404,9 @@
         </div>
         {% endif %}
     </main>
+
+    <!-- PDF Download Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <script>
         function openSubmitModal() {
@@ -426,6 +457,25 @@
                 }
             }
         });
+
+        // PDF Generation
+        function downloadPDF() {
+            const element = document.getElementById('proposal-card');
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'MediBid_Proposal_{{ req.reference_id }}.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Add a temporary class to ensure pdf rendering looks like print version
+            element.classList.add('print-mode');
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.remove('print-mode');
+            });
+        }
 
         lucide.createIcons();
     </script>

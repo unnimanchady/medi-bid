@@ -61,7 +61,7 @@
         <div class="flex items-center gap-4 text-[12.5px] text-textMuted">
             <span>Submitted: <strong class="text-textMain">
                 {% if proposal.submitted_at %}
-                    {{ proposal.submitted_at.strftime('%B %d, %Y') }}
+                    {{ proposal.submitted_at.strftime('%B %d, %Y') if proposal.submitted_at else 'Not available' }}
                 {% elif proposal.created_at %}
                     {{ proposal.created_at.strftime('%B %d, %Y') }}
                 {% else %}
