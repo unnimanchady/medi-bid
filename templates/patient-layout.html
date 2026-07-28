@@ -211,7 +211,10 @@
     <aside id="mobile-drawer" class="drawer-menu fixed top-0 bottom-0 left-0 w-[280px] bg-sidebar-gradient z-50 transform -translate-x-full flex flex-col shadow-2xl md:hidden overflow-y-auto custom-scrollbar border-r border-gray-800">
         <!-- Close Button & Logo -->
         <div class="h-[70px] flex items-center justify-between px-6 border-b border-white/5">
-            <span class="text-[20px] font-extrabold text-white tracking-tight">MediBid</span>
+            <div class="flex items-center gap-2.5">
+                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
+                <span class="text-[20px] font-extrabold tracking-tight"><span class="text-white">Treat</span><span class="text-secondary">Anywhere</span></span>
+            </div>
             <button id="close-drawer-btn" class="p-2 text-white/60 hover:text-white bg-white/5 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary transition-colors">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>

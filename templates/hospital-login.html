@@ -52,10 +52,8 @@
     <header class="bg-white border-b border-gray-100 py-4 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-center sm:justify-start">
             <a href="{{ url_for('home') }}" class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
-                </div>
-                <span class="font-extrabold text-xl tracking-tight text-textMain">MediBid</span>
+                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
+                <span class="font-extrabold text-xl tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
             </a>
         </div>
     </header>

@@ -76,59 +76,47 @@
             
             <!-- Logo -->
             <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg" aria-label="MediBid Home">
-                <svg width="36" height="36" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary flex-shrink-0" aria-hidden="true">
-                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
-                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M5 24H27" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M5 8H27" stroke="#0082CA" stroke-width="1.5"/>
-                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
-                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
+                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
                 <div class="flex flex-col">
-                    <span class="text-[22px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[20px] xl:text-[22px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
                     <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-[0.08em] mt-0.5">Healthcare Without Borders</span>
                 </div>
             </a>
 
             <!-- Desktop Navigation -->
-            <nav class="hidden lg:flex items-center gap-8 xl:gap-10" aria-label="Main Navigation">
-                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+            <nav class="hidden lg:flex items-center gap-4 xl:gap-8" aria-label="Main Navigation">
+                <a href="#how-it-works" class="whitespace-nowrap text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
                     How It Works
                     <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
-                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
-                    For Patients
-                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
-                </a>
-                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                <a href="{{ url_for('hospital_register') }}" class="whitespace-nowrap text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
                     For Hospitals
                     <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
-                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                <a href="#" class="whitespace-nowrap text-[15px] font-semibold text-gray-500 hover:text-gray-700 transition-colors duration-300 focus:outline-none relative group">
                     For NGOs
-                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
+                    <span class="absolute -top-3.5 -right-3.5 bg-blue-50 text-secondary text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border border-blue-100">Soon</span>
+                    <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gray-300 transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
-                <a href="#" class="text-[15px] font-semibold text-gray-500 hover:text-gray-700 transition-colors duration-300 focus:outline-none relative group">
+                <a href="#" class="whitespace-nowrap text-[15px] font-semibold text-gray-500 hover:text-gray-700 transition-colors duration-300 focus:outline-none relative group">
                     For CSR Partners
                     <span class="absolute -top-3.5 -right-3.5 bg-blue-50 text-secondary text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border border-blue-100">Soon</span>
                     <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-gray-300 transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
-                <a href="#" class="text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                <a href="#about-us" class="whitespace-nowrap text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
                     About Us
                     <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
             </nav>
 
             <!-- Right Actions -->
-            <div class="hidden lg:flex items-center gap-6">
-                <a href="{{ url_for('hospital_login') }}" class="text-[14px] font-medium text-gray-500 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary rounded px-2 py-1">Hospital Login</a>
-                <button class="flex items-center gap-1.5 text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary rounded px-2 py-1" aria-label="Change language">
+            <div class="hidden lg:flex items-center gap-4 xl:gap-8">
+                <button class="whitespace-nowrap flex items-center gap-1.5 text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-secondary rounded px-2 py-1" aria-label="Change language">
                     <i data-lucide="globe" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
                     EN
                     <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
                 </button>
-                <a href="{{ url_for('patient_login') }}" class="bg-primary hover:bg-blue-800 hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:-translate-y-0.5">
+                <a href="{{ url_for('patient_login') }}" class="whitespace-nowrap bg-primary hover:bg-blue-800 hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:-translate-y-0.5">
                     <i data-lucide="user" class="w-4 h-4" aria-hidden="true"></i>
                     Sign In
                 </a>
@@ -157,9 +145,9 @@
                 </div>
                 
                 <!-- Headline -->
-                <h1 class="text-[clamp(32px,8vw,48px)] font-extrabold text-primary leading-[1.1] mb-4 sm:mb-6 tracking-tight">
-                    Find the Right Treatment.<br>
-                    At the <span class="text-secondary">Right Price.</span>
+                <h1 class="text-[clamp(26px,5vw,38px)] font-extrabold text-primary leading-[1.1] mb-4 sm:mb-6 tracking-tight">
+                    Find the <span class="text-orange-500">Right Treatment Anywhere.</span><br>
+                    At the <span class="text-orange-500">Right Price.</span>
                 </h1>
                 
                 <!-- Description -->
@@ -305,7 +293,7 @@
         </main>
         
         <!-- Core Value Proposition Cards (Below Fold) -->
-        <section aria-label="Core Features" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 lg:mt-24 mb-10 sm:mb-12 lg:mb-16 relative z-30">
+        <section id="how-it-works" aria-label="Core Features" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 mt-8 lg:mt-24 mb-10 sm:mb-12 lg:mb-16 relative z-30">
             <div class="bg-white rounded-[24px] sm:rounded-[32px] shadow-card p-6 lg:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 lg:gap-6 xl:gap-8 border border-gray-100">
                 
                 <!-- Feature 1 -->
@@ -383,7 +371,7 @@
         </section>
         
         <!-- Trusted Ecosystem Banner -->
-        <section aria-label="Ecosystem Partners" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-20">
+        <section id="about-us" aria-label="Ecosystem Partners" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-12 sm:pb-20">
             <div class="bg-primary rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 lg:p-12 flex flex-col items-center text-center lg:text-left shadow-glow border border-blue-900/50">
                 
                 <h2 class="text-[clamp(22px,6vw,28px)] font-bold text-white mb-8 lg:mb-14 tracking-wide w-full text-center">A Trusted Ecosystem Built for You</h2>
@@ -459,17 +447,9 @@
         
         <div class="px-6 h-20 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0">
             <div class="flex items-center gap-3">
-                <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-primary" aria-hidden="true">
-                    <path d="M16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30Z" fill="#0082CA" fill-opacity="0.1" stroke="#0082CA" stroke-width="2"/>
-                    <path d="M16 2C20 6.5 22 11.5 22 16C22 20.5 20 25.5 16 30C12 25.5 10 20.5 10 16C10 11.5 12 6.5 16 2Z" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M2 16H30" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M5 24H27" stroke="#0082CA" stroke-width="1.5"/>
-                    <path d="M5 8H27" stroke="#0082CA" stroke-width="1.5"/>
-                    <circle cx="10" cy="22" r="8" fill="#0B1D40"/>
-                    <path d="M10 18V26M6 22H14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
+                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
                 <div class="flex flex-col">
-                    <span class="text-[20px] font-extrabold text-primary leading-none tracking-tight">MediBid</span>
+                    <span class="text-[20px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
                     <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-wider mt-1">Healthcare Without Borders</span>
                 </div>
             </div>
@@ -480,15 +460,17 @@
         
         <div class="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6 bg-white hide-scroll">
             <nav class="flex flex-col gap-2" aria-label="Mobile Main Navigation">
-                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">How It Works</a>
-                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Patients</a>
-                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Hospitals</a>
-                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For NGOs</a>
+                <a href="#how-it-works" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">How It Works</a>
+                <a href="{{ url_for('hospital_register') }}" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Hospitals</a>
+                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-500 flex items-center justify-between pointer-events-none">
+                    For NGOs
+                    <span class="bg-gray-100 text-gray-600 text-[11px] px-2.5 py-1 rounded uppercase font-bold border border-gray-200">Coming Soon</span>
+                </a>
                 <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-500 flex items-center justify-between pointer-events-none">
                     For CSR Partners
                     <span class="bg-gray-100 text-gray-600 text-[11px] px-2.5 py-1 rounded uppercase font-bold border border-gray-200">Coming Soon</span>
                 </a>
-                <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">About Us</a>
+                <a href="#about-us" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">About Us</a>
             </nav>
             
             <div class="h-px bg-gray-100 w-full my-4"></div>
@@ -505,9 +487,6 @@
             <a href="{{ url_for('patient_login') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-4 rounded-xl w-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                 <i data-lucide="user" class="w-5 h-5" aria-hidden="true"></i>
                 Sign In to MediBid
-            </a>
-            <a href="{{ url_for('hospital_login') }}" class="text-center text-[15px] font-semibold text-gray-600 hover:text-primary transition-colors w-full focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg py-2">
-                Hospital Login
             </a>
         </div>
     </div>
