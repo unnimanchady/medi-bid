@@ -6,14 +6,17 @@ echo "=========================================="
 echo "Starting Render Deployment Initialization"
 echo "=========================================="
 
-echo "[1/3] Running database migrations (Alembic)..."
+echo "[1/4] Running database migrations (Alembic)..."
 flask db upgrade
 
-echo "[2/3] Seeding languages..."
+echo "[2/4] Seeding languages..."
 python seed_languages.py
 
-echo "[3/3] Seeding specialties..."
+echo "[3/4] Seeding specialties..."
 python seed_specialties.py
+
+echo "[4/4] Seeding admin account (if configured)..."
+python create_admin.py || true
 
 echo "=========================================="
 echo "Initialization successful! Starting web server..."
