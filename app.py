@@ -1390,6 +1390,7 @@ def hospital_register():
             
         except Exception as e:
             db.session.rollback()
+            app.logger.exception("Hospital registration failed")
             error = "An error occurred during registration. Please try again."
             return render_template("hospital-registration-step1.html", error=error)
 
