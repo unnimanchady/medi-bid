@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if is_view_only %}View Proposal{% else %}Review Proposal{% endif %} | MediBid Hospital Portal</title>
+    <title>{% if is_view_only %}View Proposal{% else %}Review Proposal{% endif %} | TreatAnywhere Hospital Portal</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +50,7 @@
                 <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-600/20">
                     <i data-lucide="building-2" class="text-white w-4 h-4"></i>
                 </div>
-                <span class="font-bold text-lg tracking-tight text-textMain">MediBid <span class="text-blue-600">Hospitals</span></span>
+                <span class="font-bold text-lg tracking-tight text-textMain">TreatAnywhere <span class="text-blue-600">Hospitals</span></span>
             </div>
         </div>
         
@@ -349,7 +349,7 @@
                     
                     <!-- Standard Disclaimer -->
                     <div class="mt-12 p-6 bg-slate-100 rounded-2xl border border-slate-200 text-sm text-textMuted leading-relaxed print:bg-transparent print:border-slate-300 print:text-black print:break-inside-avoid">
-                        <strong class="text-slate-700 print:text-black">Disclaimer:</strong> This Treatment Estimate & Proposal is based on the medical information currently available. Final treatment plans and costs may change following specialist consultation, physical examination, additional investigations, or changes in the patient's clinical condition. MediBid estimates may vary by ±10% based on actual medical requirements at the time of admission.
+                        <strong class="text-slate-700 print:text-black">Disclaimer:</strong> This Treatment Estimate & Proposal is based on the medical information currently available. Final treatment plans and costs may change following specialist consultation, physical examination, additional investigations, or changes in the patient's clinical condition. TreatAnywhere estimates may vary by ±10% based on actual medical requirements at the time of admission.
                     </div>
                 </div>
             </div>
@@ -463,7 +463,7 @@
             const element = document.getElementById('proposal-card');
             const opt = {
                 margin:       [10, 10, 10, 10],
-                filename:     'MediBid_Proposal_{{ req.reference_id }}.pdf',
+                filename:     'TreatAnywhere_Proposal_{{ req.reference_id }}.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }

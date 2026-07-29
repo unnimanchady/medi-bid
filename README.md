@@ -1,2 +1,2 @@
 # medi-bid
-MediBid - Global Healthcare Marketplace
+TreatAnywhere - Global Healthcare Marketplace

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Proposal | Admin | MediBid</title>
+    <title>View Proposal | Admin | TreatAnywhere</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -279,7 +279,7 @@
             const element = document.getElementById('proposal-card');
             const opt = {
                 margin:       [10, 10, 10, 10],
-                filename:     'MediBid_Proposal_{{ req.reference_id }}.pdf',
+                filename:     'TreatAnywhere_Proposal_{{ req.reference_id }}.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }

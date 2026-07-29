@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediBid - Healthcare Without Borders</title>
-    <meta name="description" content="MediBid connects patients with verified hospitals, NGOs, and financial assistance programs around the world. The world's healthcare marketplace.">
+    <title>TreatAnywhere - Healthcare Without Borders</title>
+    <meta name="description" content="TreatAnywhere connects patients with verified hospitals, NGOs, and financial assistance programs around the world. The world's healthcare marketplace.">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,7 +75,7 @@
         <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <!-- Logo -->
-            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg" aria-label="MediBid Home">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg" aria-label="TreatAnywhere Home">
                 <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
                 <div class="flex flex-col">
                     <span class="text-[20px] xl:text-[22px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
@@ -89,7 +89,7 @@
                     How It Works
                     <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
-                <a href="{{ url_for('hospital_register') }}" class="whitespace-nowrap text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
+                <a href="{{ url_for('hospital_login') }}" class="whitespace-nowrap text-[15px] font-semibold text-gray-700 hover:text-primary transition-colors duration-300 focus:outline-none relative group">
                     For Hospitals
                     <span class="absolute -bottom-1.5 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full rounded-full"></span>
                 </a>
@@ -152,7 +152,7 @@
                 
                 <!-- Description -->
                 <p class="text-gray-600 text-[clamp(15px,4vw,18px)] mb-6 sm:mb-8 max-w-[540px] leading-relaxed">
-                    MediBid connects patients with verified hospitals, NGOs, and financial assistance programs around the world &mdash; so you can focus on what matters most: your health.
+                    TreatAnywhere connects patients with verified hospitals, NGOs, and financial assistance programs around the world &mdash; so you can focus on what matters most: your health.
                 </p>
                 
                 <!-- Features Row (Hidden on mobile for cleaner layout) -->
@@ -461,7 +461,7 @@
         <div class="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-6 bg-white hide-scroll">
             <nav class="flex flex-col gap-2" aria-label="Mobile Main Navigation">
                 <a href="#how-it-works" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">How It Works</a>
-                <a href="{{ url_for('hospital_register') }}" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Hospitals</a>
+                <a href="{{ url_for('hospital_login') }}" class="px-4 py-3.5 text-[16px] font-semibold text-gray-800 hover:bg-gray-50 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-secondary">For Hospitals</a>
                 <a href="#" class="px-4 py-3.5 text-[16px] font-semibold text-gray-500 flex items-center justify-between pointer-events-none">
                     For NGOs
                     <span class="bg-gray-100 text-gray-600 text-[11px] px-2.5 py-1 rounded uppercase font-bold border border-gray-200">Coming Soon</span>
@@ -486,7 +486,7 @@
         <div class="p-6 border-t border-gray-100 bg-gray-50 flex-shrink-0 flex flex-col gap-4">
             <a href="{{ url_for('patient_login') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-6 py-4 rounded-xl w-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium text-[16px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                 <i data-lucide="user" class="w-5 h-5" aria-hidden="true"></i>
-                Sign In to MediBid
+                Sign In to TreatAnywhere
             </a>
         </div>
     </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Login | MediBid</title>
+    <title>Hospital Sign In | TreatAnywhere</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,8 +67,8 @@
                     <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-blue-100">
                         <i data-lucide="building" class="w-8 h-8"></i>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-textMain tracking-tight mb-2">Hospital Login</h1>
-                    <p class="text-textMuted text-sm">Sign in to manage your healthcare facility.</p>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-textMain tracking-tight mb-2">Hospital Sign In</h1>
+                    <p class="text-textMuted text-sm">Sign in to manage your hospital account and connect with patients seeking healthcare.</p>
                 </div>
 
                 {% if error %}
@@ -114,8 +114,8 @@
 
                 <div class="mt-8 text-center border-t border-gray-100 pt-6">
                     <p class="text-sm text-textMuted">
-                        Is your hospital new to MediBid? 
-                        <a href="{{ url_for('hospital_register') }}" class="font-bold text-primary hover:text-blue-700 transition-colors">Register here</a>
+                        New to TreatAnywhere? 
+                        <a href="{{ url_for('hospital_register') }}" class="font-bold text-primary hover:text-blue-700 transition-colors">Create Hospital Account</a>
                     </p>
                 </div>
             </div>
