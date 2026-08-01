@@ -1,182 +1,238 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Dashboard | TreatAnywhere</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0A84FF',
-                        secondary: '#2563EB',
-                        accent: '#14B8A6',
-                        textMain: '#1E293B',
-                        textMuted: '#64748B',
-                        bgLight: '#F7FAFC',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-    </style>
-</head>
-<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white flex">
+{% extends "hospital-layout.html" %}
+{% set page_title = "Messages" %}
+{% set active_page = "messages" %}
 
-    <!-- Sidebar (Desktop) -->
-    <aside class="w-64 bg-white border-r border-gray-100 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
-        <div class="p-6 border-b border-gray-100">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
-                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
-                </div>
-                <span class="font-bold text-lg tracking-tight text-textMain">TreatAnywhere <span class="text-primary">Hospitals</span></span>
-            </div>
-        </div>
+{% block content %}
+    <!-- MAIN CHAT INTERFACE -->
+    <main class="w-full max-w-[1400px] mx-auto p-0 sm:p-4 md:p-6 flex flex-col flex-grow relative" style="height: calc(100vh - 140px);">
         
-        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                Dashboard
-            </a>
-            
-            {% if hospital.verification_status == 'verified' %}
-            <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Treatment Requests</span>
-            </a>
-            {% else %}
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Account verification required">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Treatment Requests</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
-            </div>
-            {% endif %}
-            
-            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Proposals</span>
-            </a>
-            
-            <a href="{{ url_for('hospital_messages') }}" class="px-4 py-3 bg-softBlue text-secondary flex items-center gap-3 rounded-xl">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="font-bold">Messages</span>
-            </a>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="building" class="w-5 h-5"></i>
-                <span class="font-medium">Hospital Profile</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="font-medium">Notifications</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="font-medium">Account / Settings</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-        </nav>
-        
-        <div class="p-4 border-t border-gray-100">
-            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-                Log Out
-            </a>
+        <!-- BREADCRUMBS -->
+        <div class="hidden sm:flex items-center justify-between mb-4 flex-shrink-0 px-4 sm:px-0">
+            <nav class="flex items-center text-[13px] text-textMuted font-medium truncate gap-2">
+                <a href="{{ url_for('hospital_dashboard') }}" class="hover:text-[#C2410C] transition-colors">Dashboard</a>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-300"></i>
+                <span class="text-textMain font-bold">Secure Communication</span>
+            </nav>
         </div>
-    </aside>
 
-    <!-- Main Content -->
-    
-        <!-- MAIN CONTENT (INBOX) -->
-        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-bgLight">
-            <header class="bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between flex-shrink-0">
-                <div>
-                    <h1 class="text-[24px] font-extrabold text-primary tracking-tight">Messages</h1>
-                    <p class="text-[14px] text-textMuted mt-1">Manage patient inquiries and secure communications.</p>
-                </div>
-            </header>
+        <!-- TWO COLUMN LAYOUT -->
+        <div class="flex-grow bg-white sm:border border-gray-200 sm:rounded-[20px] shadow-sm overflow-hidden flex relative w-full h-full">
             
-            <div class="flex-1 overflow-y-auto p-8">
-                <div class="max-w-4xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                    {% if sidebar_threads %}
-                        <div class="divide-y divide-gray-100">
-                        {% for item in sidebar_threads %}
-                            <a href="{{ url_for('hospital_message_thread', thread_id=item.thread.id) }}" class="flex items-center gap-4 p-5 hover:bg-gray-50 transition-colors">
-                                <div class="w-12 h-12 rounded-full bg-softBlue flex items-center justify-center flex-shrink-0">
-                                    <i data-lucide="user" class="w-6 h-6 text-secondary"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex justify-between items-start mb-1">
-                                        <h3 class="text-[15px] font-bold text-textMain truncate pr-2">Patient ({{ item.thread.treatment_request.reference_id }})</h3>
-                                        {% if item.latest_message %}
-                                        <span class="text-[12px] text-textMuted whitespace-nowrap">{{ item.latest_message.created_at.strftime('%b %d, %I:%M %p') }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <p class="text-[13px] {% if item.unread_count > 0 %}text-textMain font-bold{% else %}text-textMuted{% endif %} truncate">
-                                        {% if item.latest_message %}
-                                            {% if item.latest_message.sender_type == 'hospital' %}You: {% endif %}{{ item.latest_message.message_body | truncate(60) }}
-                                        {% else %}
-                                            No messages yet.
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                {% if item.unread_count > 0 %}
-                                <div class="w-6 h-6 bg-secondary text-white rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0">{{ item.unread_count }}</div>
-                                {% else %}
-                                <div class="flex-shrink-0">
-                                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-300"></i>
-                                </div>
-                                {% endif %}
-                            </a>
-                        {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="p-12 text-center flex flex-col items-center justify-center">
-                            <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
-                                <i data-lucide="message-square" class="w-8 h-8 text-gray-300"></i>
+            {% set active_thread = thread if thread else None %}
+            {% set all_threads = hospital.message_threads | sort(attribute='updated_at', reverse=True) %}
+            
+            <!-- LEFT PANEL: Conversation List -->
+            <div id="conversations-list" class="w-full md:w-[320px] lg:w-[380px] border-r border-gray-200 flex flex-col flex-shrink-0 bg-gray-50/30 absolute md:relative inset-0 z-20 md:z-auto h-full bg-white md:bg-transparent {% if active_thread %}hidden md:flex{% else %}flex{% endif %}">
+                
+                <!-- List Header & Search -->
+                <div class="p-4 border-b border-gray-200 bg-white">
+                    <h2 class="text-[20px] font-extrabold text-primary mb-4 hidden md:block">Messages</h2>
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" placeholder="Search Patient or Request ID..." class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[13px] focus:outline-none focus:border-[#C2410C] focus:ring-1 focus:ring-[#C2410C] transition-colors" aria-label="Search Messages">
+                    </div>
+                </div>
+
+                <!-- List Items -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar bg-white md:bg-transparent flex flex-col">
+                    {% if all_threads and all_threads|length > 0 %}
+                        {% for t in all_threads %}
+                        <a href="{{ url_for('hospital_message_thread', thread_id=t.id) }}" class="conv-item w-full text-left p-4 border-b border-gray-100 {% if active_thread and t.id == active_thread.id %}bg-orange-50/50 hover:bg-orange-50/80{% else %}bg-white hover:bg-gray-50{% endif %} transition-colors flex gap-3 relative focus:outline-none">
+                            {% if active_thread and t.id == active_thread.id %}
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#C2410C]"></div>
+                            {% endif %}
+                            <div class="w-12 h-12 rounded-full {% if active_thread and t.id == active_thread.id %}bg-white{% else %}bg-gray-50{% endif %} border border-gray-200 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="user" class="w-6 h-6 {% if active_thread and t.id == active_thread.id %}text-[#C2410C] opacity-80{% else %}text-gray-400{% endif %}"></i>
                             </div>
-                            <h3 class="text-[16px] font-bold text-textMain mb-2">No Conversations Yet</h3>
-                            <p class="text-[14px] text-textMuted">When patients send you messages regarding proposals, they will appear here.</p>
+                            <div class="flex-grow min-w-0 flex flex-col">
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="font-bold text-[14px] text-primary truncate pr-2">Patient</span>
+                                    <span class="text-[11px] {% if active_thread and t.id == active_thread.id %}text-[#C2410C]{% else %}text-textMuted{% endif %} font-bold whitespace-nowrap">{{ t.updated_at.strftime('%b %d') }}</span>
+                                </div>
+                                <div class="text-[11.5px] text-textMuted mb-1.5 truncate font-mono tracking-wide">REQ: {{ t.treatment_request.reference_id }}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[13px] text-textMain font-medium truncate pr-2">
+                                        {% set msgs = t.messages.all() %}
+                                        {% set last_msg = msgs[-1] if msgs else None %}
+                                        {% if last_msg %}
+                                            {% if last_msg.sender_type == 'hospital' %}You: {% endif %}{{ last_msg.message_body }}
+                                        {% else %}
+                                            <span class="italic text-gray-400">No messages yet</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <!-- SAFE EMPTY STATE -->
+                        <div class="flex-grow flex flex-col items-center justify-center text-center px-4 opacity-70 p-4">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-200">
+                                <i data-lucide="message-square-off" class="w-8 h-8 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-[16px] font-extrabold text-primary mb-1">No messages yet.</h3>
+                            <p class="text-[13px] text-textMuted max-w-[250px]">
+                                Messages with patients will appear here when a conversation is started.
+                            </p>
                         </div>
                     {% endif %}
                 </div>
             </div>
-        </main>
 
+            <!-- RIGHT PANEL: Active Chat -->
+            <div id="active-chat" class="w-full flex flex-col flex-grow bg-white md:bg-bgLight relative z-10 h-full {% if not active_thread %}hidden md:flex items-center justify-center{% else %}flex{% endif %}">
+                {% if active_thread %}
+                
+                <!-- Chat Header (Sticky) -->
+                <div class="bg-white border-b border-gray-200 px-3 sm:px-5 py-3 sm:py-4 flex items-center justify-between flex-shrink-0 z-10 shadow-sm relative">
+                    <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                        <a href="{{ url_for('hospital_messages') }}" id="back-to-list-btn" class="md:hidden p-2 -ml-2 text-textMuted hover:text-[#C2410C] rounded-lg focus:outline-none transition-colors" aria-label="Back to Messages">
+                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        </a>
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="user" class="w-5 h-5 sm:w-6 sm:h-6 text-[#C2410C] opacity-70"></i>
+                        </div>
+                        <div class="flex flex-col min-w-0">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="font-extrabold text-[15px] sm:text-[17px] text-primary truncate">Patient</span>
+                                <i data-lucide="shield-check" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#10B981] flex-shrink-0" title="Verified Patient"></i>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-1.5 text-[11.5px] sm:text-[12px] text-textMuted truncate mt-0.5">
+                                <span class="uppercase tracking-widest font-mono font-medium">Req: {{ active_thread.treatment_request.reference_id }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <script>
-        lucide.createIcons();
+                <!-- Emergency Notice -->
+                <div class="bg-orange-50 border-b border-orange-100 px-4 py-2 flex items-center justify-center gap-2 text-[11.5px] sm:text-[12px] text-[#C2410C] font-medium flex-shrink-0 z-0">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    <span class="text-center">End-to-End Encrypted Patient Communication.</span>
+                </div>
+
+                <!-- Messages Area (Scrollable) -->
+                <div class="flex-grow overflow-y-auto custom-scrollbar p-4 sm:p-5 flex flex-col gap-5 bg-white md:bg-bgLight">
+                    {% set msgs = active_thread.messages.all() %}
+                    {% if msgs %}
+                        {% for msg in msgs %}
+                            {% if msg.sender_type == 'patient' %}
+                            <!-- Patient Message (Left) -->
+                            <div class="flex gap-3 max-w-[95%] lg:max-w-[80%] animate-fade-in">
+                                <div class="w-8 h-8 rounded-full bg-white border border-gray-200 items-center justify-center flex-shrink-0 mt-1 hidden sm:flex">
+                                    <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                                <div class="flex flex-col gap-1 w-full">
+                                    <div class="flex items-baseline gap-2 ml-1">
+                                        <span class="text-[12px] font-bold text-textMuted">Patient</span>
+                                        <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tl-sm shadow-sm leading-relaxed whitespace-pre-wrap">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- Hospital Message (Right) -->
+                            <div class="flex justify-end gap-3 max-w-[95%] lg:max-w-[80%] ml-auto mt-2 animate-fade-in">
+                                <div class="flex flex-col gap-1 items-end w-full">
+                                    <div class="flex items-baseline gap-2 mr-1">
+                                        <span class="text-[11px] text-gray-400 font-medium">{{ msg.created_at.strftime('%I:%M %p') }}</span>
+                                        <span class="text-[12px] font-bold text-textMuted">You</span>
+                                    </div>
+                                    <div class="bg-orange-50 border border-orange-200 text-textMain text-[14px] sm:text-[14.5px] p-4 rounded-[16px] rounded-tr-sm shadow-sm leading-relaxed text-left w-full sm:w-auto sm:max-w-full whitespace-pre-wrap">{{ msg.message_body }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="flex-grow flex flex-col items-center justify-center text-center px-4 opacity-70">
+                            <i data-lucide="message-square" class="w-8 h-8 text-gray-300 mb-2"></i>
+                            <p class="text-[13px] text-textMuted max-w-[250px]">Start the conversation by sending a message.</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="h-4 flex-shrink-0"></div>
+                </div>
+
+                <!-- Composer Area (Sticky Bottom) -->
+                <div class="bg-white border-t border-gray-200 p-3 sm:p-4 flex-shrink-0 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+                    <form action="{{ url_for('hospital_send_message', thread_id=active_thread.id) }}" method="POST">
+                        <div class="flex items-end gap-2 sm:gap-3 bg-gray-50 border border-gray-200 rounded-[16px] p-2 focus-within:ring-2 focus-within:ring-[#C2410C] focus-within:border-[#C2410C] transition-all">
+                            <!-- Attachment button placeholder -->
+                            <button type="button" class="p-2 sm:p-3 text-gray-400 hover:text-[#C2410C] transition-colors focus:outline-none flex-shrink-0" aria-label="Attach file">
+                                <i data-lucide="paperclip" class="w-5 h-5"></i>
+                            </button>
+                            
+                            <!-- Textarea -->
+                            <textarea name="message_body" rows="1" class="w-full bg-transparent border-none focus:ring-0 text-[14px] sm:text-[14.5px] text-textMain placeholder-gray-400 resize-none py-3 max-h-[120px] overflow-y-auto custom-scrollbar leading-relaxed" placeholder="Write a secure message..." required></textarea>
+                            
+                            <!-- Send Button -->
+                            <button type="submit" class="bg-[#C2410C] text-white hover:bg-[#EA580C] p-2.5 sm:p-3 rounded-xl transition-colors focus:outline-none flex-shrink-0 shadow-sm" aria-label="Send Message">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-[11px] text-textMuted mt-2.5 px-1 flex justify-between items-center">
+                        <span class="flex items-center gap-1 font-medium text-gray-500"><i data-lucide="lock" class="w-3 h-3"></i> Secure End-to-End Environment</span>
+                    </div>
+                </div>
+
+                {% else %}
+                    <!-- ACTIVE CHAT EMPTY STATE -->
+                    <div class="flex flex-col items-center justify-center text-center px-6 opacity-70">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-5 border border-gray-200 shadow-sm">
+                            <i data-lucide="message-circle" class="w-10 h-10 text-gray-300"></i>
+                        </div>
+                        <h3 class="text-[18px] font-extrabold text-primary mb-2">Select a Conversation</h3>
+                        <p class="text-[14px] text-textMuted max-w-[300px]">
+                            Choose a patient request from the list to view your secure messages.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+        // Mobile Conversation Switching Logic
+        const listPanel = document.getElementById('conversations-list');
+        const chatPanel = document.getElementById('active-chat');
+        const backBtn = document.getElementById('back-to-list-btn');
+        const convItems = document.querySelectorAll('.conv-item');
+
+        convItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    listPanel.classList.add('hidden');
+                    chatPanel.classList.remove('hidden');
+                    chatPanel.classList.add('flex');
+                }
+            });
+        });
+
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    chatPanel.classList.add('hidden');
+                    chatPanel.classList.remove('flex');
+                    listPanel.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Auto-resize textarea
+        const textarea = document.querySelector('textarea');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        
+        // Scroll to bottom of messages
+        const messagesArea = document.querySelector('.flex-grow.overflow-y-auto.custom-scrollbar');
+        if (messagesArea) {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
     </script>
-</body>
-</html>
+{% endblock %}

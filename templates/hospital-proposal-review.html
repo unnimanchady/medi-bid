@@ -1,143 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if is_view_only %}View Proposal{% else %}Review Proposal{% endif %} | TreatAnywhere Hospital Portal</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        @media print {
-            @page {
-                size: A4;
-                margin: 15mm;
-            }
-        }
-    </style>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1E293B',
-                        secondary: '#475569',
-                        accent: '#3B82F6',
-                        textMain: '#0F172A',
-                        textMuted: '#64748B',
-                        bgLight: '#F8FAFC',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex print:block print:h-auto print:min-h-0 print:overflow-visible print:bg-white">
-    
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col hidden md:flex print:hidden">
-        <div class="p-6 border-b border-slate-100">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-600/20">
-                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
-                </div>
-                <span class="font-bold text-lg tracking-tight text-textMain">TreatAnywhere <span class="text-blue-600">Hospitals</span></span>
-            </div>
-        </div>
-        
-        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold hover:bg-slate-50 hover:text-textMain transition-all rounded-xl">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                Dashboard
-            </a>
-            
-            {% if hospital.verification_status == 'verified' %}
-            <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors relative">
-                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-blue-600 rounded-r-full"></div>
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Treatment Requests</span>
-            </a>
-            {% else %}
-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Account verification required">
-                <i data-lucide="file-text" class="w-5 h-5 shrink-0"></i>
-                <span>Treatment Requests</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Lock</span>
-            </div>
-            {% endif %}
-            
-            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Proposals</span>
-            </a>
-            
-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
-                <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
-                <span>Messages</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
-            </div>
-            
-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
-                <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
-                <span>Hospital Profile</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
-            </div>
-            
-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
-                <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
-                <span>Notifications</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
-            </div>
-            
-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
-                <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
-                <span>Account / Settings</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
-            </div>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-100">
-            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-                Log Out
-            </a>
-        </div>
-    </aside>
+{% extends "hospital-layout.html" %}
+{% set page_title = "Review Proposal" %}
+{% set active_page = "proposals" %}
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-y-auto print:block print:h-auto print:overflow-visible">
-        <!-- Header -->
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-4 flex items-center justify-between print:hidden">
-            <div class="flex items-center gap-4">
-                <button class="md:hidden p-2 -ml-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-                <a href="{{ url_for('hospital_treatment_request_detail', reference_id=req.reference_id) }}" class="flex items-center gap-2 text-textMuted hover:text-textMain font-semibold transition-colors text-sm">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Request
-                </a>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div class="h-9 w-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
-                    {{ hospital.legal_name[0] }}
+{% block content %}
+
+                <div class="mb-4">
+                    <a href="{{ url_for('hospital_treatment_request_detail', reference_id=req.reference_id) }}" class="inline-flex items-center gap-2 text-textMuted hover:text-[#C2410C] font-semibold transition-colors text-[14px]">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </a>
                 </div>
-            </div>
-        </header>
+                <!-- Header -->
+        
 
         <div class="p-4 md:p-8 lg:p-10 max-w-[1000px] mx-auto w-full pb-32 print:p-0 print:max-w-none print:pb-0">
             
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="mb-8 p-5 rounded-2xl flex items-start gap-4 {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-blue-50 text-blue-700 border border-blue-200{% endif %} print:hidden">
+                        <div class="mb-8 p-5 rounded-2xl flex items-start gap-4 {% if category == 'error' %}bg-red-50 text-red-700 border border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-orange-50 text-blue-700 border border-blue-200{% endif %} print:hidden">
                             {% if category == 'error' %}
                                 <i data-lucide="alert-circle" class="w-6 h-6 shrink-0 mt-0.5"></i>
                             {% elif category == 'success' %}
@@ -202,7 +82,7 @@
                 <div class="p-6 md:p-10 lg:p-12 space-y-12 md:space-y-16 print:p-0 print:space-y-10">
                     <!-- Section 1: Treatment -->
                     <div>
-                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Treatment Plan</h3>
+                        <h3 class="text-base font-extrabold text-[#C2410C] uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Treatment Plan</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div class="md:col-span-2">
                                 <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Proposed Treatment</p>
@@ -225,7 +105,7 @@
 
                     <!-- Section 2: Timeline -->
                     <div class="print:break-inside-avoid">
-                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Treatment Timeline</h3>
+                        <h3 class="text-base font-extrabold text-[#C2410C] uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Treatment Timeline</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 print:border-none print:p-0 print:bg-transparent">
                                 <p class="text-sm font-bold text-textMuted uppercase tracking-wider mb-2">Total Duration</p>
@@ -265,7 +145,7 @@
 
                     <!-- Section 3: Cost -->
                     <div>
-                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Estimated Cost & Breakdown</h3>
+                        <h3 class="text-base font-extrabold text-[#C2410C] uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Estimated Cost & Breakdown</h3>
                         
                         <!-- Total Box -->
                         <div class="bg-gradient-to-r from-slate-800 to-slate-900 print:bg-none print:bg-white print:border-2 print:border-slate-800 print:text-black rounded-3xl p-8 md:p-10 text-white mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center shadow-xl print:shadow-none print:break-inside-avoid">
@@ -312,7 +192,7 @@
 
                     <!-- Section 4: Details -->
                     <div>
-                        <h3 class="text-base font-extrabold text-blue-600 uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Inclusions, Exclusions & Notes</h3>
+                        <h3 class="text-base font-extrabold text-[#C2410C] uppercase tracking-widest mb-6 border-b-2 border-slate-100 pb-3">Inclusions, Exclusions & Notes</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div class="print:break-inside-avoid">
                                 <p class="text-sm font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-2 print:text-black"><i data-lucide="check" class="w-5 h-5 print:text-black"></i> Included in Estimate</p>
@@ -403,81 +283,26 @@
             </div>
         </div>
         {% endif %}
-    </main>
+{% endblock %}
 
-    <!-- PDF Download Script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <script>
-        function openSubmitModal() {
-            const modal = document.getElementById('submit-modal');
-            const card = document.getElementById('submit-modal-card');
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            
-            // Force reflow to enable transition from hidden state
-            void modal.offsetWidth;
-            
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            card.classList.remove('scale-95', 'opacity-0');
-            card.classList.add('scale-100', 'opacity-100');
-        }
-
-        function closeSubmitModal() {
-            const modal = document.getElementById('submit-modal');
-            const card = document.getElementById('submit-modal-card');
-            
-            card.classList.remove('scale-100', 'opacity-100');
-            card.classList.add('scale-95', 'opacity-0');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300);
-        }
-
-        function confirmSubmit() {
-            const btn = document.getElementById('modal-submit-btn');
-            if (btn.disabled) return;
-            
-            btn.disabled = true;
-            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Submitting...`;
-            lucide.createIcons();
-            
-            document.getElementById('proposal-submit-form').submit();
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const modal = document.getElementById('submit-modal');
-                if (modal && !modal.classList.contains('pointer-events-none')) {
-                    closeSubmitModal();
+{% block page_scripts %}
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#475569',
+                        accent: '#3B82F6',
+                        textMain: '#0F172A',
+                        textMuted: '#64748B',
+                        bgLight: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
                 }
             }
-        });
-
-        // PDF Generation
-        function downloadPDF() {
-            const element = document.getElementById('proposal-card');
-            const opt = {
-                margin:       [10, 10, 10, 10],
-                filename:     'TreatAnywhere_Proposal_{{ req.reference_id }}.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Add a temporary class to ensure pdf rendering looks like print version
-            element.classList.add('print-mode');
-            
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.remove('print-mode');
-            });
         }
-
-        lucide.createIcons();
     </script>
-</body>
-</html>
+{% endblock %}

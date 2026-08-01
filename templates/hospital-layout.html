@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hospital Portal | TreatAnywhere{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#24156F', 
+                        secondary: '#6D35E8', 
+                        textMain: '#111A4A',
+                        textMuted: '#56617D',
+                        bgLight: '#FAFAFD',
+                        success: '#10B981', 
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        softBlue: '#EFF6FF',
+                        softTeal: '#ECFDF5',
+                        tealAccent: '#14B8A6',
+                        softLavender: '#F5F3FF',
+                        lavenderAccent: '#8B5CF6',
+                        softAmber: '#FFFBEB',
+                        amberAccent: '#D97706',
+                        softGreen: '#F0FDF4',
+                        greenAccent: '#15803D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'dropdown': '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                        'premium': '0 4px 16px rgba(30, 25, 80, 0.06)',
+                        'glow': '0 20px 40px -10px rgba(0,130,202,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.6s ease-out forwards;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        
+        .drawer-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .drawer-menu {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #profile-dropdown {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+        #profile-dropdown.open {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    
+        .bg-sidebar-hospital { background: #C2410C; }
+        .bg-active-hospital { background: #F97316; }
+        .hover-hospital:hover { background: #EA580C; }
+    </style>
+    {% block page_styles %}{% endblock %}
+</head>
+<body class="bg-bgLight text-textMain min-h-screen flex selection:bg-secondary selection:text-white">
+
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="hidden md:flex flex-col w-64 lg:w-[280px] bg-sidebar-hospital h-screen sticky top-0 flex-shrink-0 z-40 border-r border-[#9A3412] shadow-xl">
+        
+        <!-- Identity Section -->
+        <div class="px-6 py-6 border-b border-white/10">
+            <h3 class="font-extrabold text-[16px] text-white truncate leading-tight flex items-center gap-2">
+                <i data-lucide="building-2" class="w-4 h-4"></i> {{ hospital.legal_name }}
+            </h3>
+            <p class="text-white/80 text-[13px] flex items-center gap-1 mt-1 truncate font-medium">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                {% set loc_parts = [] %}
+                {% if hospital.country and hospital.country != 'None' %}{% set _ = loc_parts.append(hospital.country) %}{% endif %}
+                {% if loc_parts %}{{ loc_parts | join(', ') }}{% else %}Location not specified{% endif %}
+            </p>
+            {% if hospital.verification_status == 'verified' %}
+            <div class="flex items-center gap-1.5 mt-3">
+                <div class="w-4 h-4 rounded-full bg-[#10B981] flex items-center justify-center">
+                    <i data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                </div>
+                <span class="text-[#10B981] font-extrabold text-[11px] uppercase tracking-wider">Verified Hospital</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-grow py-5 px-4 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
+            
+            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'dashboard' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %}">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 {% if active_page == 'dashboard' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Dashboard
+            </a>
+            
+            <a href="{{ url_for('hospital_treatment_requests') if hospital.verification_status == 'verified' else '#' }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'requests' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %} {{ 'opacity-50 cursor-not-allowed' if hospital.verification_status != 'verified' else '' }}">
+                <i data-lucide="file-text" class="w-5 h-5 {% if active_page == 'requests' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Treatment Requests
+            </a>
+            
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'proposals' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %}">
+                <i data-lucide="file-text" class="w-5 h-5 {% if active_page == 'proposals' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Proposals
+            </a>
+            
+            <a href="{{ url_for('hospital_messages') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'messages' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %}">
+                <i data-lucide="message-square" class="w-5 h-5 {% if active_page == 'messages' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Messages
+            </a>
+            
+            <div class="h-px bg-white/10 my-2"></div>
+            
+            
+            
+            <a href="#" class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl {% if active_page == 'notifications' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %} text-left">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="bell" class="w-5 h-5 {% if active_page == 'notifications' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Notifications
+                </div>
+            </a>
+            
+            
+            
+        </nav>
+    </aside>
+
+    <!-- MOBILE DRAWER & BACKDROP -->
+    <div id="mobile-overlay" class="drawer-overlay fixed inset-0 bg-primary/80 backdrop-blur-sm z-40 opacity-0 pointer-events-none md:hidden"></div>
+    
+    <aside id="mobile-drawer" class="drawer-menu fixed top-0 bottom-0 left-0 w-[280px] bg-sidebar-hospital z-50 transform -translate-x-full flex flex-col shadow-2xl md:hidden overflow-y-auto custom-scrollbar border-r border-[#9A3412]">
+        <!-- Close Button & Logo -->
+        <div class="h-[70px] flex items-center justify-between px-6 border-b border-white/10">
+            <div class="flex items-center gap-2.5">
+                <span class="text-[20px] font-extrabold tracking-tight text-white"><span class="text-white">Treat</span><span class="text-white/80">Anywhere</span></span>
+            </div>
+            <button id="close-drawer-btn" class="p-2 text-white/80 hover:text-white bg-white/10 rounded-lg focus:outline-none transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <!-- Identity Section (Mobile) -->
+        <div class="px-6 py-6 border-b border-white/10">
+            <h3 class="font-extrabold text-[16px] text-white truncate leading-tight flex items-center gap-2">
+                <i data-lucide="building-2" class="w-4 h-4"></i> {{ hospital.legal_name }}
+            </h3>
+            <p class="text-white/80 text-[13px] flex items-center gap-1 mt-1 truncate font-medium">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                {% set loc_parts = [] %}
+                {% if hospital.country and hospital.country != 'None' %}{% set _ = loc_parts.append(hospital.country) %}{% endif %}
+                {% if loc_parts %}{{ loc_parts | join(', ') }}{% else %}Location not specified{% endif %}
+            </p>
+            {% if hospital.verification_status == 'verified' %}
+            <div class="flex items-center gap-1.5 mt-3">
+                <div class="w-4 h-4 rounded-full bg-[#10B981] flex items-center justify-center">
+                    <i data-lucide="check" class="w-2.5 h-2.5 text-white"></i>
+                </div>
+                <span class="text-[#10B981] font-extrabold text-[11px] uppercase tracking-wider">Verified Hospital</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Drawer Navigation Links (Mobile) -->
+        <nav class="flex-grow py-5 px-4 flex flex-col gap-1.5 overflow-y-auto custom-scrollbar">
+            
+            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'dashboard' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %}">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 {% if active_page == 'dashboard' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Dashboard
+            </a>
+            
+            <a href="{{ url_for('hospital_treatment_requests') if hospital.verification_status == 'verified' else '#' }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'requests' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %} {{ 'opacity-50 cursor-not-allowed' if hospital.verification_status != 'verified' else '' }}">
+                <i data-lucide="file-text" class="w-5 h-5 {% if active_page == 'requests' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Treatment Requests
+            </a>
+            
+            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'proposals' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %}">
+                <i data-lucide="file-text" class="w-5 h-5 {% if active_page == 'proposals' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Proposals
+            </a>
+            
+            <a href="{{ url_for('hospital_messages') }}" class="flex items-center gap-3 px-4 py-3.5 rounded-xl {% if active_page == 'messages' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %}">
+                <i data-lucide="message-square" class="w-5 h-5 {% if active_page == 'messages' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Messages
+            </a>
+            
+            <div class="h-px bg-white/10 my-2"></div>
+            
+            
+            
+            <a href="#" class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl {% if active_page == 'notifications' %}bg-active-hospital text-white font-bold shadow-sm{% else %}text-white/80 hover:text-white hover-hospital font-medium transition-all group{% endif %} text-left">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="bell" class="w-5 h-5 {% if active_page == 'notifications' %}text-white{% else %}group-hover:text-white transition-colors text-white/80{% endif %}"></i> Notifications
+                </div>
+            </a>
+            
+            
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-grow flex flex-col min-w-0 bg-bgLight relative">
+        
+        <!-- TOP HEADER -->
+        <header class="bg-white border-b border-gray-200 h-[70px] lg:h-[80px] flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-30 shadow-sm no-print">
+            
+            <!-- Mobile Header Left -->
+            <div class="flex items-center md:hidden">
+                <button id="open-drawer-btn" class="p-2 -ml-2 text-textMuted hover:text-[#C2410C] transition-colors focus:outline-none focus:ring-2 focus:ring-[#C2410C] rounded-lg">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <div class="flex items-center gap-2 ml-2">
+                    <span class="text-[18px] font-extrabold text-primary tracking-tight">Treat<span class="text-[#C2410C]">Anywhere</span></span>
+                </div>
+            </div>
+            
+            <!-- Desktop Header Left -->
+            <div class="hidden md:flex items-center">
+                <h2 class="text-[16px] font-bold text-primary">{{ page_title | default("Hospital Portal") }}</h2>
+            </div>
+            
+            <!-- Header Right -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button class="relative p-2 text-textMuted hover:text-[#C2410C] transition-colors focus:outline-none focus:ring-2 focus:ring-[#C2410C] rounded-full" aria-label="Notifications">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    {% set admin = hospital.users[0] if hospital.users else None %}
+                    <button id="profile-btn" class="flex items-center gap-2.5 focus:outline-none hover:bg-gray-50 p-1.5 sm:pr-3 rounded-full transition-colors border border-transparent hover:border-gray-200">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-[#C2410C] font-extrabold text-[12px] sm:text-[13px] uppercase shadow-sm">
+                            {% if admin %}{{ admin.first_name[0]|title }}{{ admin.last_name[0]|title }}{% else %}A{% endif %}
+                        </div>
+                        <div class="hidden sm:flex flex-col text-left">
+                            <span class="text-[13px] font-bold text-textMain leading-none">{% if admin %}{{ admin.first_name|title }}{% else %}Admin{% endif %}</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-textMuted hidden sm:block"></i>
+                    </button>
+                    
+                    <div id="profile-dropdown" class="absolute right-0 top-[110%] w-64 bg-white border border-gray-100 rounded-2xl shadow-dropdown z-50 py-2">
+                        <div class="px-4 py-3 border-b border-gray-50 mb-1 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[#C2410C] flex items-center justify-center text-white font-extrabold text-[14px] uppercase shadow-sm">
+                                {% if admin %}{{ admin.first_name[0]|title }}{{ admin.last_name[0]|title }}{% else %}A{% endif %}
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <p class="text-[14px] font-bold text-textMain truncate">{% if admin %}{{ admin.first_name|title }} {{ admin.last_name|title }}{% else %}Administrator{% endif %}</p>
+                                <p class="text-[12px] text-textMuted truncate">{% if admin %}{{ admin.work_email }}{% endif %}</p>
+                            </div>
+                        </div>
+                        <div class="h-[1px] bg-gray-100 my-1"></div>
+                        <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-textMain hover:bg-gray-50 transition-colors w-full text-left"><i data-lucide="building" class="w-4 h-4 text-textMuted"></i> Hospital Profile</a>
+                        <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-textMain hover:bg-gray-50 transition-colors w-full text-left"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account & Settings</a>
+                        <div class="h-[1px] bg-gray-100 my-1"></div>
+                        <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors w-full text-left"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-[1400px] w-full mx-auto">
+            {% block content %}{% endblock %}
+</main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        const openDrawerBtn = document.getElementById('open-drawer-btn');
+        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const overlay = document.getElementById('mobile-overlay');
+        
+        function openDrawer() {
+            if (mobileDrawer) mobileDrawer.classList.remove('-translate-x-full');
+            if (overlay) {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+            }
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeDrawer() {
+            if (mobileDrawer) mobileDrawer.classList.add('-translate-x-full');
+            if (overlay) {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+            }
+            document.body.style.overflow = '';
+        }
+
+        if (openDrawerBtn) openDrawerBtn.addEventListener('click', openDrawer);
+        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+        if (overlay) overlay.addEventListener('click', closeDrawer);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileDrawer && !mobileDrawer.classList.contains('-translate-x-full')) {
+                closeDrawer();
+            }
+        });
+
+        const profileBtn = document.getElementById('profile-btn');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('open');
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (profileDropdown && profileDropdown.classList.contains('open') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                profileDropdown.classList.remove('open');
+            }
+        });
+    </script>
+    {% block page_scripts %}{% endblock %}
+</body>
+</html>

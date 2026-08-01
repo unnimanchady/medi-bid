@@ -1,124 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draft Proposal | TreatAnywhere Hospital Portal</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1E293B',
-                        secondary: '#475569',
-                        accent: '#3B82F6',
-                        textMain: '#0F172A',
-                        textMuted: '#64748B',
-                        bgLight: '#F8FAFC',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-bgLight min-h-screen text-textMain selection:bg-accent selection:text-white flex">
-    
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-slate-200 h-screen sticky top-0 flex flex-col hidden md:flex">
-        <div class="p-6 border-b border-slate-100">
-            <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-700 tracking-tight">TreatAnywhere</h2>
-            <p class="text-xs font-bold text-slate-400 tracking-wider uppercase mt-1">Hospital Portal</p>
-        </div>
-        
-        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold hover:bg-slate-50 hover:text-textMain transition-all rounded-xl">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                Dashboard
-            </a>
-            
-            {% if hospital.verification_status == 'verified' %}
-            <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors relative">
-                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-blue-600 rounded-r-full"></div>
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Treatment Requests</span>
-            </a>
-            {% else %}
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Account verification required">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium">Treatment Requests</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Lock</span>
-            </div>
-            {% endif %}
-            
-            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span>Proposals</span>
-            </a>
-            
-            <a href="{{ url_for('hospital_messages') }}" class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-all">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="font-medium">Messages</span>
-            </a>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="building" class="w-5 h-5"></i>
-                <span class="font-medium">Hospital Profile</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span class="font-medium">Notifications</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-            
-            <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-60 transition-opacity hover:opacity-100 group" title="Coming Soon">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="font-medium">Account / Settings</span>
-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Soon</span>
-            </div>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-100">
-            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 font-semibold hover:bg-red-50 transition-all">
-                <i data-lucide="log-out" class="w-5 h-5"></i> Sign Out
-            </a>
-        </div>
-    </aside>
+{% extends "hospital-layout.html" %}
+{% set page_title = "Edit Proposal" %}
+{% set active_page = "proposals" %}
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
-        <!-- Header -->
-        <header class="bg-white border-b border-slate-200 sticky top-0 z-20 px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <button class="md:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
-                </button>
-                <a href="{{ url_for('hospital_treatment_request_detail', reference_id=req.reference_id) }}" class="flex items-center gap-2 text-textMuted hover:text-textMain font-semibold transition-colors text-sm">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Request
-                </a>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div id="save-status" class="text-sm font-semibold text-emerald-600 opacity-0 transition-opacity flex items-center gap-1.5">
-                    <i data-lucide="check" class="w-4 h-4"></i> Draft Saved
+{% block content %}
+
+                <div class="mb-4">
+                    <a href="{{ url_for('hospital_treatment_request_detail', reference_id=req.reference_id) }}" class="inline-flex items-center gap-2 text-textMuted hover:text-[#C2410C] font-semibold transition-colors text-[14px]">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+                    </a>
                 </div>
-                <div class="h-8 w-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
-                    {{ hospital.legal_name[0] }}
-                </div>
-            </div>
-        </header>
+                <!-- Header -->
+        
 
         <div class="px-6 pt-6 pb-32 md:px-10 md:pt-10 md:pb-48 max-w-4xl mx-auto w-full">
             <div class="mb-8">
@@ -153,28 +45,28 @@
                 <!-- 1. Treatment Plan -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-textMain mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                        <i data-lucide="stethoscope" class="w-5 h-5 text-accent"></i> 1. Treatment Plan
+                        <i data-lucide="stethoscope" class="w-5 h-5 text-[#C2410C]"></i> 1. Treatment Plan
                     </h2>
                     
                     <div class="space-y-5">
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Proposed Treatment / Procedure <span class="text-red-500">*</span></label>
-                            <input type="text" id="proposed_treatment" name="proposed_treatment" value="{{ proposal.proposed_treatment|default('', true) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain placeholder-slate-400" placeholder="e.g. Laparoscopic Cholecystectomy" required>
+                            <input type="text" id="proposed_treatment" name="proposed_treatment" value="{{ proposal.proposed_treatment|default('', true) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain placeholder-slate-400" placeholder="e.g. Laparoscopic Cholecystectomy" required>
                         </div>
                         
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Clinical Assessment / Detailed Plan <span class="text-red-500">*</span></label>
-                            <textarea id="treatment_plan" name="treatment_plan" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain placeholder-slate-400" placeholder="Provide your recommended medical approach based on the available patient history..." required>{{ proposal.treatment_plan|default('', true) }}</textarea>
+                            <textarea id="treatment_plan" name="treatment_plan" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain placeholder-slate-400" placeholder="Provide your recommended medical approach based on the available patient history..." required>{{ proposal.treatment_plan|default('', true) }}</textarea>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-sm font-bold text-textMain mb-1">Treating Department</label>
-                                <input type="text" id="specialty" name="specialty" value="{{ proposal.specialty|default('', true) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain">
+                                <input type="text" id="specialty" name="specialty" value="{{ proposal.specialty|default('', true) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain">
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-textMain mb-1">Lead Doctor / Specialist</label>
-                                <input type="text" id="lead_doctor" name="lead_doctor" value="{{ proposal.lead_doctor|default('', true) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain" placeholder="e.g. Dr. Jane Smith (Optional)">
+                                <input type="text" id="lead_doctor" name="lead_doctor" value="{{ proposal.lead_doctor|default('', true) }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain" placeholder="e.g. Dr. Jane Smith (Optional)">
                             </div>
                         </div>
                     </div>
@@ -183,14 +75,14 @@
                 <!-- 2. Timeline -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-textMain mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                        <i data-lucide="clock" class="w-5 h-5 text-accent"></i> 2. Treatment Timeline
+                        <i data-lucide="clock" class="w-5 h-5 text-[#C2410C]"></i> 2. Treatment Timeline
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Total Estimated Duration</label>
                             <div class="flex">
-                                <input type="number" id="estimated_duration_value" name="estimated_duration_value" value="{{ proposal.estimated_duration_value|default('', true) }}" min="1" class="w-full bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain z-10" placeholder="e.g. 3">
+                                <input type="number" id="estimated_duration_value" name="estimated_duration_value" value="{{ proposal.estimated_duration_value|default('', true) }}" min="1" class="w-full bg-slate-50 border border-slate-200 border-r-0 rounded-l-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain z-10" placeholder="e.g. 3">
                                 <select id="estimated_duration_unit" name="estimated_duration_unit" class="bg-slate-100 border border-slate-200 rounded-r-xl px-3 py-3 outline-none text-textMain font-bold">
                                     <option value="days" {% if proposal.estimated_duration_unit == 'days' %}selected{% endif %}>Days</option>
                                     <option value="weeks" {% if proposal.estimated_duration_unit == 'weeks' %}selected{% endif %}>Weeks</option>
@@ -199,11 +91,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Hospital Stay (Nights)</label>
-                            <input type="number" id="hospital_stay_nights" name="hospital_stay_nights" value="{{ proposal.hospital_stay_nights|default('', true) }}" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain" placeholder="Nights">
+                            <input type="number" id="hospital_stay_nights" name="hospital_stay_nights" value="{{ proposal.hospital_stay_nights|default('', true) }}" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain" placeholder="Nights">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Recommended Recovery (Days)</label>
-                            <input type="number" id="recovery_stay_days" name="recovery_stay_days" value="{{ proposal.recovery_stay_days|default('', true) }}" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain" placeholder="Days">
+                            <input type="number" id="recovery_stay_days" name="recovery_stay_days" value="{{ proposal.recovery_stay_days|default('', true) }}" min="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain" placeholder="Days">
                         </div>
                     </div>
                 </div>
@@ -211,11 +103,11 @@
                 <!-- 3. Cost Estimate -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-textMain mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                        <i data-lucide="credit-card" class="w-5 h-5 text-accent"></i> 3. Cost Estimate <span class="text-red-500">*</span>
+                        <i data-lucide="credit-card" class="w-5 h-5 text-[#C2410C]"></i> 3. Cost Estimate <span class="text-red-500">*</span>
                     </h2>
                     
-                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-6">
-                        <p class="text-sm text-blue-800 flex items-start gap-2 font-medium">
+                    <div class="bg-orange-50 border border-orange-100 p-4 rounded-xl mb-6">
+                        <p class="text-sm text-[#9A3412] flex items-start gap-2 font-medium">
                             <i data-lucide="info" class="w-5 h-5 shrink-0 mt-0.5"></i>
                             TreatAnywhere uses estimated cost ranges to protect both hospitals and patients. Please provide a realistic minimum and maximum bound based on potential clinical variance.
                         </p>
@@ -224,7 +116,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Currency</label>
-                            <select id="currency" name="currency" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-bold text-textMain" required>
+                            <select id="currency" name="currency" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-bold text-textMain" required>
                                 <option value="USD" {% if proposal.currency == 'USD' %}selected{% endif %}>USD ($)</option>
                                 <option value="EUR" {% if proposal.currency == 'EUR' %}selected{% endif %}>EUR (€)</option>
                                 <option value="GBP" {% if proposal.currency == 'GBP' %}selected{% endif %}>GBP (£)</option>
@@ -234,11 +126,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Minimum Est. Cost</label>
-                            <input type="number" id="estimated_cost_min" name="estimated_cost_min" value="{{ proposal.estimated_cost_min|default('', true) }}" step="0.01" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain" required>
+                            <input type="number" id="estimated_cost_min" name="estimated_cost_min" value="{{ proposal.estimated_cost_min|default('', true) }}" step="0.01" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain" required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Maximum Est. Cost</label>
-                            <input type="number" id="estimated_cost_max" name="estimated_cost_max" value="{{ proposal.estimated_cost_max|default('', true) }}" step="0.01" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent focus:ring-4 focus:ring-blue-50 transition-all font-medium text-textMain" required>
+                            <input type="number" id="estimated_cost_max" name="estimated_cost_max" value="{{ proposal.estimated_cost_max|default('', true) }}" step="0.01" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] focus:ring-4 focus:ring-orange-50 transition-all font-medium text-textMain" required>
                         </div>
                     </div>
                 </div>
@@ -247,7 +139,7 @@
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                     <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
                         <h2 class="text-lg font-bold text-textMain flex items-center gap-2">
-                            <i data-lucide="list-collapse" class="w-5 h-5 text-accent"></i> 4. Cost Breakdown
+                            <i data-lucide="list-collapse" class="w-5 h-5 text-[#C2410C]"></i> 4. Cost Breakdown
                         </h2>
                     </div>
                     
@@ -256,8 +148,8 @@
                     <div id="line-items-container" class="space-y-3">
                         {% for item in proposal.line_items %}
                         <div class="line-item flex gap-3 items-center">
-                            <input type="text" class="li-desc flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="e.g. Diagnostics & Imaging" value="{{ item.description }}">
-                            <input type="number" step="0.01" min="0" class="li-amount w-32 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Amount" value="{{ item.amount }}">
+                            <input type="text" class="li-desc flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="e.g. Diagnostics & Imaging" value="{{ item.description }}">
+                            <input type="number" step="0.01" min="0" class="li-amount w-32 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="Amount" value="{{ item.amount }}">
                             <button type="button" onclick="this.parentElement.remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
@@ -269,7 +161,7 @@
                 <!-- 5. Inclusions / Exclusions -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-textMain mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                        <i data-lucide="shield-check" class="w-5 h-5 text-accent"></i> 5. Inclusions & Exclusions
+                        <i data-lucide="shield-check" class="w-5 h-5 text-[#C2410C]"></i> 5. Inclusions & Exclusions
                     </h2>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -287,21 +179,21 @@
                 <!-- 6. Requirements -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                     <h2 class="text-lg font-bold text-textMain mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
-                        <i data-lucide="file-warning" class="w-5 h-5 text-accent"></i> 6. Requirements & Notes
+                        <i data-lucide="file-warning" class="w-5 h-5 text-[#C2410C]"></i> 6. Requirements & Notes
                     </h2>
                     
                     <div class="space-y-5">
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Pre-treatment Requirements</label>
-                            <textarea id="requirements" name="requirements" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent transition-all font-medium text-textMain" placeholder="Any tests the patient must do locally before travel?">{{ proposal.requirements|default('', true) }}</textarea>
+                            <textarea id="requirements" name="requirements" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] transition-all font-medium text-textMain" placeholder="Any tests the patient must do locally before travel?">{{ proposal.requirements|default('', true) }}</textarea>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Additional Notes</label>
-                            <textarea id="additional_notes" name="additional_notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent transition-all font-medium text-textMain" placeholder="Message to the patient...">{{ proposal.additional_notes|default('', true) }}</textarea>
+                            <textarea id="additional_notes" name="additional_notes" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] transition-all font-medium text-textMain" placeholder="Message to the patient...">{{ proposal.additional_notes|default('', true) }}</textarea>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-textMain mb-1">Proposal Validity Date <span class="text-red-500">*</span></label>
-                            <input type="date" id="valid_until" name="valid_until" value="{{ proposal.valid_until.strftime('%Y-%m-%d') if proposal.valid_until else '' }}" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-accent transition-all font-medium text-textMain" required>
+                            <input type="date" id="valid_until" name="valid_until" value="{{ proposal.valid_until.strftime('%Y-%m-%d') if proposal.valid_until else '' }}" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:bg-white focus:border-[#C2410C] transition-all font-medium text-textMain" required>
                             <p id="valid_until_error" class="text-red-500 text-sm mt-1 hidden"></p>
                         </div>
                     </div>
@@ -318,191 +210,32 @@
                     </button>
                 </div>
                 <div>
-                    <button type="button" onclick="saveDraft(true)" class="px-6 py-3 bg-accent text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2">
+                    <button type="button" onclick="saveDraft(true)" class="px-6 py-3 bg-[#C2410C] text-white font-bold rounded-xl hover:bg-[#EA580C] transition-colors shadow-sm flex items-center gap-2">
                         Continue to Review <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
         </div>
-    </main>
+{% endblock %}
 
-    <script>
-        lucide.createIcons();
-        
-        // Setup Validity Date min and max
-        document.addEventListener("DOMContentLoaded", () => {
-            const validUntilInput = document.getElementById('valid_until');
-            if (validUntilInput) {
-                const today = new Date();
-                const yyyy = today.getFullYear();
-                const mm = String(today.getMonth() + 1).padStart(2, '0');
-                const dd = String(today.getDate()).padStart(2, '0');
-                validUntilInput.min = `${yyyy}-${mm}-${dd}`;
-                
-                const maxDate = new Date(today);
-                maxDate.setFullYear(maxDate.getFullYear() + 1);
-                const maxYyyy = maxDate.getFullYear();
-                const maxMm = String(maxDate.getMonth() + 1).padStart(2, '0');
-                const maxDd = String(maxDate.getDate()).padStart(2, '0');
-                validUntilInput.max = `${maxYyyy}-${maxMm}-${maxDd}`;
-                
-                validUntilInput.addEventListener('input', function() {
-                    this.setCustomValidity('');
-                    document.getElementById('valid_until_error').classList.add('hidden');
-                });
-            }
-        });
-        
-        // Add default line item if none exist
-        if (document.querySelectorAll('.line-item').length === 0) {
-            addLineItem();
-        } else {
-            updateAddButton();
-        }
-
-        function addLineItem() {
-            const container = document.getElementById('line-items-container');
-            const div = document.createElement('div');
-            div.className = 'line-item flex gap-3 items-center';
-            div.innerHTML = `
-                <input type="text" class="li-desc flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="e.g. Surgeon Fees">
-                <input type="number" step="0.01" min="0" class="li-amount w-32 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Amount">
-                <button type="button" onclick="this.parentElement.remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            `;
-            container.appendChild(div);
-            lucide.createIcons();
-            updateAddButton();
-        }
-
-        function updateAddButton() {
-            // Remove existing add buttons
-            document.querySelectorAll('.add-item-btn').forEach(btn => btn.remove());
-            
-            const items = document.querySelectorAll('.line-item');
-            if (items.length === 0) {
-                // If user deleted the last row, automatically add a blank one
-                addLineItem();
-                return;
-            }
-            
-            const lastItem = items[items.length - 1];
-            const addBtn = document.createElement('button');
-            addBtn.type = 'button';
-            addBtn.className = 'add-item-btn px-2 py-2 text-accent hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex items-center shrink-0';
-            addBtn.onclick = addLineItem;
-            addBtn.innerHTML = '<i data-lucide="plus" class="w-4 h-4"></i><span class="text-sm font-bold ml-1 hidden sm:inline">Add Item</span>';
-            lastItem.appendChild(addBtn);
-            lucide.createIcons();
-        }
-
-        async function saveDraft(proceedToReview) {
-            const btn = document.getElementById('save-draft-btn');
-            if(!proceedToReview) {
-                btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...`;
-                lucide.createIcons();
-            }
-            
-            // Validate validity date
-            const validUntilInput = document.getElementById('valid_until');
-            const errorMsg = document.getElementById('valid_until_error');
-            
-            if (!validUntilInput.value) {
-                errorMsg.textContent = "Proposal Validity Date is required.";
-                errorMsg.classList.remove('hidden');
-                if(!proceedToReview) {
-                    btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
-                    lucide.createIcons();
-                }
-                return;
-            }
-            
-            const selectedDate = new Date(validUntilInput.value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const maxDate = new Date(today);
-            maxDate.setFullYear(maxDate.getFullYear() + 1);
-            
-            if (selectedDate < today || selectedDate > maxDate) {
-                const maxDateStr = validUntilInput.max;
-                errorMsg.textContent = `Please select a validity date between today and ${maxDateStr}.`;
-                errorMsg.classList.remove('hidden');
-                if(!proceedToReview) {
-                    btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
-                    lucide.createIcons();
-                }
-                return;
-            } else {
-                errorMsg.classList.add('hidden');
-            }
-            
-            // Gather basic fields
-            const payload = {
-                proposed_treatment: document.getElementById('proposed_treatment').value,
-                treatment_plan: document.getElementById('treatment_plan').value,
-                specialty: document.getElementById('specialty').value,
-                lead_doctor: document.getElementById('lead_doctor').value,
-                estimated_duration_value: document.getElementById('estimated_duration_value').value,
-                estimated_duration_unit: document.getElementById('estimated_duration_unit').value,
-                hospital_stay_nights: document.getElementById('hospital_stay_nights').value,
-                recovery_stay_days: document.getElementById('recovery_stay_days').value,
-                currency: document.getElementById('currency').value,
-                estimated_cost_min: document.getElementById('estimated_cost_min').value,
-                estimated_cost_max: document.getElementById('estimated_cost_max').value,
-                inclusions: document.getElementById('inclusions').value,
-                exclusions: document.getElementById('exclusions').value,
-                requirements: document.getElementById('requirements').value,
-                additional_notes: document.getElementById('additional_notes').value,
-                valid_until: document.getElementById('valid_until').value,
-                line_items: []
-            };
-
-            // Gather line items
-            document.querySelectorAll('.line-item').forEach(row => {
-                const desc = row.querySelector('.li-desc').value.trim();
-                const amt = row.querySelector('.li-amount').value;
-                if (desc && amt) {
-                    payload.line_items.push({ description: desc, amount: parseFloat(amt) });
-                }
-            });
-
-            try {
-                const res = await fetch("{{ url_for('hospital_proposal_edit', reference_id=req.reference_id) }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                
-                if (data.status === 'success') {
-                    if (proceedToReview) {
-                        window.location.href = "{{ url_for('hospital_proposal_review', reference_id=req.reference_id) }}";
-                    } else {
-                        btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
-                        lucide.createIcons();
-                        
-                        const status = document.getElementById('save-status');
-                        status.classList.remove('opacity-0');
-                        setTimeout(() => status.classList.add('opacity-0'), 3000);
+{% block page_scripts %}
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#475569',
+                        accent: '#3B82F6',
+                        textMain: '#0F172A',
+                        textMuted: '#64748B',
+                        bgLight: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
                     }
-                } else {
-                    alert("Error saving draft: " + (data.message || "Unknown error"));
-                    if(!proceedToReview) {
-                        btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
-                        lucide.createIcons();
-                    }
-                }
-            } catch(e) {
-                console.error(e);
-                alert("Network error while saving draft.");
-                if(!proceedToReview) {
-                    btn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Draft`;
-                    lucide.createIcons();
                 }
             }
         }
     </script>
-</body>
-</html>
+{% endblock %}

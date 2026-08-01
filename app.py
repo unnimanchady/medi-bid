@@ -1938,12 +1938,22 @@ def hospital_dashboard():
         
     eligible_requests_count = 0
     if hospital and hospital.verification_status == 'verified':
-        all_active = TreatmentRequest.query.filter_by(status='Active').all()
-        for req in all_active:
-            if _is_hospital_eligible(hospital, req.specialty):
-                eligible_requests_count += 1
+        eligible_requests_count = get_visible_treatment_requests(hospital).count()
                 
     return render_template("hospital-dashboard.html", hospital=hospital, user=user, eligible_requests_count=eligible_requests_count)
+
+def get_visible_treatment_requests(hospital):
+    """
+    Returns a SQLAlchemy query for all treatment requests that the given hospital is allowed to view.
+    MVP Logic: All verified hospitals can view all active/open requests.
+    """
+    if not hospital or hospital.verification_status != 'verified':
+        return TreatmentRequest.query.filter(False)
+        
+    return TreatmentRequest.query.filter(
+        TreatmentRequest.status.notin_(['Closed', 'Completed', 'Cancelled', 'Expired']),
+        TreatmentRequest.status == 'Active'
+    )
 
 def _is_hospital_eligible(hospital, request_specialty):
     if not request_specialty:
@@ -1965,14 +1975,52 @@ def hospital_treatment_requests():
     if not hospital or hospital.verification_status != 'verified':
         return redirect(url_for('hospital_dashboard'))
         
-    all_active_requests = TreatmentRequest.query.filter_by(status='Active').order_by(TreatmentRequest.created_at.desc()).all()
+    # UI Filters
+    page = request.args.get('page', 1, type=int)
+    search_query = request.args.get('search', '').strip()
+    category_filter = request.args.get('category', '').strip()
+    country_filter = request.args.get('country', '').strip()
+    sort_order = request.args.get('sort', 'newest')
+
+    query = get_visible_treatment_requests(hospital)
     
-    eligible_requests = []
-    for req in all_active_requests:
-        if _is_hospital_eligible(hospital, req.specialty):
-            eligible_requests.append(req)
+    if search_query:
+        query = query.filter(db.or_(
+            TreatmentRequest.reference_id.ilike(f"%{search_query}%"),
+            TreatmentRequest.specialty.ilike(f"%{search_query}%"),
+            TreatmentRequest.primary_diagnosis.ilike(f"%{search_query}%")
+        ))
+        
+    if category_filter:
+        query = query.filter(TreatmentRequest.specialty.ilike(f"%{category_filter}%"))
+        
+    if country_filter:
+        # Need to join PatientProfile to search by country
+        from models import PatientProfile
+        query = query.join(PatientProfile).filter(PatientProfile.country.ilike(f"%{country_filter}%"))
+        
+    if sort_order == 'oldest':
+        query = query.order_by(TreatmentRequest.created_at.asc())
+    else:
+        query = query.order_by(TreatmentRequest.created_at.desc())
+
+    paginated_requests = query.paginate(page=page, per_page=20, error_out=False)
+    
+    # Pre-fetch hospital proposals to determine button states
+    from models import TreatmentProposal
+    proposals = TreatmentProposal.query.filter_by(hospital_id=hospital.id).all()
+    hospital_proposals = {p.treatment_request_id: p for p in proposals}
             
-    return render_template("hospital-treatment-requests.html", requests=eligible_requests, hospital=hospital)
+    return render_template(
+        "hospital-treatment-requests.html", 
+        requests=paginated_requests, 
+        hospital=hospital,
+        hospital_proposals=hospital_proposals,
+        search=search_query,
+        category=category_filter,
+        country=country_filter,
+        sort=sort_order
+    )
 
 @app.route("/hospital/treatment-requests/<string:reference_id>")
 def hospital_treatment_request_detail(reference_id):
@@ -1986,10 +2034,13 @@ def hospital_treatment_request_detail(reference_id):
         
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
     
-    if not _is_hospital_eligible(hospital, req.specialty):
-        abort(403, description="You are not authorized to view this treatment request.")
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
+        abort(403, description="This treatment request is no longer active.")
         
-    return render_template("hospital-treatment-request-detail.html", req=req, hospital=hospital)
+    from models import TreatmentProposal
+    existing_proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first()
+        
+    return render_template("hospital-treatment-request-detail.html", req=req, hospital=hospital, existing_proposal=existing_proposal)
 
 @app.route("/hospital/treatment-requests/document/<int:doc_id>")
 def hospital_treatment_request_document(doc_id):
@@ -2010,7 +2061,7 @@ def hospital_treatment_request_document(doc_id):
         if not req:
             abort(403)
             
-    if not _is_hospital_eligible(hospital, req.specialty):
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
         abort(403)
         
     return send_from_directory(UPLOAD_FOLDER, doc.storage_filename)
@@ -2033,8 +2084,8 @@ def hospital_treatment_request_document_download(doc_id):
         if not req:
             abort(403)
             
-    if not _is_hospital_eligible(hospital, req.specialty):
-        abort(403)
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
+        abort(403, description="This treatment request is no longer active.")
         
     return send_from_directory(UPLOAD_FOLDER, doc.storage_filename, as_attachment=True, download_name=doc.original_filename)
 
@@ -2076,10 +2127,10 @@ def hospital_proposal_edit(reference_id):
         abort(403)
         
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
-    if not _is_hospital_eligible(hospital, req.specialty):
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
         if request.method == 'POST':
-            return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
-        abort(403)
+            return jsonify({'status': 'error', 'message': 'This treatment request is no longer active.'}), 403
+        abort(403, description="This treatment request is no longer active.")
 
     proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first()
     
@@ -2185,8 +2236,8 @@ def hospital_proposal_review(reference_id):
         abort(403)
         
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
-    if not _is_hospital_eligible(hospital, req.specialty):
-        abort(403)
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
+        abort(403, description="This treatment request is no longer active.")
         
     proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
     if proposal.status == 'submitted':
@@ -2215,8 +2266,8 @@ def hospital_proposal_submit(reference_id):
         abort(403)
         
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
-    if not _is_hospital_eligible(hospital, req.specialty):
-        abort(403)
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
+        abort(403, description="This treatment request is no longer active.")
         
     proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
     if proposal.status == 'submitted':
@@ -2272,8 +2323,8 @@ def hospital_proposal_view(reference_id):
         abort(403)
         
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
-    if not _is_hospital_eligible(hospital, req.specialty):
-        abort(403)
+    if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
+        abort(403, description="This treatment request is no longer active.")
         
     proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
     
