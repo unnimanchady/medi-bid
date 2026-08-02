@@ -83,23 +83,29 @@
             visibility: visible;
             opacity: 1;
         }
+    
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
     </style>
 </head>
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-cta-gradient selection:text-white">
 
     <!-- HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-6 lg:px-12 sticky top-0 z-50">
-        <div class="flex items-center gap-6">
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 sticky top-0 z-50">
+        <div class="flex items-center gap-2 sm:gap-6">
             <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="TreatAnywhere Home">
-                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
+                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-6 h-6 sm:w-10 sm:h-10 object-contain flex-shrink-0">
                 <div class="flex flex-col">
-                    <span class="text-[20px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
+                    <span class="text-[18px] sm:text-[20px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
                     <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
                 </div>
             </a>
             <!-- Back to Home is conditionally helpful here, but we don't want a "Back" button to form -->
         </div>
-        <div class="flex items-center gap-4 sm:gap-6">
+        <div class="flex items-center gap-2 sm:gap-6">
             <button class="flex items-center gap-2 text-gray-600 hover:text-primary font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg px-2 py-1" aria-label="Change Language">
                 <i data-lucide="globe" class="w-5 h-5" aria-hidden="true"></i>
                 <span class="hidden sm:block text-[14px]">English</span>
@@ -117,7 +123,7 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-grow flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 relative overflow-y-auto w-full">
+    <main class="flex-grow flex flex-col items-center py-4 sm:py-14 px-4 sm:px-6 relative overflow-y-auto w-full">
         
         <!-- COMPACT PROGRESS INDICATOR -->
         <div class="w-full max-w-[500px] mb-8 sm:mb-12 opacity-0 animate-fade-in">
@@ -177,7 +183,7 @@
                     <!-- Icon -->
                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-green-50 flex items-center justify-center mb-6 shadow-success-glow animate-pop" style="animation-delay: 0.4s;">
                         <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-success flex items-center justify-center">
-                            <i data-lucide="check" class="w-8 h-8 sm:w-10 sm:h-10 text-white stroke-[3]"></i>
+                            <i data-lucide="check" class="w-6 h-6 sm:w-10 sm:h-10 text-white stroke-[3]"></i>
                         </div>
                     </div>
                     
@@ -237,7 +243,7 @@
                             <div class="absolute left-[15px] top-[15px] bottom-[15px] w-[2px] bg-gray-100 hidden sm:block"></div>
                             
                             <!-- Step 1 -->
-                            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 relative z-10">
+                            <div class="flex flex-col sm:flex-row gap-2 sm:gap-6 relative z-10">
                                 <div class="w-8 h-8 rounded-full bg-white border-2 border-secondary text-secondary font-bold text-[13px] flex items-center justify-center flex-shrink-0 shadow-sm">1</div>
                                 <div class="flex flex-col pt-1">
                                     <h4 class="text-[15px] font-bold text-gray-900 mb-1">Your Request Is Matched</h4>
@@ -248,7 +254,7 @@
                             </div>
                             
                             <!-- Step 2 -->
-                            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 relative z-10">
+                            <div class="flex flex-col sm:flex-row gap-2 sm:gap-6 relative z-10">
                                 <div class="w-8 h-8 rounded-full bg-white border-2 border-secondary text-secondary font-bold text-[13px] flex items-center justify-center flex-shrink-0 shadow-sm">2</div>
                                 <div class="flex flex-col pt-1">
                                     <h4 class="text-[15px] font-bold text-gray-900 mb-1">Hospitals Review Your Request</h4>
@@ -259,7 +265,7 @@
                             </div>
 
                             <!-- Step 3 -->
-                            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 relative z-10">
+                            <div class="flex flex-col sm:flex-row gap-2 sm:gap-6 relative z-10">
                                 <div class="w-8 h-8 rounded-full bg-white border-2 border-secondary text-secondary font-bold text-[13px] flex items-center justify-center flex-shrink-0 shadow-sm">3</div>
                                 <div class="flex flex-col pt-1">
                                     <h4 class="text-[15px] font-bold text-gray-900 mb-1">Compare Treatment Estimates & Proposals</h4>

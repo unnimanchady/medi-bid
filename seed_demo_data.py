@@ -205,8 +205,8 @@ def seed_database():
             notif = Notification(
                 recipient_type="patient",
                 recipient_user_id=user.id,
-                title="Welcome to MediBid",
-                message="Thank you for registering on MediBid.",
+                title="Welcome to TreatAnywhere",
+                message="Thank you for registering on TreatAnywhere.",
                 notification_type="welcome"
             )
             db.session.add(notif)
