@@ -76,7 +76,7 @@
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-cta-gradient selection:text-white">
 
     <!-- HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 sticky top-0 z-50">
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 fixed w-full top-0 z-50">
         <div class="flex items-center gap-2 sm:gap-6">
             <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg">
                 <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-6 h-6 sm:w-10 sm:h-10 object-contain flex-shrink-0">
@@ -106,7 +106,7 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-grow flex flex-col items-center py-4 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+    <main class="flex-grow flex flex-col items-center mt-[80px] py-4 sm:py-14 px-4 sm:px-6 relative">
         <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium mb-4 sm:mb-8 self-start">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             Back to Home
@@ -293,37 +293,37 @@
                         <div class="flex flex-wrap gap-3">
                             <label class="cursor-pointer">
                                 <input type="checkbox" name="assistance" value="Visa assistance" class="pill-checkbox assistance-opt sr-only" {% if 'Visa assistance' in preferences.get('assistance', []) %}checked{% endif %}>
-                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                <div class="px-5 py-3 rounded-xl border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
                                     Visa assistance
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="checkbox" name="assistance" value="Accommodation assistance" class="pill-checkbox assistance-opt sr-only" {% if 'Accommodation assistance' in preferences.get('assistance', []) %}checked{% endif %}>
-                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                <div class="px-5 py-3 rounded-xl border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
                                     Accommodation assistance
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="checkbox" name="assistance" value="Airport pickup / transportation" class="pill-checkbox assistance-opt sr-only" {% if 'Airport pickup / transportation' in preferences.get('assistance', []) %}checked{% endif %}>
-                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                <div class="px-5 py-3 rounded-xl border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
                                     Airport pickup / transportation
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="checkbox" name="assistance" value="Language / interpreter assistance" class="pill-checkbox assistance-opt sr-only" {% if 'Language / interpreter assistance' in preferences.get('assistance', []) %}checked{% endif %}>
-                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                <div class="px-5 py-3 rounded-xl border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
                                     Language / interpreter assistance
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="checkbox" name="assistance" value="Financial assistance information" class="pill-checkbox assistance-opt sr-only" {% if 'Financial assistance information' in preferences.get('assistance', []) %}checked{% endif %}>
-                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                <div class="px-5 py-3 rounded-xl border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
                                     Financial assistance information
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="checkbox" name="assistance" value="None" id="assistance-none" class="pill-checkbox sr-only" {% if 'None' in preferences.get('assistance', []) %}checked{% endif %}>
-                                <div class="px-5 py-3 rounded-full border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
+                                <div class="px-5 py-3 rounded-xl border border-gray-200 bg-bgLight text-[14px] font-medium text-gray-700 transition-all hover:border-gray-300">
                                     None
                                 </div>
                             </label>
@@ -353,16 +353,21 @@
                     <!-- Bottom Buttons -->
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 mt-6">
                         <a href="{{ url_for('patient_registration_step4') }}" 
-                            class="px-6 py-4 rounded-full border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
+                            class="px-6 py-3.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
                             Back
                         </a>
                         <button type="submit"
-                            class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-2 ml-auto">
+                            class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-2 ml-auto">
                             <span>Save & Continue</span>
                             <i data-lucide="arrow-right" class="w-5 h-5"></i>
                         </button>
                     </div>
 
+                
+                    <div class="mt-4 text-center pb-2">
+                        <span class="text-[14px] font-medium text-gray-500">Already have an account?</span>
+                        <a href="{{ url_for('patient_login') }}" class="text-[14px] font-bold text-[#2563EB] hover:text-blue-800 transition-colors ml-1">Sign In</a>
+                    </div>
                 </form>
             </main>
         </div>

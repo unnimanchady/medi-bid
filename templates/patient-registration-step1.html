@@ -112,7 +112,7 @@
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-cta-gradient selection:text-white">
 
     <!-- 1. SIMPLIFIED REGISTRATION HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 sticky top-0 z-50">
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 fixed w-full top-0 z-50">
         
         <!-- Logo and Back -->
         <div class="flex items-center gap-2 sm:gap-6">
@@ -155,7 +155,7 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-grow flex flex-col items-center py-4 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+    <main class="flex-grow flex flex-col items-center mt-[80px] py-4 sm:py-14 px-4 sm:px-6 relative">
         
         <!-- Mobile Back link -->
         <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-4 sm:mb-8 self-start focus:outline-none focus:underline">
@@ -163,33 +163,8 @@
             Back to Home
         </a>
 
-        <!-- 1.5. HEALTHCARE ILLUSTRATION & TRUST MESSAGE -->
-        <div class="flex flex-col items-center justify-center mb-4 sm:mb-8 opacity-0 animate-fade-in text-center">
-            <!-- Subtle floating illustration -->
-            <div class="relative w-[80px] sm:w-[140px] md:w-[170px] h-[80px] sm:h-[140px] md:h-[170px] mb-3 sm:mb-5 animate-float-subtle flex-shrink-0">
-                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-sm">
-                    <!-- Clean, Premium Medical/Global SVG Illustration -->
-                    <!-- Globe background -->
-                    <circle cx="100" cy="100" r="80" fill="#F8F9FA" stroke="#E5E7EB" stroke-width="1.5" />
-                    <!-- Globe Grid Lines (Subtle) -->
-                    <path d="M100 20C100 20 140 50 140 100C140 150 100 180 100 180M100 20C100 20 60 50 60 100C60 150 100 180 100 180" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
-                    <path d="M20 100H180" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
-                    <path d="M36 60H164" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
-                    <path d="M36 140H164" stroke="#E5E7EB" stroke-width="1" stroke-linecap="round"/>
-                    
-                    <!-- Secure Connection Nodes (Technology) -->
-                    <path d="M140 70L115 85" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
-                    <path d="M55 125L80 110" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
-                    <circle cx="140" cy="70" r="6" fill="#158953" /> <!-- Green Trust Accent -->
-                    <circle cx="55" cy="125" r="5" fill="#0B1D40" /> <!-- Primary Navy Accent -->
-                    <circle cx="70" cy="50" r="3" fill="#0082CA" /> <!-- Secondary Blue Accent -->
-
-                    <!-- Medical Cross Centerpiece -->
-                    <rect x="75" y="85" width="50" height="30" rx="8" fill="#0082CA" />
-                    <rect x="85" y="75" width="30" height="50" rx="8" fill="#0082CA" />
-                    <circle cx="100" cy="100" r="8" fill="#FFFFFF" />
-                </svg>
-            </div>
+        <!-- 1.5. TRUST MESSAGE -->
+        <div class="flex flex-col items-center justify-center mb-2 sm:mb-4 opacity-0 animate-fade-in text-center">
             <!-- Trust Message -->
             <p class="text-[12px] text-gray-400 font-semibold tracking-widest uppercase">Trusted by patients seeking healthcare worldwide</p>
         </div>
@@ -347,7 +322,7 @@
                             <input type="password" id="password" name="password" required aria-required="true"
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
                                 placeholder="••••••••">
-                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Toggle password visibility" aria-pressed="false" onclick="togglePasswordVisibility(this, 'password')">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Show password" aria-pressed="false" onclick="togglePasswordVisibility(this, 'password')">
                                 <i data-lucide="eye" class="h-5 w-5" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -391,7 +366,7 @@
                             <input type="password" id="confirm-password" name="confirm-password" required aria-required="true"
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
                                 placeholder="••••••••">
-                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Toggle password visibility" aria-pressed="false" onclick="togglePasswordVisibility(this, 'confirm-password')">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Show password" aria-pressed="false" onclick="togglePasswordVisibility(this, 'confirm-password')">
                                 <i data-lucide="eye" class="h-5 w-5" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -445,36 +420,44 @@
                         </div>
                     </div>
                     
-                    <!-- Checkboxes -->
-                    <div class="flex flex-col gap-3.5 mt-3 mb-2">
-                        <div class="flex items-start gap-3">
-                            <div class="flex items-center h-5 mt-0.5">
-                                <input id="terms" name="terms" type="checkbox" required aria-required="true" class="custom-checkbox">
+                    <!-- Bottom Section -->
+                    <!-- Bottom Section -->
+                    <div class="mt-6 border-t border-gray-100 pt-7 pb-7 flex flex-col w-full">
+                        
+                        <!-- Consent Checkboxes -->
+                        <div class="flex flex-col gap-4 w-full">
+                            <div class="flex items-center gap-[10px] w-full">
+                                <div class="flex items-center h-5">
+                                    <input id="terms" name="terms" type="checkbox" required aria-required="true" class="custom-checkbox flex-shrink-0">
+                                </div>
+                                <label for="terms" class="text-[14.5px] text-gray-600 font-medium cursor-pointer md:whitespace-nowrap leading-tight">
+                                    I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Terms of Service</a>
+                                </label>
                             </div>
-                            <label for="terms" class="text-[14.5px] text-gray-600 font-medium leading-tight cursor-pointer">
-                                I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Terms of Service</a>
-                            </label>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div class="flex items-center h-5 mt-0.5">
-                                <input id="privacy" name="privacy" type="checkbox" required aria-required="true" class="custom-checkbox">
+                            <div class="flex items-center gap-[10px] w-full">
+                                <div class="flex items-center h-5">
+                                    <input id="privacy" name="privacy" type="checkbox" required aria-required="true" class="custom-checkbox flex-shrink-0">
+                                </div>
+                                <label for="privacy" class="text-[14.5px] text-gray-600 font-medium cursor-pointer md:whitespace-nowrap leading-tight">
+                                    I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Privacy Policy</a>
+                                </label>
                             </div>
-                            <label for="privacy" class="text-[14.5px] text-gray-600 font-medium leading-tight cursor-pointer">
-                                I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Privacy Policy</a>
-                            </label>
                         </div>
-                    </div>
-                    
-                    <!-- Submit Button -->
-                    <button type="submit" 
-                        class="mt-2 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[16px] sm:text-[17px] w-full focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
-                        Continue
-                        <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
-                    </button>
-                    
-                    <div class="mt-4 text-center">
-                        <span class="text-sm font-medium text-gray-500">Already have an account?</span>
-                        <a href="{{ url_for('patient_login') }}" class="text-[14px] font-bold text-secondary hover:text-blue-800 transition-colors ml-1">Sign In</a>
+                        
+                        <!-- Action Area -->
+                        <div class="flex flex-col items-center w-full md:w-auto mt-8 md:ml-auto">
+                            <button type="submit" 
+                                class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-0.5 text-[16px] w-full md:w-[240px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+                                Continue
+                                <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                            </button>
+                            
+                            <div class="text-center text-[14px] mt-3.5 w-full md:whitespace-nowrap">
+                                <span class="font-medium text-gray-500">Already have an account?</span>
+                                <a href="{{ url_for('patient_login') }}" class="font-bold text-[#2563EB] hover:text-blue-800 transition-colors ml-1">Sign In</a>
+                            </div>
+                        </div>
+                        
                     </div>
                     
                 </form>
@@ -508,6 +491,7 @@
             
             input.type = isPassword ? 'text' : 'password';
             button.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+            button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
             
             // Re-render the icon
             button.innerHTML = `<i data-lucide="${isPassword ? 'eye-off' : 'eye'}" class="h-5 w-5" aria-hidden="true"></i>`;

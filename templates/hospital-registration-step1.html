@@ -177,7 +177,7 @@
                                 <input type="password" id="password" name="password" required minlength="8"
                                     class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-12 py-3.5 shadow-input transition-all duration-200 outline-none" 
                                     placeholder="••••••••">
-                                <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors toggle-password" data-target="password">
+                                <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors toggle-password" data-target="password" aria-label="Show password">
                                     <i data-lucide="eye" class="h-5 w-5 eye-icon"></i>
                                     <i data-lucide="eye-off" class="h-5 w-5 eye-off-icon hidden"></i>
                                 </button>
@@ -194,7 +194,7 @@
                                 <input type="password" id="confirm_password" name="confirm_password" required minlength="8"
                                     class="w-full bg-bgLight border border-gray-200 text-textMain text-[15px] rounded-2xl focus:ring-input-focus focus:border-primary focus:bg-white block pl-11 pr-12 py-3.5 shadow-input transition-all duration-200 outline-none" 
                                     placeholder="••••••••">
-                                <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors toggle-password" data-target="confirm_password">
+                                <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary transition-colors toggle-password" data-target="confirm_password" aria-label="Show password">
                                     <i data-lucide="eye" class="h-5 w-5 eye-icon"></i>
                                     <i data-lucide="eye-off" class="h-5 w-5 eye-off-icon hidden"></i>
                                 </button>
@@ -238,10 +238,12 @@
                     input.type = 'text';
                     eyeIcon.classList.add('hidden');
                     eyeOffIcon.classList.remove('hidden');
+                    this.setAttribute('aria-label', 'Hide password');
                 } else {
                     input.type = 'password';
                     eyeIcon.classList.remove('hidden');
                     eyeOffIcon.classList.add('hidden');
+                    this.setAttribute('aria-label', 'Show password');
                 }
             });
         });

@@ -119,7 +119,7 @@
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-cta-gradient selection:text-white">
 
     <!-- HEADER -->
-    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 sticky top-0 z-50">
+    <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 fixed w-full top-0 z-50">
         <div class="flex items-center gap-2 sm:gap-6">
             <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="TreatAnywhere Home">
                 <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-6 h-6 sm:w-10 sm:h-10 object-contain flex-shrink-0">
@@ -142,14 +142,14 @@
                 <i data-lucide="help-circle" class="w-5 h-5" aria-hidden="true"></i>
                 <span class="hidden sm:block text-[14px]">Help</span>
             </button>
-            <a href="{{ url_for('patient_login') }}" class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[13px] sm:text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+            <a href="{{ url_for('patient_login') }}" class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-xl text-[13px] sm:text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
                 Sign In
             </a>
         </div>
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-grow flex flex-col items-center py-4 sm:py-14 px-4 sm:px-6 relative overflow-y-auto">
+    <main class="flex-grow flex flex-col items-center mt-[80px] py-4 sm:py-14 px-4 sm:px-6 relative">
         
         <a href="{{ url_for('home') }}" class="md:hidden flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors mb-4 sm:mb-8 self-start focus:outline-none focus:underline">
             <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
@@ -157,26 +157,7 @@
         </a>
 
         <!-- ILLUSTRATION & TRUST MESSAGE -->
-        <div class="flex flex-col items-center justify-center mb-4 sm:mb-8 opacity-0 animate-fade-in text-center">
-            <div class="relative w-[80px] sm:w-[140px] md:w-[170px] h-[80px] sm:h-[140px] md:h-[170px] mb-3 sm:mb-5 animate-float-subtle flex-shrink-0">
-                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-sm">
-                    <!-- Clean, Premium Medical SVG Illustration -->
-                    <circle cx="100" cy="100" r="80" fill="#F8F9FA" stroke="#E5E7EB" stroke-width="1.5" />
-                    <!-- Clipboard/Record -->
-                    <rect x="70" y="55" width="60" height="80" rx="6" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="2" />
-                    <rect x="85" y="45" width="30" height="15" rx="4" fill="#0082CA" />
-                    <line x1="85" y1="85" x2="115" y2="85" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
-                    <line x1="85" y1="100" x2="115" y2="100" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
-                    <line x1="85" y1="115" x2="105" y2="115" stroke="#E5E7EB" stroke-width="3" stroke-linecap="round" />
-                    <!-- Trust Icon -->
-                    <circle cx="135" cy="130" r="25" fill="#0B1D40" />
-                    <path d="M135 125C138.866 125 142 121.866 142 118C142 114.134 138.866 111 135 111C131.134 111 128 114.134 128 118C128 121.866 131.134 125 135 125Z" fill="#FFFFFF" />
-                    <path d="M124 139C124 134 128.5 129 135 129C141.5 129 146 134 146 139V142H124V139Z" fill="#FFFFFF" />
-                    <!-- AI Sparkles -->
-                    <path d="M60 120L62 132L74 134L62 136L60 148L58 136L46 134L58 132L60 120Z" fill="#0082CA" />
-                    <path d="M45 75L46.5 82.5L54 84L46.5 85.5L45 93L43.5 85.5L36 84L43.5 82.5L45 75Z" fill="#158953" />
-                </svg>
-            </div>
+        <div class="flex flex-col items-center justify-center mb-2 sm:mb-4 opacity-0 animate-fade-in text-center">
             <p class="text-[12px] text-gray-400 font-semibold tracking-widest uppercase px-4 max-w-[400px]">Your medical information is securely shared only with verified hospitals.</p>
         </div>
 
@@ -637,22 +618,27 @@
                     <!-- Bottom Buttons -->
                     <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 mt-10">
                         <a href="{{ url_for('patient_registration_step2') }}" 
-                            class="px-6 py-4 rounded-full border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
+                            class="px-6 py-3.5 rounded-xl border-2 border-gray-200 text-gray-700 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-200 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-2 sm:order-1">
                             Back
                         </a>
                         
                         <button type="button" 
-                            class="px-6 py-4 rounded-full border-2 border-transparent bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-3 sm:order-2 ml-auto sm:ml-0 sm:mr-auto">
+                            class="px-6 py-3.5 rounded-xl border-2 border-transparent bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 text-[15px] sm:text-[16px] text-center w-full sm:w-auto flex-shrink-0 order-3 sm:order-2 ml-auto sm:ml-0 sm:mr-auto">
                             Save Progress
                         </button>
 
                         <button type="submit" 
-                            class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-4 rounded-full flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-3">
+                            class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[15px] sm:text-[16px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 w-full sm:w-auto flex-grow sm:flex-grow-0 order-1 sm:order-3">
                             Continue
                             <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
                         </button>
                     </div>
                     
+                
+                    <div class="mt-4 text-center pb-2">
+                        <span class="text-[14px] font-medium text-gray-500">Already have an account?</span>
+                        <a href="{{ url_for('patient_login') }}" class="text-[14px] font-bold text-[#2563EB] hover:text-blue-800 transition-colors ml-1">Sign In</a>
+                    </div>
                 </form>
             </main>
             
