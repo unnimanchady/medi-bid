@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory, flash, abort
 from functools import wraps
-# from flask_migrate import Migrate
+from flask_migrate import Migrate
 from config import Config
 from models import db, User, PatientProfile, TreatmentRequest, MedicalDocument, Hospital, HospitalUser, Specialty, Language, HospitalAccreditation, HospitalVerificationDocument, TreatmentProposal, CostLineItem
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -57,7 +57,7 @@ def format_duration(val, unit):
 app.config.from_object(Config)
 
 db.init_app(app)
-# migrate = Migrate(app, db)
+migrate = Migrate(app, db)
 
 
 # =========================================================
