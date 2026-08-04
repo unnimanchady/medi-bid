@@ -146,16 +146,33 @@
                     <p class="text-sm text-textMuted mb-4">Provide a granular breakdown of the estimate. (Optional but highly recommended).</p>
                     
                     <div id="line-items-container" class="space-y-3">
-                        {% for item in proposal.line_items %}
-                        <div class="line-item flex gap-3 items-center">
-                            <input type="text" class="li-desc flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="e.g. Diagnostics & Imaging" value="{{ item.description }}">
-                            <input type="number" step="0.01" min="0" class="li-amount w-32 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="Amount" value="{{ item.amount }}">
-                            <button type="button" onclick="this.parentElement.remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                        {% endfor %}
+                        {% if proposal.line_items %}
+                            {% for item in proposal.line_items %}
+                            <div class="line-item flex flex-col sm:flex-row gap-3 sm:items-center w-full">
+                                <input type="text" class="li-desc w-full sm:flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="e.g. Diagnostics & Imaging" value="{{ item.description }}">
+                                <div class="flex gap-2 w-full sm:w-auto">
+                                    <input type="number" step="0.01" min="0" class="li-amount flex-1 sm:w-32 sm:flex-none bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="Amount" value="{{ item.amount }}">
+                                    <button type="button" onclick="this.closest('.line-item').remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="line-item flex flex-col sm:flex-row gap-3 sm:items-center w-full">
+                                <input type="text" class="li-desc w-full sm:flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="e.g. Diagnostics & Imaging">
+                                <div class="flex gap-2 w-full sm:w-auto">
+                                    <input type="number" step="0.01" min="0" class="li-amount flex-1 sm:w-32 sm:flex-none bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="Amount">
+                                    <button type="button" onclick="this.closest('.line-item').remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
+                    <button type="button" onclick="addLineItem()" id="add-line-item-btn" class="mt-4 px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-2 text-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Item
+                    </button>
                 </div>
 
                 <!-- 5. Inclusions / Exclusions -->
@@ -238,4 +255,157 @@
             }
         }
     </script>
+<script>
+    function addLineItem() {
+        const container = document.getElementById('line-items-container');
+        const count = container.querySelectorAll('.line-item').length;
+        if (count >= 15) {
+            alert('Maximum 15 line items allowed.');
+            return;
+        }
+        
+        const div = document.createElement('div');
+        div.className = 'line-item flex flex-col sm:flex-row gap-3 sm:items-center w-full';
+        div.innerHTML = `
+            <input type="text" class="li-desc w-full sm:flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="e.g. Diagnostics & Imaging">
+            <div class="flex gap-2 w-full sm:w-auto">
+                <input type="number" step="0.01" min="0" class="li-amount flex-1 sm:w-32 sm:flex-none bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C2410C]" placeholder="Amount">
+                <button type="button" onclick="this.closest('.line-item').remove(); updateAddButton();" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(div);
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        updateAddButton();
+    }
+    
+    function updateAddButton() {
+        const container = document.getElementById('line-items-container');
+        const count = container.querySelectorAll('.line-item').length;
+        const btn = document.getElementById('add-line-item-btn');
+        if (btn) {
+            btn.style.display = count >= 15 ? 'none' : 'flex';
+        }
+    }
+
+    async function saveDraft(isContinue) {
+        const form = document.getElementById('proposal-form');
+        
+        if (isContinue && !form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const btnDraft = document.getElementById('save-draft-btn');
+        const btnContinue = document.querySelector('button[onclick="saveDraft(true)"]');
+        
+        const originalDraftText = btnDraft.innerHTML;
+        const originalContinueText = btnContinue.innerHTML;
+
+        if (isContinue) {
+            btnContinue.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing...';
+            btnContinue.disabled = true;
+            btnDraft.disabled = true;
+        } else {
+            btnDraft.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Saving...';
+            btnDraft.disabled = true;
+            btnContinue.disabled = true;
+        }
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        const lineItems = [];
+        document.querySelectorAll('.line-item').forEach(item => {
+            const desc = item.querySelector('.li-desc').value.trim();
+            const amt = item.querySelector('.li-amount').value;
+            if (desc || amt) {
+                lineItems.push({
+                    description: desc,
+                    amount: amt ? parseFloat(amt) : 0
+                });
+            }
+        });
+
+        const data = {
+            proposed_treatment: document.getElementById('proposed_treatment').value,
+            treatment_plan: document.getElementById('treatment_plan').value,
+            specialty: document.getElementById('specialty').value,
+            lead_doctor: document.getElementById('lead_doctor').value,
+            estimated_duration_value: document.getElementById('estimated_duration_value').value,
+            estimated_duration_unit: document.getElementById('estimated_duration_unit').value,
+            hospital_stay_nights: document.getElementById('hospital_stay_nights').value,
+            recovery_stay_days: document.getElementById('recovery_stay_days').value,
+            currency: document.getElementById('currency').value,
+            estimated_cost_min: document.getElementById('estimated_cost_min').value,
+            estimated_cost_max: document.getElementById('estimated_cost_max').value,
+            inclusions: document.getElementById('inclusions').value,
+            exclusions: document.getElementById('exclusions').value,
+            requirements: document.getElementById('requirements').value,
+            additional_notes: document.getElementById('additional_notes').value,
+            valid_until: document.getElementById('valid_until').value,
+            line_items: lineItems
+        };
+
+        try {
+            const res = await fetch(window.location.href, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            
+            if (res.ok && result.status === 'success') {
+                if (isContinue) {
+                    window.location.href = "{{ url_for('hospital_proposal_review', reference_id=req.reference_id) }}";
+                } else {
+                    btnDraft.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Saved';
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                    setTimeout(() => {
+                        btnDraft.innerHTML = originalDraftText;
+                        btnDraft.disabled = false;
+                        btnContinue.disabled = false;
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    }, 2000);
+                }
+            } else {
+                alert(result.message || 'An error occurred while saving.');
+                if (isContinue) {
+                    btnContinue.innerHTML = originalContinueText;
+                } else {
+                    btnDraft.innerHTML = originalDraftText;
+                }
+                btnDraft.disabled = false;
+                btnContinue.disabled = false;
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            alert('A network error occurred. Please try again.');
+            if (isContinue) {
+                btnContinue.innerHTML = originalContinueText;
+            } else {
+                btnDraft.innerHTML = originalDraftText;
+            }
+            btnDraft.disabled = false;
+            btnContinue.disabled = false;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        updateAddButton();
+    });
+</script>
 {% endblock %}

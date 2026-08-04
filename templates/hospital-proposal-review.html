@@ -305,4 +305,117 @@
             }
         }
     </script>
+    <!-- PDF Download Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        // PDF Generation
+        function downloadPDF() {
+            const element = document.getElementById('proposal-card');
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'TreatAnywhere_Proposal_{{ req.reference_id }}.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Add a temporary class to ensure pdf rendering looks like print version
+            element.classList.add('print-mode');
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.remove('print-mode');
+            });
+        }
+    </script>
+<script>
+    function openSubmitModal() {
+        const modal = document.getElementById('submit-modal');
+        const modalCard = document.getElementById('submit-modal-card');
+        if (modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                if (modalCard) {
+                    modalCard.classList.remove('scale-95', 'opacity-0');
+                    modalCard.classList.add('scale-100', 'opacity-100');
+                }
+            }, 10);
+        }
+    }
+    
+    function closeSubmitModal() {
+        const modal = document.getElementById('submit-modal');
+        const modalCard = document.getElementById('submit-modal-card');
+        if (modal) {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            if (modalCard) {
+                modalCard.classList.remove('scale-100', 'opacity-100');
+                modalCard.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    }
+    
+    async function confirmSubmit() {
+        const btn = document.getElementById('modal-submit-btn');
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Submitting...';
+            btn.disabled = true;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        try {
+            const form = document.getElementById('proposal-submit-form');
+            if (!form) return;
+            
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (res.redirected) {
+                window.location.href = res.url;
+                return;
+            }
+            
+            let data;
+            try {
+                data = await res.json();
+            } catch(e) {
+                // Not JSON, might be an error page HTML
+                alert("An unexpected error occurred. Please try again.");
+                if (btn) {
+                    btn.innerHTML = 'Submit Proposal';
+                    btn.disabled = false;
+                }
+                return;
+            }
+            
+            if (data.status === 'success' && data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else if (data.status === 'error') {
+                alert("Error: " + data.message);
+                if (btn) {
+                    btn.innerHTML = 'Submit Proposal';
+                    btn.disabled = false;
+                }
+            } else {
+                window.location.reload();
+            }
+        } catch (e) {
+            alert("A network error occurred: " + e.message);
+            if (btn) {
+                btn.innerHTML = 'Submit Proposal';
+                btn.disabled = false;
+            }
+        }
+    }
+</script>
 {% endblock %}

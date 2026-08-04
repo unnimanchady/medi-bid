@@ -25,7 +25,7 @@
         <div class="flex-grow bg-white sm:border border-gray-200 sm:rounded-[20px] shadow-sm overflow-hidden flex relative w-full h-full">
             
             <!-- LEFT PANEL: Conversation List -->
-            <div id="conversations-list" class="w-full md:w-[320px] lg:w-[380px] border-r border-gray-200 flex flex-col flex-shrink-0 bg-gray-50/30 absolute md:relative inset-0 z-20 md:z-auto h-full bg-white md:bg-transparent">
+            <div id="conversations-list" class="w-full md:w-[320px] lg:w-[380px] border-r border-gray-200 flex-col flex-shrink-0 bg-gray-50/30 absolute md:relative inset-0 z-20 md:z-auto h-full bg-white md:bg-transparent {% if active_thread %}hidden md:flex{% else %}flex{% endif %}">
                 
                 <!-- List Header & Search -->
                 <div class="p-4 border-b border-gray-200 bg-white">

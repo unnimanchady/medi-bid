@@ -288,8 +288,8 @@
                             </div>
                         </div>
                         <div class="h-[1px] bg-gray-100 my-1"></div>
-                        <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-textMain hover:bg-gray-50 transition-colors w-full text-left"><i data-lucide="building" class="w-4 h-4 text-textMuted"></i> Hospital Profile</a>
-                        <a href="#" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-textMain hover:bg-gray-50 transition-colors w-full text-left"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account & Settings</a>
+                        <a href="{{ url_for('hospital_profile') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-textMain hover:bg-gray-50 transition-colors w-full text-left"><i data-lucide="building" class="w-4 h-4 text-textMuted"></i> Hospital Profile</a>
+                        <a href="{{ url_for('hospital_settings') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-textMain hover:bg-gray-50 transition-colors w-full text-left"><i data-lucide="settings" class="w-4 h-4 text-textMuted"></i> Account & Settings</a>
                         <div class="h-[1px] bg-gray-100 my-1"></div>
                         <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-600 hover:bg-red-50 transition-colors w-full text-left"><i data-lucide="log-out" class="w-4 h-4"></i> Log Out</a>
                     </div>
@@ -299,7 +299,17 @@
         
         <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-8 max-w-[1400px] w-full mx-auto">
             {% block content %}{% endblock %}
-</main>
+        </main>
+        
+        <!-- FOOTER -->
+        <footer class="border-t border-gray-200 pt-6 pb-6 px-4 sm:px-6 lg:px-8 mt-auto bg-bgLight shrink-0">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1400px] mx-auto w-full">
+                <div class="flex items-center gap-2">
+                    <span class="text-[14px] font-extrabold text-primary">TreatAnywhere</span>
+                    <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- Scripts -->

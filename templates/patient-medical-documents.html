@@ -52,9 +52,9 @@
             <!-- DOCUMENTS LIST -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden opacity-0 animate-fade-in stagger-2">
                 {% if docs %}
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse" id="docsTable">
-                        <thead>
+                <div class="w-full">
+                    <table class="w-full text-left border-collapse block md:table" id="docsTable">
+                        <thead class="hidden md:table-header-group">
                             <tr class="bg-gray-50 border-b border-gray-200">
                                 <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider">Document details</th>
                                 <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider">Category</th>
@@ -62,25 +62,27 @@
                                 <th class="px-6 py-4 text-[12px] font-bold text-textMuted uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 block md:table-row-group">
                             {% for doc in docs %}
-                            <tr class="hover:bg-gray-50/50 transition-colors group doc-row" data-category="{{ doc.document_type }}" data-search="{{ (doc.title or '')|lower }} {{ doc.original_filename|lower }}">
-                                <td class="px-6 py-4 align-top">
+                            <tr class="hover:bg-gray-50/50 transition-colors group doc-row block md:table-row p-4 md:p-0 relative" data-category="{{ doc.document_type }}" data-search="{{ (doc.title or '')|lower }} {{ doc.original_filename|lower }}">
+                                <td class="px-0 py-2 md:px-6 md:py-4 align-top block md:table-cell">
                                     <div class="flex items-start gap-3">
                                         <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-secondary shrink-0 mt-0.5">
                                             <i data-lucide="file" class="w-5 h-5"></i>
                                         </div>
-                                        <div class="flex flex-col">
-                                            <span class="text-[15px] font-bold text-textMain leading-tight">{{ doc.title or 'Untitled Document' }}</span>
-                                            <span class="text-[13px] text-textMuted mt-1">{{ doc.original_filename }} &bull; {{ (doc.file_size / 1024)|round(1) }} KB</span>
+                                        <div class="flex flex-col min-w-0">
+                                            <span class="text-[15px] font-bold text-textMain leading-tight truncate" title="{{ doc.title or 'Untitled Document' }}">{{ doc.title or 'Untitled Document' }}</span>
+                                            <span class="text-[13px] text-textMuted mt-1 truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }} &bull; {{ (doc.file_size / 1024)|round(1) }} KB</span>
                                             <span class="text-[12px] text-gray-400 mt-1">Uploaded on {{ doc.uploaded_at.strftime('%d %b %Y, %H:%M') }}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 align-top">
+                                <td class="px-0 py-2 md:px-6 md:py-4 align-top block md:table-cell">
+                                    <div class="md:hidden text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Category</div>
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-bold bg-gray-100 text-gray-600 uppercase tracking-widest whitespace-nowrap">{{ doc.document_type }}</span>
                                 </td>
-                                <td class="px-6 py-4 align-top">
+                                <td class="px-0 py-2 md:px-6 md:py-4 align-top block md:table-cell">
+                                    <div class="md:hidden text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Related To</div>
                                     <div class="flex flex-col gap-1.5">
                                         <div class="flex items-center gap-1.5 text-[13px] font-medium text-textMain">
                                             <i data-lucide="user" class="w-3.5 h-3.5 text-textMuted"></i> {{ doc.patient_profile.first_name }} {{ doc.patient_profile.last_name }}
@@ -92,16 +94,16 @@
                                         {% endif %}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 align-top text-right whitespace-nowrap">
-                                    <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                        <a href="{{ url_for('view_document', doc_id=doc.id) }}" target="_blank" class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-colors" title="View">
-                                            <i data-lucide="eye" class="w-4 h-4"></i>
+                                <td class="px-0 py-3 md:px-6 md:py-4 align-top md:text-right block md:table-cell border-t border-gray-50 md:border-none mt-2 md:mt-0">
+                                    <div class="flex items-center justify-start md:justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                        <a href="{{ url_for('view_document', doc_id=doc.id) }}" target="_blank" class="p-2 text-gray-500 bg-gray-50 md:bg-transparent md:text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2" title="View">
+                                            <i data-lucide="eye" class="w-4 h-4"></i> <span class="md:hidden text-[13px] font-medium">View</span>
                                         </a>
-                                        <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-colors" title="Download">
-                                            <i data-lucide="download" class="w-4 h-4"></i>
+                                        <a href="{{ url_for('download_document', doc_id=doc.id) }}" class="p-2 text-gray-500 bg-gray-50 md:bg-transparent md:text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2" title="Download">
+                                            <i data-lucide="download" class="w-4 h-4"></i> <span class="md:hidden text-[13px] font-medium">Download</span>
                                         </a>
-                                        <button onclick="deleteDocument({{ doc.id }})" class="p-2 text-gray-400 hover:text-danger hover:bg-red-50 rounded-lg transition-colors" title="Delete">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        <button onclick="deleteDocument({{ doc.id }})" class="p-2 text-red-500 bg-red-50 md:bg-transparent md:text-gray-400 hover:text-danger hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 ml-auto md:ml-0" title="Delete">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i> <span class="md:hidden text-[13px] font-medium">Delete</span>
                                         </button>
                                     </div>
                                 </td>

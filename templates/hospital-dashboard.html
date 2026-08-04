@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 
-                <div>
+                <div class="lg:col-span-5 xl:col-span-4">
                     <div class="bg-white rounded-[24px] border border-gray-100 p-8 shadow-premium h-full">
                         <h3 class="text-[18px] font-extrabold text-primary mb-8">Registration Journey</h3>
                         
@@ -143,7 +143,7 @@
                         </div>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-[32px] font-extrabold text-[#1E293B] leading-none">0</span>
+                        <span class="text-[32px] font-extrabold text-[#1E293B] leading-none">{{ submitted_proposals_count }}</span>
                         <span class="text-[13px] font-semibold text-[#64748B] mt-1.5">Submitted Proposals</span>
                     </div>
                 </div>
@@ -176,10 +176,10 @@
             </div>
             
             <!-- MAIN GRID CONTENT -->
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 opacity-0 animate-fade-in stagger-2">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 opacity-0 animate-fade-in stagger-2">
                 
                 <!-- LEFT COLUMN -->
-                <div class="xl:col-span-2 flex flex-col gap-8">
+                <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-8">
                     
                     <section class="flex flex-col">
                         <div class="flex items-center justify-between mb-5">
@@ -224,7 +224,7 @@
                 </div>
                 
                 <!-- RIGHT COLUMN -->
-                <div class="xl:col-span-1 flex flex-col gap-8">
+                <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-8">
                     
                     <!-- Verified Status Card -->
                     <section class="bg-white rounded-[24px] border border-[#E8E8F0] p-6 sm:p-8 shadow-premium hover:shadow-md transition-all duration-300">
@@ -265,13 +265,4 @@
             </div>
             {% endif %}
             
-            <!-- FOOTER -->
-            <footer class="mt-8 border-t border-gray-200 pt-6 pb-2">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[14px] font-extrabold text-primary">TreatAnywhere</span>
-                        <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
-                    </div>
-                </div>
-            </footer>
 {% endblock %}

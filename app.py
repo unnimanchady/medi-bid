@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory, flash, abort
 from functools import wraps
-from flask_migrate import Migrate
+# from flask_migrate import Migrate
 from config import Config
 from models import db, User, PatientProfile, TreatmentRequest, MedicalDocument, Hospital, HospitalUser, Specialty, Language, HospitalAccreditation, HospitalVerificationDocument, TreatmentProposal, CostLineItem
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -57,7 +57,7 @@ def format_duration(val, unit):
 app.config.from_object(Config)
 
 db.init_app(app)
-migrate = Migrate(app, db)
+# migrate = Migrate(app, db)
 
 
 # =========================================================
@@ -165,6 +165,7 @@ def patient_login():
         if user and check_password_hash(user.password_hash, password):
             session['registration_user_id'] = user.id
             session['patient_authenticated'] = True
+            session.pop('creating_new_request', None)
             return redirect(url_for('patient_dashboard'))
         else:
             error = "Invalid email or password."
@@ -179,9 +180,25 @@ def patient_logout():
     session.pop('patient_authenticated', None)
     return redirect(url_for('patient_login'))
 
+@app.route("/patient/request/new")
+def patient_new_request():
+    if not session.get("patient_authenticated"):
+        return redirect(url_for("patient_login"))
+    
+    # Initialize a new request flow for the authenticated user
+    # Keep the existing registration_user_id intact
+    session['creating_new_request'] = True
+    
+    # Clear any old request state
+    session.pop('active_patient_profile_id', None)
+    session.pop('new_profile_relationship', None)
+    session.pop('registration_specialty', None)
+    
+    return redirect(url_for('patient_registration_who'))
+
 @app.route("/patient/register/who", methods=["GET", "POST"])
 def patient_registration_who():
-    if session.get("patient_authenticated"):
+    if session.get("patient_authenticated") and not session.get("creating_new_request"):
         return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
@@ -219,7 +236,7 @@ def patient_registration_who():
 
 @app.route("/patient/register/step-2", methods=["GET", "POST"])
 def patient_registration_step2():
-    if session.get("patient_authenticated"):
+    if session.get("patient_authenticated") and not session.get("creating_new_request"):
         return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
@@ -331,7 +348,7 @@ def is_pregnancy_applicable(profile):
 
 @app.route("/patient/register/step-3", methods=["GET", "POST"])
 def patient_registration_step3():
-    if session.get("patient_authenticated"):
+    if session.get("patient_authenticated") and not session.get("creating_new_request"):
         return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
@@ -517,7 +534,7 @@ def patient_registration_step3():
 
 @app.route("/patient/register/step-4")
 def patient_registration_step4():
-    if session.get("patient_authenticated"):
+    if session.get("patient_authenticated") and not session.get("creating_new_request"):
         return redirect(url_for("patient_dashboard"))
     specialty = session.get('registration_specialty', '')
     
@@ -554,7 +571,7 @@ def patient_registration_step4():
 
 @app.route("/patient/register/step-5", methods=["GET", "POST"])
 def patient_registration_step5():
-    if session.get("patient_authenticated"):
+    if session.get("patient_authenticated") and not session.get("creating_new_request"):
         return redirect(url_for("patient_dashboard"))
     error = request.args.get('error')
     
@@ -665,7 +682,7 @@ def download_document(doc_id):
 
 @app.route("/patient/register/step-6", methods=["GET", "POST"])
 def patient_registration_step6():
-    if session.get("patient_authenticated"):
+    if session.get("patient_authenticated") and not session.get("creating_new_request"):
         return redirect(url_for("patient_dashboard"))
     user_id = session.get('registration_user_id')
     if not user_id:
@@ -768,6 +785,7 @@ def patient_registration_step6():
                 session.pop('registration_specialty', None)
                 session.pop('registration_medical', None)
                 session.pop('registration_preferences', None)
+                session.pop('creating_new_request', None)
                 
                 session['last_request_reference'] = reference_id
                 
@@ -1937,10 +1955,38 @@ def hospital_dashboard():
         return redirect(url_for('hospital_register_info'))
         
     eligible_requests_count = 0
+    submitted_proposals_count = 0
     if hospital and hospital.verification_status == 'verified':
         eligible_requests_count = get_visible_treatment_requests(hospital).count()
+        submitted_proposals_count = TreatmentProposal.query.filter_by(hospital_id=hospital.id, status='submitted').count()
                 
-    return render_template("hospital-dashboard.html", hospital=hospital, user=user, eligible_requests_count=eligible_requests_count)
+    return render_template("hospital-dashboard.html", hospital=hospital, user=user, eligible_requests_count=eligible_requests_count, submitted_proposals_count=submitted_proposals_count)
+
+@app.route("/hospital/profile")
+def hospital_profile():
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_login'))
+        
+    return render_template("hospital-profile.html", hospital=hospital)
+
+@app.route("/hospital/settings")
+def hospital_settings():
+    hospital_id = session.get("hospital_id")
+    if not hospital_id:
+        return redirect(url_for('hospital_login'))
+        
+    hospital = Hospital.query.get(hospital_id)
+    if not hospital:
+        session.clear()
+        return redirect(url_for('hospital_login'))
+        
+    return render_template("hospital-settings.html", hospital=hospital)
 
 def get_visible_treatment_requests(hospital):
     """
@@ -2257,37 +2303,47 @@ def hospital_proposal_review(reference_id):
 
 @app.route("/hospital/treatment-requests/<string:reference_id>/proposal/submit", methods=['POST'])
 def hospital_proposal_submit(reference_id):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.is_json
+    
     hospital_id = session.get("hospital_id")
     if not hospital_id:
+        if is_ajax: return jsonify({"status": "error", "message": "Not logged in"}), 401
         return redirect(url_for('hospital_login'))
         
     hospital = Hospital.query.get(hospital_id)
     if not hospital or hospital.verification_status != 'verified':
+        if is_ajax: return jsonify({"status": "error", "message": "Forbidden"}), 403
         abort(403)
         
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
     if req.status in ['Closed', 'Completed', 'Cancelled', 'Expired'] or req.status != 'Active':
+        if is_ajax: return jsonify({"status": "error", "message": "Request no longer active"}), 400
         abort(403, description="This treatment request is no longer active.")
         
     proposal = TreatmentProposal.query.filter_by(hospital_id=hospital.id, treatment_request_id=req.id).first_or_404()
     if proposal.status == 'submitted':
+        if is_ajax: return jsonify({"status": "success", "redirect_url": url_for('hospital_proposal_view', reference_id=reference_id)})
         flash("Proposal already submitted.", "info")
         return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
         
     # Validation logic
     if not proposal.proposed_treatment or not proposal.treatment_plan:
+        if is_ajax: return jsonify({"status": "error", "message": "Treatment details are required."}), 400
         flash("Treatment details are required.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
     if not proposal.currency or proposal.estimated_cost_min is None or proposal.estimated_cost_max is None:
+        if is_ajax: return jsonify({"status": "error", "message": "Valid cost estimates are required."}), 400
         flash("Valid cost estimates are required.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
     if proposal.estimated_cost_min <= 0 or proposal.estimated_cost_max < proposal.estimated_cost_min:
+        if is_ajax: return jsonify({"status": "error", "message": "Invalid cost ranges."}), 400
         flash("Invalid cost ranges.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
     if not proposal.valid_until:
+        if is_ajax: return jsonify({"status": "error", "message": "Validity date is required."}), 400
         flash("Validity date is required.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
@@ -2298,17 +2354,44 @@ def hospital_proposal_submit(reference_id):
         max_date = today.replace(year=today.year + 1, month=2, day=28)
         
     if proposal.valid_until < today:
+        if is_ajax: return jsonify({"status": "error", "message": "Validity date cannot be in the past."}), 400
         flash("Validity date cannot be in the past.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
     if proposal.valid_until > max_date:
+        if is_ajax: return jsonify({"status": "error", "message": "Validity date cannot be more than 1 year from today."}), 400
         flash("Validity date cannot be more than 1 year from today.", "error")
         return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
         
-    proposal.status = "submitted"
-    proposal.submitted_at = datetime.now(timezone.utc)
-    db.session.commit()
+    try:
+        proposal.status = "submitted"
+        proposal.submitted_at = datetime.now(timezone.utc)
+        db.session.commit()
+        
+        # Add Notification Trigger
+        try:
+            create_notification(
+                recipient_type='patient',
+                recipient_user_id=req.patient_id,
+                title="New Proposal Received",
+                message=f"{hospital.legal_name} has submitted a new proposal for your request.",
+                notification_type='proposal',
+                reference_type='TreatmentProposal',
+                reference_id=proposal.id,
+                target_url=url_for('patient_treatment_proposal_details', proposal_id=proposal.id)
+            )
+        except Exception as e:
+            print("Failed to create notification:", str(e))
+            
+    except Exception as e:
+        db.session.rollback()
+        if is_ajax: return jsonify({"status": "error", "message": "Database error: " + str(e)}), 500
+        flash("Database error: " + str(e), "error")
+        return redirect(url_for('hospital_proposal_review', reference_id=reference_id))
     
+    if is_ajax:
+        return jsonify({"status": "success", "redirect_url": url_for('hospital_proposal_view', reference_id=reference_id)})
+        
     flash("Proposal submitted successfully.", "success")
     return redirect(url_for('hospital_proposal_view', reference_id=reference_id))
 

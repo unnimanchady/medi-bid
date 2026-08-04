@@ -156,14 +156,14 @@
                                     <p class="text-sm text-textMuted capitalize mt-1">Uploaded {{ doc.uploaded_at.strftime('%b %d, %Y') }}</p>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 shrink-0">
-                                <a href="{{ url_for('hospital_treatment_request_document', doc_id=doc.id) }}" target="_blank" class="flex-1 sm:flex-none justify-center px-4 py-2.5 text-sm font-bold text-blue-700 bg-orange-50 border border-orange-100 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]">
-                                    <i data-lucide="eye" class="w-4 h-4"></i> View
-                                </a>
-                                <a href="{{ url_for('hospital_treatment_request_document_download', doc_id=doc.id) }}" class="flex-1 sm:flex-none justify-center px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:text-[#C2410C] hover:border-blue-600 hover:bg-orange-50 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]">
-                                    <i data-lucide="download" class="w-4 h-4"></i> Download
-                                </a>
-                            </div>
+                              <div class="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+                                  <a href="{{ url_for('hospital_treatment_request_document', doc_id=doc.id) }}" target="_blank" class="flex-1 sm:flex-none justify-center px-4 py-2.5 text-sm font-bold text-blue-700 bg-orange-50 border border-orange-100 hover:bg-blue-100 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]">
+                                      <i data-lucide="eye" class="w-4 h-4 shrink-0"></i> <span>View</span>
+                                  </a>
+                                  <a href="{{ url_for('hospital_treatment_request_document_download', doc_id=doc.id) }}" class="flex-1 sm:flex-none justify-center px-4 py-2.5 text-sm font-bold text-slate-700 bg-white border border-slate-200 hover:text-[#C2410C] hover:border-blue-600 hover:bg-orange-50 rounded-xl transition-colors flex items-center gap-2 min-h-[44px]">
+                                      <i data-lucide="download" class="w-4 h-4 shrink-0"></i> <span>Download</span>
+                                  </a>
+                              </div>
                         </div>
                         {% endfor %}
                     </div>

@@ -1,0 +1,611 @@
+﻿diff --git a/templates/hospital-dashboard.html b/templates/hospital-dashboard.html
+index 8bb79f3..596fd50 100644
+--- a/templates/hospital-dashboard.html
++++ b/templates/hospital-dashboard.html
+@@ -1,248 +1,13 @@
+-<!DOCTYPE html>
+-<html lang="en">
+-<head>
+-    <meta charset="UTF-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-    <title>Hospital Dashboard | TreatAnywhere</title>
+-    
+-    <!-- Fonts -->
+-    <link rel="preconnect" href="https://fonts.googleapis.com">
+-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+-    
+-    <!-- Tailwind CSS -->
+-    <script src="https://cdn.tailwindcss.com"></script>
+-    
+-    <!-- Icons -->
+-    <script src="https://unpkg.com/lucide@latest"></script>
+-    
+-    <!-- Tailwind Config -->
+-    <script>
+-        tailwind.config = {
+-            theme: {
+-                extend: {
+-                    colors: {
+-                        primary: '#0A84FF',
+-                        secondary: '#2563EB',
+-                        accent: '#14B8A6',
+-                        textMain: '#1E293B',
+-                        textMuted: '#64748B',
+-                        bgLight: '#F7FAFC',
+-                    },
+-                    fontFamily: {
+-                        sans: ['Inter', 'sans-serif'],
+-                    },
+-                    boxShadow: {
+-                        'card': '0 10px 40px -10px rgba(0,0,0,0.04)',
+-                        'floating': '0 12px 30px -8px rgba(0,0,0,0.08)',
+-                    }
+-                }
+-            }
+-        }
+-    </script>
+-    <style>
+-        body {
+-            -webkit-font-smoothing: antialiased;
+-            -moz-osx-font-smoothing: grayscale;
+-        }
+-    </style>
+-</head>
+-<body class="bg-bgLight min-h-screen text-textMain selection:bg-primary selection:text-white flex">
++{% extends "hospital-layout.html" %}
++{% set page_title = "Hospital Dashboard" %}
++{% set active_page = "dashboard" %}
+ 
+-    <!-- Sidebar (Desktop) -->
+-    <aside class="w-64 bg-white border-r border-gray-100 flex-col hidden md:flex sticky top-0 h-screen shrink-0">
+-        <div class="p-6 border-b border-gray-100">
+-            <div class="flex items-center gap-3">
+-                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-md shadow-primary/20">
+-                    <i data-lucide="building-2" class="text-white w-4 h-4"></i>
+-                </div>
+-                <span class="font-bold text-lg tracking-tight text-textMain">TreatAnywhere <span class="text-primary">Hospitals</span></span>
+-            </div>
+-        </div>
+-        
+-        <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+-            <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors">
+-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+-                Dashboard
+-            </a>
+-            
+-            {% if hospital.verification_status == 'verified' %}
+-            <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+-                <i data-lucide="file-text" class="w-5 h-5"></i>
+-                <span>Treatment Requests</span>
+-            </a>
+-            {% else %}
+-            <div class=\"px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-70 group\" title="Account verification required">
+-                <i data-lucide=\"file-text\" class="w-5 h-5"></i>
+-                <span class=\"font-medium\">Treatment Requests</span>
+-                <span class=\"ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-400 px-2 py-0.5 rounded\">Lock</span>
+-            </div>
+-            {% endif %}
+-            
+-            <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+-                <i data-lucide="file-text" class="w-5 h-5"></i>
+-                <span>Proposals</span>
+-            </a>
+-            
+-            <a href="{{ url_for('hospital_messages') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+-                <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+-                <span>Messages</span>
+-            </a>
++{% block content %}
++{% if hospital.verification_status == 'pending_verification' %}
+             
+-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+-                <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
+-                <span>Hospital Profile</span>
+-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+-            </div>
+-            
+-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+-                <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+-                <span>Notifications</span>
+-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+-            </div>
+-            
+-            <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group" title="Coming Soon">
+-                <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+-                <span>Account / Settings</span>
+-                <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+-            </div>
+-        </nav>
+-        
+-        <div class="p-4 border-t border-gray-100">
+-            <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
+-                <i data-lucide="log-out" class="w-5 h-5"></i>
+-                Log Out
+-            </a>
+-        </div>
+-    </aside>
+-
+-    <!-- Main Content -->
+-    <main class="flex-1 flex flex-col h-screen overflow-y-auto">
+-        <!-- Mobile Header -->
+-        <header class="md:hidden bg-white border-b border-gray-100 p-4 flex justify-between items-center sticky top-0 z-50">
+-            <div class="flex items-center gap-3">
+-                <button id="mobile-menu-btn" class="p-2 -ml-2 text-textMuted hover:bg-gray-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50">
+-                    <i data-lucide="menu" class="w-6 h-6"></i>
+-                </button>
+-                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
+-                <span class="font-bold text-lg tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
+-            </div>
+-        </header>
+-
+-        <!-- Mobile Drawer Navigation -->
+-        <div id="mobile-drawer-overlay" class="fixed inset-0 bg-slate-900/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
+-        <div id="mobile-drawer" class="fixed inset-y-0 left-0 w-[280px] bg-white z-[70] transform -translate-x-full transition-transform duration-300 md:hidden flex flex-col shadow-2xl">
+-            <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+-                <div class="flex items-center gap-3">
+-                    <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
+-                <span class="font-bold text-lg tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
+-                </div>
+-                <button id="close-drawer-btn" class="p-2 -mr-2 text-textMuted hover:bg-gray-50 rounded-lg transition-colors">
+-                    <i data-lucide="x" class="w-5 h-5"></i>
+-                </button>
+-            </div>
+-            
+-            <nav class="flex-1 overflow-y-auto py-5 px-3 space-y-1">
+-                <a href="{{ url_for('hospital_dashboard') }}" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 font-bold rounded-xl transition-colors">
+-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+-                    Dashboard
+-                </a>
+-                
+-                {% if hospital.verification_status == 'verified' %}
+-                <a href="{{ url_for('hospital_treatment_requests') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+-                    <i data-lucide="file-text" class="w-5 h-5"></i>
+-                    <span>Treatment Requests</span>
+-                </a>
+-                {% else %}
+-                <div class="px-4 py-3 text-textMuted flex items-center gap-3 rounded-xl cursor-not-allowed opacity-70 group" title="Account verification required">
+-                    <i data-lucide="file-text" class="w-5 h-5"></i>
+-                    <span class="font-medium">Treatment Requests</span>
+-                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-400 px-2 py-0.5 rounded">Lock</span>
+-                </div>
+-                {% endif %}
+-                
+-                <a href="{{ url_for('hospital_proposals') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+-                    <i data-lucide="file-text" class="w-5 h-5"></i>
+-                    <span>Proposals</span>
+-                </a>
+-                
+-                <a href="{{ url_for('hospital_messages') }}" class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl hover:bg-slate-50 hover:text-textMain transition-all">
+-                    <i data-lucide="message-square" class="w-5 h-5 shrink-0"></i>
+-                    <span>Messages</span>
+-                </a>
+-                
+-                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+-                    <i data-lucide="building" class="w-5 h-5 shrink-0"></i>
+-                    <span>Hospital Profile</span>
+-                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+-                </div>
+-                
+-                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+-                    <i data-lucide="bell" class="w-5 h-5 shrink-0"></i>
+-                    <span>Notifications</span>
+-                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+-                </div>
+-                
+-                <div class="flex items-center gap-3 px-4 py-3 text-textMuted font-semibold rounded-xl cursor-not-allowed opacity-60 group">
+-                    <i data-lucide="settings" class="w-5 h-5 shrink-0"></i>
+-                    <span>Account / Settings</span>
+-                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full">Soon</span>
+-                </div>
+-            </nav>
+-            
+-            <div class="p-4 border-t border-gray-100">
+-                <a href="{{ url_for('hospital_logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-500 hover:text-red-700 hover:bg-red-50 font-bold rounded-xl transition-colors">
+-                    <i data-lucide="log-out" class="w-5 h-5"></i>
+-                    Log Out
+-                </a>
+-            </div>
+-        </div>
+-
+-        <div class="p-6 md:p-10 lg:p-12 max-w-6xl mx-auto w-full">
+-            <div class="mb-8 flex justify-between items-end">
+-                <div>
+-                    <h1 class="text-3xl font-extrabold text-textMain tracking-tight">Hospital Dashboard</h1>
+-                    <p class="text-textMuted mt-1">Welcome back, {{ user.first_name }}</p>
+-                </div>
+-            </div>
+-
+-            <!-- Hospital Summary Card -->
+-            <div class="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+-                <div class="flex items-start md:items-center gap-4 min-w-0 w-full">
+-                    <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100">
+-                        <i data-lucide="building" class="w-7 h-7 md:w-8 md:h-8"></i>
+-                    </div>
+-                    <div class="min-w-0 flex-1">
+-                        <h2 class="text-xl md:text-2xl font-extrabold text-textMain truncate whitespace-normal break-words">{{ hospital.legal_name }}</h2>
+-                        <p class="text-sm md:text-base text-textMuted flex items-center gap-1.5 mt-1">
+-                            <i data-lucide="map-pin" class="w-4 h-4 shrink-0"></i>
+-                            {% set loc_parts = [] %}
+-                            {% if hospital.city and hospital.city != 'None' %}{% set _ = loc_parts.append(hospital.city) %}{% endif %}
+-                            {% if hospital.state and hospital.state != 'None' %}{% set _ = loc_parts.append(hospital.state) %}{% endif %}
+-                            {% if hospital.country and hospital.country != 'None' %}{% set _ = loc_parts.append(hospital.country) %}{% endif %}
+-                            {% if loc_parts %}
+-                                <span class="truncate whitespace-normal">{{ loc_parts | join(', ') }}</span>
+-                            {% else %}
+-                                <span>Location not specified</span>
+-                            {% endif %}
+-                        </p>
+-                    </div>
+-                </div>
+-                <div class="bg-gray-50 border border-gray-100 px-5 py-4 rounded-2xl md:text-right shrink-0 w-full md:w-auto md:min-w-[220px]">
+-                    <p class="text-[11px] font-bold text-textMuted uppercase tracking-wider mb-1">Primary Contact</p>
+-                    <p class="text-sm font-bold text-textMain break-words">{{ user.first_name }} {{ user.last_name }}</p>
+-                    <p class="text-xs text-textMuted break-all">{{ user.work_email }}</p>
+-                </div>
+-            </div>
+-
+-            {% if hospital.verification_status == 'pending_verification' %}
+-            
+-            <!-- Pending Verification Architecture -->
+-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+-                
+-                <!-- Main Message -->
++            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-0 animate-fade-in stagger-1">
+                 <div class="lg:col-span-2">
+-                    <div class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm relative h-full">
++                    <div class="bg-white rounded-[24px] border border-blue-100 overflow-hidden shadow-premium relative h-full">
+                         <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-blue-500"></div>
+                         <div class="p-8 md:p-10 flex flex-col h-full justify-center">
+                             
+@@ -256,13 +21,13 @@
+                                 </div>
+                             </div>
+                             
+-                            <h2 class="text-2xl md:text-3xl font-extrabold text-textMain mb-4">Your hospital registration is under review</h2>
++                            <h2 class="text-[26px] md:text-[30px] font-extrabold text-primary tracking-tight mb-4">Your hospital registration is under review</h2>
+                             
+                             <p class="text-[15px] text-textMuted leading-relaxed mb-8">
+                                 Thank you for submitting your application to join the TreatAnywhere network. Our compliance team is currently reviewing your submitted hospital information and verification documents to ensure our global standards are met.
+                             </p>
+                             
+-                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-sm text-textMain space-y-4">
++                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-[14px] text-textMain space-y-4">
+                                 <p class="flex items-start gap-3">
+                                     <i data-lucide="shield" class="w-5 h-5 text-gray-400 shrink-0 mt-0.5"></i>
+                                     <span class="leading-relaxed">We are verifying your operating licenses and accreditations. This helps us maintain a trusted and safe network for international patients.</span>
+@@ -276,155 +41,237 @@
+                     </div>
+                 </div>
+                 
+-                <!-- Status/Progress Card -->
+                 <div>
+-                    <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-full">
+-                        <h3 class="font-bold text-lg text-textMain mb-8">Registration Journey</h3>
++                    <div class="bg-white rounded-[24px] border border-gray-100 p-8 shadow-premium h-full">
++                        <h3 class="text-[18px] font-extrabold text-primary mb-8">Registration Journey</h3>
+                         
+                         <div class="relative">
+-                            <!-- Vertical Line -->
+                             <div class="absolute top-4 left-4 w-0.5 h-[calc(100%-2rem)] bg-gray-100 -ml-[1px]"></div>
+                             
+-                            <!-- Step 1: Submitted -->
+                             <div class="relative flex gap-4 mb-8">
+-                                <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center shrink-0 shadow-sm z-10 relative">
++                                <div class="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center shrink-0 shadow-sm z-10 relative">
+                                     <i data-lucide="check" class="w-4 h-4"></i>
+-                                    <!-- Connector to next step (Active) -->
+-                                    <div class="absolute top-8 left-1/2 w-0.5 h-8 bg-green-500 -ml-[1px]"></div>
++                                    <div class="absolute top-8 left-1/2 w-0.5 h-8 bg-success -ml-[1px]"></div>
+                                 </div>
+                                 <div>
+-                                    <p class="font-bold text-textMain text-sm">Registration Submitted</p>
+-                                    <p class="text-xs text-textMuted mt-1">Completed</p>
++                                    <p class="font-bold text-textMain text-[14px]">Registration Submitted</p>
++                                    <p class="text-[12px] text-textMuted mt-1">Completed</p>
+                                 </div>
+                             </div>
+                             
+-                            <!-- Step 2: Verification -->
+                             <div class="relative flex gap-4 mb-8">
+-                                <div class="w-8 h-8 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center shrink-0 z-10 relative">
+-                                    <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse"></div>
++                                <div class="w-8 h-8 rounded-full bg-white border-2 border-[#C2410C] flex items-center justify-center shrink-0 z-10 relative">
++                                    <div class="w-2.5 h-2.5 bg-[#C2410C] rounded-full animate-pulse"></div>
+                                 </div>
+                                 <div>
+-                                    <p class="font-bold text-blue-700 text-sm">TreatAnywhere Verification</p>
+-                                    <p class="text-xs text-blue-500 mt-1 font-medium">In Progress</p>
++                                    <p class="font-bold text-[#C2410C] text-[14px]">TreatAnywhere Verification</p>
++                                    <p class="text-[12px] text-[#C2410C] mt-1 font-medium">In Progress</p>
+                                 </div>
+                             </div>
+                             
+-                            <!-- Step 3: Activation -->
+                             <div class="relative flex gap-4">
+                                 <div class="w-8 h-8 rounded-full bg-gray-50 border-2 border-gray-200 text-gray-400 flex items-center justify-center shrink-0 z-10">
+                                     <i data-lucide="lock" class="w-3 h-3"></i>
+                                 </div>
+                                 <div>
+-                                    <p class="font-bold text-gray-500 text-sm">Hospital Activation</p>
+-                                    <p class="text-xs text-gray-400 mt-1">Pending</p>
++                                    <p class="font-bold text-gray-500 text-[14px]">Hospital Activation</p>
++                                    <p class="text-[12px] text-gray-400 mt-1">Pending</p>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
++            </div>
++            
++            {% elif hospital.verification_status == 'rejected' %}
++            <div class="bg-white rounded-[24px] border border-red-100 p-8 shadow-premium max-w-3xl mx-auto opacity-0 animate-fade-in stagger-1">
++                <div class="text-center mb-6">
++                    <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
++                        <i data-lucide="x-circle" class="w-8 h-8"></i>
++                    </div>
++                    <h2 class="text-[24px] font-extrabold text-primary mb-2">Registration Not Approved</h2>
++                    <p class="text-[15px] text-textMuted">Your application to join the TreatAnywhere network has been reviewed and was not approved at this time.</p>
++                </div>
+                 
++                {% if hospital.rejection_reason %}
++                <div class="bg-red-50 border border-red-100 rounded-[16px] p-6 mb-6">
++                    <h3 class="font-bold text-red-800 mb-2 flex items-center gap-2 text-[15px]">
++                        <i data-lucide="info" class="w-5 h-5"></i> Reason for Decision
++                    </h3>
++                    <p class="text-red-700 text-[14px] leading-relaxed whitespace-pre-wrap">{{ hospital.rejection_reason }}</p>
++                </div>
++                {% endif %}
++                
++                <div class="text-center">
++                    <p class="text-[14px] text-textMuted">If you have updated your credentials or believe this was a mistake, please contact our support team.</p>
++                    <a href="mailto:support@treatanywhere.com" class="inline-flex items-center gap-2 mt-4 px-6 py-2.5 bg-white border border-gray-200 text-textMain hover:bg-gray-50 hover:shadow-premium font-bold rounded-xl transition-all">
++                        <i data-lucide="mail" class="w-4 h-4"></i> Contact Support
++                    </a>
++                </div>
+             </div>
+             
+             {% elif hospital.verification_status == 'verified' %}
+             
+-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+-                <!-- Eligible Requests Card (Prominent CTA) -->
+-                <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+-                    <div class="flex items-center gap-5">
+-                        <div class="w-14 h-14 md:w-16 md:h-16 bg-blue-50 text-primary rounded-2xl flex items-center justify-center shrink-0 border border-blue-100">
+-                            <i data-lucide="stethoscope" class="w-7 h-7 md:w-8 md:h-8"></i>
++            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 opacity-0 animate-fade-in">
++                <div class="flex flex-col">
++                    {% set admin = hospital.users[0] if hospital.users else None %}
++                    <h1 class="text-[26px] sm:text-[30px] font-extrabold text-primary tracking-tight">Welcome{% if admin %}, {{ admin.first_name|title }}{% endif %}</h1>
++                    <p class="text-[14px] sm:text-[15px] text-textMuted font-medium mt-1">Manage your hospital's profile and review patient treatment requests.</p>
++                </div>
++            </div>
++            
++            <!-- SUMMARY CARDS -->
++            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 opacity-0 animate-fade-in stagger-1 mb-6">
++<!-- Eligible Requests -->
++                <div class="bg-white p-5 sm:p-6 rounded-[16px] border border-gray-100 border-t-4 border-t-[#F97316] shadow-md hover:-translate-y-[3px] hover:shadow-lg transition-all duration-200">
++                    <div class="flex items-center gap-4 mb-4">
++                        <div class="w-12 h-12 rounded-full bg-[#F97316]/15 flex items-center justify-center">
++                            <i data-lucide="file-text" class="w-6 h-6 text-[#F97316]"></i>
+                         </div>
+-                        <div>
+-                            <p class="text-[11px] md:text-sm font-bold text-textMuted uppercase tracking-wider mb-1">Eligible Patient Requests</p>
+-                            <p class="text-4xl md:text-5xl font-extrabold text-textMain">{{ eligible_requests_count }}</p>
++                    </div>
++                    <div class="flex flex-col">
++                        <span class="text-[32px] font-extrabold text-[#1E293B] leading-none">{{ eligible_requests_count }}</span>
++                        <span class="text-[13px] font-semibold text-[#64748B] mt-1.5">Eligible Patient Requests</span>
++                    </div>
++                </div>
++
++                <!-- Submitted Proposals -->
++                <div class="bg-white p-5 sm:p-6 rounded-[16px] border border-gray-100 border-t-4 border-t-[#2563EB] shadow-md hover:-translate-y-[3px] hover:shadow-lg transition-all duration-200">
++                    <div class="flex items-center gap-4 mb-4">
++                        <div class="w-12 h-12 rounded-full bg-[#2563EB]/15 flex items-center justify-center">
++                            <i data-lucide="send" class="w-6 h-6 text-[#2563EB]"></i>
+                         </div>
+                     </div>
+-                    <div class="w-full md:w-auto mt-2 md:mt-0">
+-                        <a href="{{ url_for('hospital_treatment_requests') }}" class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 md:py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-600 transition-colors shadow-sm min-h-[44px]">
+-                            View Treatment Requests <i data-lucide="arrow-right" class="w-5 h-5"></i>
+-                        </a>
++                    <div class="flex flex-col">
++                        <span class="text-[32px] font-extrabold text-[#1E293B] leading-none">{{ submitted_proposals_count }}</span>
++                        <span class="text-[13px] font-semibold text-[#64748B] mt-1.5">Submitted Proposals</span>
+                     </div>
+                 </div>
+ 
+-                <!-- Verified Status (Subtle) -->
+-                <div class="lg:col-span-5 xl:col-span-4 bg-white rounded-3xl border border-teal-100 p-6 md:p-8 shadow-sm flex flex-col justify-center">
+-                    <div class="flex items-center gap-3 mb-3">
+-                        <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center shrink-0 border border-teal-100">
+-                            <i data-lucide="shield-check" class="w-5 h-5"></i>
++                <!-- Unread Messages -->
++                <div class="bg-white p-5 sm:p-6 rounded-[16px] border border-gray-100 border-t-4 border-t-[#7C3AED] shadow-md hover:-translate-y-[3px] hover:shadow-lg transition-all duration-200">
++                    <div class="flex items-center gap-4 mb-4">
++                        <div class="w-12 h-12 rounded-full bg-[#7C3AED]/15 flex items-center justify-center">
++                            <i data-lucide="message-circle" class="w-6 h-6 text-[#7C3AED]"></i>
+                         </div>
+-                        <h2 class="text-lg md:text-xl font-bold text-textMain">Your Account is Verified</h2>
+                     </div>
+-                    <p class="text-sm text-textMuted leading-relaxed">Your hospital has full access to the TreatAnywhere network. You can now review matching patient treatment requests.</p>
++                    <div class="flex flex-col">
++                        <span class="text-[32px] font-extrabold text-[#1E293B] leading-none">0</span>
++                        <span class="text-[13px] font-semibold text-[#64748B] mt-1.5">Unread Messages</span>
++                    </div>
+                 </div>
+-            </div>
+-            
+-            {% elif hospital.verification_status == 'rejected' %}
+-            <div class="bg-white rounded-3xl border border-red-100 p-8 shadow-sm max-w-3xl mx-auto">
+-                <div class="text-center mb-6">
+-                    <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+-                        <i data-lucide="x-circle" class="w-8 h-8"></i>
++                
++                <!-- Profile Completion -->
++                <div class="bg-white p-5 sm:p-6 rounded-[16px] border border-gray-100 border-t-4 border-t-[#22C55E] shadow-md hover:-translate-y-[3px] hover:shadow-lg transition-all duration-200">
++                    <div class="flex items-center gap-4 mb-4">
++                        <div class="w-12 h-12 rounded-full bg-[#22C55E]/15 flex items-center justify-center">
++                            <i data-lucide="check-circle" class="w-6 h-6 text-[#22C55E]"></i>
++                        </div>
++                    </div>
++                    <div class="flex flex-col">
++                        <span class="text-[32px] font-extrabold text-[#1E293B] leading-none">100%</span>
++                        <span class="text-[13px] font-semibold text-[#64748B] mt-1.5">Profile Completion</span>
+                     </div>
+-                    <h2 class="text-2xl font-bold text-textMain mb-2">Registration Not Approved</h2>
+-                    <p class="text-textMuted">Your application to join the TreatAnywhere network has been reviewed and was not approved at this time.</p>
+                 </div>
++            </div>
++            
++            <!-- MAIN GRID CONTENT -->
++            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 opacity-0 animate-fade-in stagger-2">
+                 
+-                {% if hospital.rejection_reason %}
+-                <div class="bg-red-50 border border-red-100 rounded-2xl p-6 mb-6">
+-                    <h3 class="font-bold text-red-800 mb-2 flex items-center gap-2">
+-                        <i data-lucide="info" class="w-5 h-5"></i> Reason for Decision
+-                    </h3>
+-                    <p class="text-red-700 text-sm leading-relaxed whitespace-pre-wrap">{{ hospital.rejection_reason }}</p>
++                <!-- LEFT COLUMN -->
++                <div class="xl:col-span-2 flex flex-col gap-8">
++                    
++                    <section class="flex flex-col">
++                        <div class="flex items-center justify-between mb-5">
++                            <h2 class="text-[18px] sm:text-[20px] font-extrabold text-primary tracking-tight">Eligible Patient Requests</h2>
++                        </div>
++                        
++                        {% if eligible_requests_count > 0 %}
++                        <!-- CTA CARD -->
++                        <div class="bg-white rounded-[24px] border border-[#E8E8F0] p-6 sm:p-8 shadow-premium flex flex-col sm:flex-row items-center justify-between gap-6 hover:shadow-md transition-all duration-300">
++                            <div class="flex items-center gap-5">
++                                <div class="w-14 h-14 bg-softBlue text-secondary rounded-[16px] flex items-center justify-center shrink-0 border border-blue-100 shadow-sm">
++                                    <i data-lucide="stethoscope" class="w-7 h-7"></i>
++                                </div>
++                                <div>
++                                    <p class="text-[13px] font-bold text-textMuted uppercase tracking-wider mb-1">Action Required</p>
++                                    <p class="text-[20px] font-extrabold text-textMain">You have {{ eligible_requests_count }} matching request(s).</p>
++                                </div>
++                            </div>
++                            <div class="w-full sm:w-auto">
++                                <a href="{{ url_for('hospital_treatment_requests') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#C2410C] text-white font-bold rounded-xl hover:bg-[#EA580C] transition-colors shadow-sm">
++                                    View Requests <i data-lucide="arrow-right" class="w-4 h-4"></i>
++                                </a>
++                            </div>
++                        </div>
++                        {% else %}
++                        <!-- EMPTY STATE -->
++                        <div class="bg-white rounded-[24px] border border-[#E8E8F0] border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center shadow-premium hover:shadow-md transition-all duration-300">
++                            <div class="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-5 border-[6px] border-white shadow-premium ring-1 ring-orange-100">
++                                <i data-lucide="stethoscope" class="w-8 h-8 text-[#C2410C]"></i>
++                            </div>
++                            <h3 class="text-[20px] font-extrabold text-primary mb-2">No matching patient requests yet.</h3>
++                            <p class="text-[14.5px] text-textMuted max-w-[450px] mb-8 leading-relaxed font-medium">
++                                As soon as a patient request matches your specialties, it will appear here automatically.
++                            </p>
++                            <a href="{{ url_for('hospital_dashboard') }}" class="bg-white border border-gray-200 text-textMain font-bold px-8 py-3.5 rounded-full text-[14.5px] hover:bg-gray-50 shadow-sm flex items-center gap-2 transition-all">
++                                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
++                            </a>
++                        </div>
++                        {% endif %}
++                        
++                    </section>
+                 </div>
+-                {% endif %}
+                 
+-                <div class="text-center">
+-                    <p class="text-sm text-textMuted">If you have updated your credentials or believe this was a mistake, please contact our support team.</p>
+-                    <a href="mailto:support@treatanywhere.com" class="inline-flex items-center gap-2 mt-4 px-6 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold rounded-xl transition-colors">
+-                        <i data-lucide="mail" class="w-4 h-4"></i> Contact Support
+-                    </a>
++                <!-- RIGHT COLUMN -->
++                <div class="xl:col-span-1 flex flex-col gap-8">
++                    
++                    <!-- Verified Status Card -->
++                    <section class="bg-white rounded-[24px] border border-[#E8E8F0] p-6 sm:p-8 shadow-premium hover:shadow-md transition-all duration-300">
++                        <div class="flex items-center gap-3 mb-5">
++                            <div class="w-10 h-10 rounded-xl bg-softTeal border border-[#10B981]/20 flex items-center justify-center text-[#10B981] shadow-sm">
++                                <i data-lucide="shield-check" class="w-5 h-5"></i>
++                            </div>
++                            <h2 class="text-[17px] font-extrabold text-primary">Your Account is Verified</h2>
++                        </div>
++                        
++                        <p class="text-[14px] text-textMuted font-medium mb-4 leading-relaxed">
++                            Your hospital has full access to the TreatAnywhere network.
++                        </p>
++                        <p class="text-[13px] font-bold text-textMain uppercase tracking-wider mb-3">You can now:</p>
++                        <ul class="space-y-3">
++                            <li class="flex items-start gap-2.5">
++                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#10B981] shrink-0 mt-0.5"></i>
++                                <span class="text-[14px] text-textMuted font-medium leading-tight">Review patient treatment requests</span>
++                            </li>
++                            <li class="flex items-start gap-2.5">
++                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#10B981] shrink-0 mt-0.5"></i>
++                                <span class="text-[14px] text-textMuted font-medium leading-tight">Submit treatment estimates</span>
++                            </li>
++                            <li class="flex items-start gap-2.5">
++                                <i data-lucide="check-circle-2" class="w-4 h-4 text-[#10B981] shrink-0 mt-0.5"></i>
++                                <span class="text-[14px] text-textMuted font-medium leading-tight">Communicate securely with patients</span>
++                            </li>
++                        </ul>
++                    </section>
++                    
+                 </div>
+             </div>
+             
+             {% else %}
+-            <!-- Fallback for unexpected status -->
+-            <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm text-center">
++            <!-- Fallback -->
++            <div class="bg-white rounded-[24px] border border-gray-100 p-8 shadow-premium text-center">
+                 <p class="text-textMuted font-bold uppercase tracking-wider">Status: {{ hospital.verification_status }}</p>
+             </div>
+             {% endif %}
+             
+-        </div>
+-    </main>
+-
+-    <script>
+-        lucide.createIcons();
+-
+-        // Mobile Drawer Logic
+-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+-        const closeDrawerBtn = document.getElementById('close-drawer-btn');
+-        const mobileDrawer = document.getElementById('mobile-drawer');
+-        const overlay = document.getElementById('mobile-drawer-overlay');
+-
+-        function openDrawer() {
+-            if (mobileDrawer) mobileDrawer.classList.remove('-translate-x-full');
+-            if (overlay) {
+-                overlay.classList.remove('opacity-0', 'pointer-events-none');
+-                overlay.classList.add('opacity-100');
+-            }
+-            document.body.style.overflow = 'hidden';
+-        }
+-
+-        function closeDrawer() {
+-            if (mobileDrawer) mobileDrawer.classList.add('-translate-x-full');
+-            if (overlay) {
+-                overlay.classList.add('opacity-0', 'pointer-events-none');
+-                overlay.classList.remove('opacity-100');
+-            }
+-            document.body.style.overflow = '';
+-        }
+-
+-        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openDrawer);
+-        if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+-        if (overlay) overlay.addEventListener('click', closeDrawer);
+-    </script>
+-</body>
+-</html>
++            <!-- FOOTER -->
++            <footer class="mt-8 border-t border-gray-200 pt-6 pb-2">
++                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
++                    <div class="flex items-center gap-2">
++                        <span class="text-[14px] font-extrabold text-primary">TreatAnywhere</span>
++                        <span class="text-[12px] text-textMuted font-medium">&copy; 2026. All rights reserved.</span>
++                    </div>
++                </div>
++            </footer>
++{% endblock %}

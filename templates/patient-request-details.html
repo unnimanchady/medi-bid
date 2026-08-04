@@ -283,7 +283,7 @@
                                     {% if request.weight_kg or request.weight_lbs %}
                                         <div class="flex items-center gap-2">
                                             <span class="text-textMuted w-48">Weight from Previous Request:</span>
-                                            <span>
+                                            <span class="whitespace-nowrap">
                                                 {% if request.weight_kg %}{{ request.weight_kg }} kg{% endif %}
                                                 {% if request.weight_kg and request.weight_lbs %} / {% endif %}
                                                 {% if request.weight_lbs %}{{ request.weight_lbs }} lbs{% endif %}
@@ -305,7 +305,7 @@
                                             {% if request.current_weight %}
                                                 <div class="flex items-center gap-2">
                                                     <span class="text-textMuted w-48">Current Weight:</span>
-                                                    <span>{{ request.current_weight }} {% if request.current_weight_unit %}{{ request.current_weight_unit }}{% endif %}</span>
+                                                    <span class="whitespace-nowrap">{{ request.current_weight }} {% if request.current_weight_unit %}{{ request.current_weight_unit }}{% endif %}</span>
                                                 </div>
                                             {% endif %}
                                             {% if request.weight_change_period %}
@@ -321,11 +321,11 @@
                                     {% if previous_request %}
                                         <div class="flex items-center gap-2">
                                             <span class="text-textMuted w-48">Previous Weight:</span>
-                                            <span>{% if previous_request.weight_kg %}{{ previous_request.weight_kg }} kg{% elif previous_request.weight_lbs %}{{ previous_request.weight_lbs }} lbs{% endif %} — Recorded on {{ previous_request.created_at.strftime('%b %d, %Y') }}</span>
+                                            <span class="whitespace-nowrap">{% if previous_request.weight_kg %}{{ previous_request.weight_kg }} kg{% elif previous_request.weight_lbs %}{{ previous_request.weight_lbs }} lbs{% endif %} — Recorded on {{ previous_request.created_at.strftime('%b %d, %Y') }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="text-textMuted w-48">Current Weight:</span>
-                                            <span>{% if request.weight_kg %}{{ request.weight_kg }} kg{% elif request.weight_lbs %}{{ request.weight_lbs }} lbs{% endif %}</span>
+                                            <span class="whitespace-nowrap">{% if request.weight_kg %}{{ request.weight_kg }} kg{% elif request.weight_lbs %}{{ request.weight_lbs }} lbs{% endif %}</span>
                                         </div>
                                         {% if request.weight_change_type and request.weight_change_type != 'No weight change' %}
                                             <div class="flex items-center gap-2">
@@ -341,7 +341,7 @@
                                     {% else %}
                                         <div class="flex items-center gap-2">
                                             <span class="text-textMuted w-48">Current Weight:</span>
-                                            <span>{% if request.weight_kg %}{{ request.weight_kg }} kg{% elif request.weight_lbs %}{{ request.weight_lbs }} lbs{% else %}Not provided{% endif %}</span>
+                                            <span class="whitespace-nowrap">{% if request.weight_kg %}{{ request.weight_kg }} kg{% elif request.weight_lbs %}{{ request.weight_lbs }} lbs{% else %}Not provided{% endif %}</span>
                                         </div>
                                     {% endif %}
                                 {% endif %}
