@@ -846,12 +846,18 @@ def patient_dashboard():
     ).order_by(TreatmentRequest.created_at.desc()).all()
     
     total_responses = 0
+    shortlisted_hospitals_count = 0
     for req in active_requests:
         req.response_count = TreatmentProposal.query.filter_by(
             treatment_request_id=req.id,
             status='submitted'
         ).count()
         total_responses += req.response_count
+        shortlisted_hospitals_count += TreatmentProposal.query.filter_by(
+            treatment_request_id=req.id,
+            status='submitted',
+            patient_shortlisted=True
+        ).count()
 
     from models import MessageThread, Message
 
@@ -895,6 +901,7 @@ def patient_dashboard():
         active_requests=active_requests,
         profiles=profiles,
         total_responses=total_responses,
+        shortlisted_hospitals_count=shortlisted_hospitals_count,
         recent_responses=recent_responses,
         recent_messages=recent_messages,
         unread_messages_count=unread_messages_count
@@ -3122,28 +3129,35 @@ def patient_requests():
     profiles = PatientProfile.query.filter_by(user_id=user_id).all()
     profile_ids = [p.id for p in profiles]
     
+    context = request.args.get('context')
+    
     if profile_ids:
         requests_query = TreatmentRequest.query.filter(TreatmentRequest.patient_profile_id.in_(profile_ids)).order_by(TreatmentRequest.created_at.desc()).all()
+        
+        processed_requests = []
         for req in requests_query:
             proposals = [p for p in req.proposals if p.status == 'submitted']
+            if context == 'responses' and not proposals:
+                continue # Skip requests with no responses for the Hospital Responses page
+                
             if proposals:
                 latest_proposal_time = max((p.submitted_at for p in proposals if p.submitted_at), default=req.created_at)
                 req._latest_response_time = latest_proposal_time
             else:
                 req._latest_response_time = None
+                
+            processed_requests.append(req)
 
         requests = sorted(
-            requests_query,
+            processed_requests,
             key=lambda r: (r._latest_response_time is not None, r._latest_response_time or r.created_at),
             reverse=True
         )
     else:
         requests = []
-        
-    context = request.args.get('context')
     if context == 'responses':
-        page_title = "Hospital Responses"
-        page_desc = "Select a treatment request to review responses from healthcare providers."
+        page_title = "Requests with Hospital Responses"
+        page_desc = "Select a treatment request to review estimates and proposals submitted by hospitals."
     else:
         page_title = "My Requests"
         page_desc = "Manage and track your submitted treatment requests."

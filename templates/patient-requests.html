@@ -13,17 +13,32 @@
         
 
         <main class="flex-grow p-4 sm:p-6 lg:p-8 flex flex-col gap-6 max-w-[1400px] w-full mx-auto">
+            {% if request.args.get('context') == 'responses' %}
+            <div class="flex flex-col gap-1 opacity-0 animate-fade-in mb-2">
+                <h1 class="text-[22px] sm:text-[24px] font-extrabold text-primary tracking-tight">Requests with Hospital Responses</h1>
+                <p class="text-[13px] sm:text-[14px] text-textMuted">Select a treatment request to review estimates and proposals submitted by hospitals.</p>
+            </div>
+            {% endif %}
+
             {% if not requests %}
             <!-- EMPTY STATE -->
             <div class="bg-white border border-gray-200 rounded-[20px] shadow-sm p-10 flex flex-col items-center justify-center text-center opacity-0 animate-fade-in">
                 <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-5 border border-gray-100">
-                    <i data-lucide="file-x" class="w-10 h-10 text-gray-400"></i>
+                    <i data-lucide="{% if request.args.get('context') == 'responses' %}building-2{% else %}file-x{% endif %}" class="w-10 h-10 text-gray-400"></i>
                 </div>
+                {% if request.args.get('context') == 'responses' %}
+                <h2 class="text-xl font-extrabold text-primary mb-2">No Hospital Responses Yet</h2>
+                <p class="text-textMuted text-[14px] max-w-md mx-auto mb-6">When hospitals submit treatment estimates and proposals, they will appear here.</p>
+                <a href="{{ url_for('patient_requests') }}" class="bg-white border border-gray-200 text-textMain px-6 py-2.5 rounded-xl font-bold text-[14px] hover:bg-gray-50 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+                    View My Requests
+                </a>
+                {% else %}
                 <h2 class="text-xl font-extrabold text-primary mb-2">No Requests Found</h2>
                 <p class="text-textMuted text-[14px] max-w-md mx-auto mb-6">You haven't submitted any treatment requests yet.</p>
                 <a href="{{ url_for('patient_dashboard') }}" class="bg-cta-gradient text-white px-6 py-2.5 rounded-xl font-bold text-[14px] hover:bg-violet-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary">
                     Return to Dashboard
                 </a>
+                {% endif %}
             </div>
             {% else %}
             <!-- REQUESTS LIST -->
@@ -55,7 +70,7 @@
                             
                             <!-- Left Buttons -->
                             <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2">
-                                <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-5 py-2.5 border border-gray-200 text-textMain text-[14px] font-bold rounded-xl hover:bg-gray-50 text-center transition-colors shadow-sm whitespace-nowrap">
+                                <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-5 py-2.5 border border-[#FF6B00] bg-[#FF6B00] text-white text-[14px] font-bold rounded-xl hover:bg-[#E56000] hover:border-[#E56000] text-center transition-colors shadow-sm whitespace-nowrap">
                                     View Request
                                 </a>
                                 <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-5 py-2.5 bg-cta-gradient text-white text-[14px] font-bold rounded-xl hover:bg-blue-600 text-center transition-colors shadow-sm whitespace-nowrap">

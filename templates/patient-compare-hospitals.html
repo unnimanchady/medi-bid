@@ -60,28 +60,31 @@
                 <!-- Label Column (Empty in Header) -->
                 <div class="hidden md:block col-span-1"></div>
                 
-                {% set colors = ['primary', 'lavenderAccent', 'secondary'] %}
-                {% set bg_colors = ['bg-primary', 'bg-lavenderAccent', 'bg-secondary'] %}
-                {% set text_colors = ['text-primary', 'text-lavenderAccent', 'text-secondary'] %}
+                {% set text_colors = ['text-[#1E40AF]', 'text-[#0F766E]', 'text-[#8B5CF6]'] %}
+                {% set bg_colors = ['bg-[#1E40AF]', 'bg-[#0F766E]', 'bg-[#8B5CF6]'] %}
+                {% set card_bg_colors = ['bg-[#EFF6FF]', 'bg-[#F0FDFA]', 'bg-gray-50'] %}
+                {% set card_border_colors = ['border-[#DBEAFE]', 'border-[#CCFBF1]', 'border-gray-200'] %}
+                {% set icon_bg_colors = ['bg-blue-50/50', 'bg-teal-50/50', 'bg-gray-50'] %}
+                {% set icon_border_colors = ['border-blue-100', 'border-teal-100', 'border-gray-100'] %}
 
                 {% for item in compare_items %}
                 {% set color_idx = loop.index0 % 3 %}
                 <!-- Header {{ loop.index }} -->
-                <div class="col-span-1 flex flex-col bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative overflow-hidden group hover:border-gray-300 transition-colors">
-                    <div class="absolute top-0 left-0 w-1 h-full {{ bg_colors[color_idx] }}"></div>
+                <div class="col-span-1 flex flex-col {{ card_bg_colors[color_idx] }} border {{ card_border_colors[color_idx] }} rounded-xl p-4 shadow-sm relative overflow-hidden group transition-colors">
+                    <div class="absolute top-0 left-0 w-1.5 h-full {{ bg_colors[color_idx] }}"></div>
                     <div class="flex items-start justify-between mb-3">
-                        <div class="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="building" class="w-5 h-5 {{ text_colors[color_idx] }} opacity-50"></i>
+                        <div class="w-10 h-10 rounded-full {{ icon_bg_colors[color_idx] }} border {{ icon_border_colors[color_idx] }} flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="building" class="w-5 h-5 {{ text_colors[color_idx] }}"></i>
                         </div>
                         {% if item.hospital.verification_status == 'verified' %}
-                        <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-1.5 py-0.5 rounded uppercase text-[9px] font-bold tracking-wider">
+                        <div class="flex items-center gap-1 bg-softGreen border border-green-100 text-greenAccent px-1.5 py-0.5 rounded uppercase text-[9px] font-bold tracking-wider relative z-10 bg-white/90 backdrop-blur-sm">
                             <i data-lucide="shield-check" class="w-3 h-3"></i> Verified
                         </div>
                         {% endif %}
                     </div>
                     <div class="flex flex-col mt-auto">
-                        <h3 class="text-[15px] font-bold text-textMain leading-tight truncate" title="{{ item.hospital.display_name or item.hospital.legal_name or 'Not provided' }}">{{ item.hospital.display_name or item.hospital.legal_name or 'Not provided' }}</h3>
-                        <span class="text-[12px] text-textMuted flex items-center gap-1 mt-0.5 truncate">
+                        <h3 class="text-[16px] font-extrabold {{ text_colors[color_idx] }} leading-tight truncate" title="{{ item.hospital.display_name or item.hospital.legal_name or 'Not provided' }}">{{ item.hospital.display_name or item.hospital.legal_name or 'Not provided' }}</h3>
+                        <span class="text-[12px] text-slate-700 flex items-center gap-1 mt-1 truncate font-medium">
                             <i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i>
                             {% set loc_parts = [] %}
                             {% if item.hospital.city %}{% set _ = loc_parts.append(item.hospital.city) %}{% endif %}

@@ -114,8 +114,7 @@
             
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 opacity-0 animate-fade-in">
                 <div class="flex flex-col">
-                    {% set admin = hospital.users[0] if hospital.users else None %}
-                    <h1 class="text-[26px] sm:text-[30px] font-extrabold text-primary tracking-tight">Welcome{% if admin %}, {{ admin.first_name|title }}{% endif %}</h1>
+                    <h1 class="text-[26px] sm:text-[30px] font-extrabold text-primary tracking-tight">Welcome, {{ hospital.display_name or hospital.legal_name }}</h1>
                     <p class="text-[14px] sm:text-[15px] text-textMuted font-medium mt-1">Manage your hospital's profile and review patient treatment requests.</p>
                 </div>
             </div>
