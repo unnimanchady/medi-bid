@@ -8,7 +8,7 @@
 
 
     <!-- MAIN CHAT INTERFACE -->
-    <main class="w-full max-w-[1400px] mx-auto p-0 sm:p-4 md:p-6 flex flex-col flex-grow chat-container-height relative">
+    <main class="w-full max-w-[1400px] mx-auto p-0 sm:p-4 md:p-6 flex flex-col h-[calc(100vh-70px)] lg:h-[calc(100vh-80px)] relative">
         
         <!-- BREADCRUMBS -->
         <div class="hidden sm:flex items-center justify-between mb-4 flex-shrink-0 px-4 sm:px-0">
@@ -22,7 +22,7 @@
         </div>
 
         <!-- TWO COLUMN LAYOUT -->
-        <div class="flex-grow bg-white sm:border border-gray-200 sm:rounded-[20px] shadow-sm overflow-hidden flex relative w-full h-full">
+        <div class="flex-grow min-h-0 bg-white sm:border border-gray-200 sm:rounded-[20px] shadow-sm overflow-hidden flex relative w-full">
             
             <!-- LEFT PANEL: Conversation List -->
             <div id="conversations-list" class="w-full md:w-[320px] lg:w-[380px] border-r border-gray-200 flex-col flex-shrink-0 bg-gray-50/30 absolute md:relative inset-0 z-20 md:z-auto h-full bg-white md:bg-transparent {% if active_thread %}hidden md:flex{% else %}flex{% endif %}">
@@ -37,7 +37,7 @@
                 </div>
 
                 <!-- List Items -->
-                <div class="flex-grow overflow-y-auto custom-scrollbar bg-white md:bg-transparent flex flex-col">
+                <div class="flex-grow min-h-0 overflow-y-auto custom-scrollbar bg-white md:bg-transparent flex flex-col">
                     {% if threads and threads|length > 0 %}
                         {% for thread in threads %}
                         <a href="{{ url_for('patient_secure_messages', thread_id=thread.id) }}" class="conv-item w-full text-left p-4 border-b border-gray-100 {% if active_thread and thread.id == active_thread.id %}bg-softBlue/30 hover:bg-softBlue/40{% else %}bg-white hover:bg-gray-50{% endif %} transition-colors flex gap-3 relative focus:outline-none">
@@ -83,7 +83,7 @@
             </div>
 
             <!-- RIGHT PANEL: Active Chat -->
-            <div id="active-chat" class="w-full flex flex-col flex-grow bg-white md:bg-bgLight relative z-10 h-full {% if not active_thread %}hidden md:flex items-center justify-center{% else %}flex{% endif %}">
+            <div id="active-chat" class="w-full flex flex-col flex-grow min-h-0 bg-white md:bg-bgLight relative z-10 {% if not active_thread %}hidden md:flex items-center justify-center{% else %}flex{% endif %}">
                 {% if active_thread %}
                 
                 <!-- Chat Header (Sticky) -->
@@ -114,7 +114,7 @@
                 </div>
 
                 <!-- Messages Area (Scrollable) -->
-                <div class="flex-grow overflow-y-auto custom-scrollbar p-4 sm:p-5 flex flex-col gap-5 bg-white md:bg-bgLight">
+                <div id="messages-container" class="flex-grow min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-5 flex flex-col gap-5 bg-white md:bg-bgLight">
                     {% set msgs = active_thread.messages.all() %}
                     {% if msgs %}
                         {% for msg in msgs %}
@@ -153,6 +153,7 @@
                     {% endif %}
                     
                     <div class="h-4 flex-shrink-0"></div>
+                    <div id="messages-bottom" class="h-2 flex-shrink-0 w-full clear-both"></div>
                 </div>
 
                 <!-- Composer Area (Sticky Bottom) -->
@@ -264,6 +265,38 @@
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
+        }
+
+        // Disable automatic browser scroll restoration so it doesn't override our scroll-to-bottom
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // Scroll messages to bottom on load and when new messages are added
+        const msgsContainer = document.getElementById('messages-container');
+        
+        function forceScrollToBottom() {
+            if (msgsContainer) {
+                // Using scrollTop guarantees we only scroll the internal container 
+                // and avoids scrollIntoView bubbling to the window.
+                msgsContainer.scrollTop = msgsContainer.scrollHeight + 1000;
+            }
+        }
+
+        if (msgsContainer) {
+            // Initial instant scroll
+            forceScrollToBottom();
+            
+            // Aggressive fallbacks for layout shifts (fonts, animations) and browser quirks
+            requestAnimationFrame(forceScrollToBottom);
+            setTimeout(forceScrollToBottom, 10);
+            setTimeout(forceScrollToBottom, 50);
+            setTimeout(forceScrollToBottom, 150);
+            setTimeout(forceScrollToBottom, 300);
+
+            // Watch for any dynamic changes to the container
+            const observer = new MutationObserver(forceScrollToBottom);
+            observer.observe(msgsContainer, { childList: true, subtree: true });
         }
     </script>
 {% endblock %}

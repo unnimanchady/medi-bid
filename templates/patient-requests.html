@@ -29,33 +29,69 @@
             <!-- REQUESTS LIST -->
             <div class="grid grid-cols-1 gap-4 opacity-0 animate-fade-in stagger-1">
                 {% for req in requests %}
-                <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative group">
-                    <div class="flex flex-col sm:flex-row justify-between gap-4">
-                        <div class="flex flex-col gap-1">
-                            <div class="flex items-center gap-3">
-                                <h3 class="text-[16px] font-bold text-primary">{{ req.condition or req.specialty or req.diagnosis or "Treatment Request" }}</h3>
-                                {% if req.status == 'Open' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-800">Open</span>
-                                {% else %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-800">{{ req.status or 'Pending' }}</span>
-                                {% endif %}
+                {% set resp_count = req.proposals|length %}
+                <div class="bg-white border border-gray-200 {% if resp_count > 0 %}border-l-[4px] lg:border-l-[6px] border-l-green-500{% else %}border-l-[4px] lg:border-l-[6px] border-l-amber-500{% endif %} rounded-xl p-5 lg:p-6 shadow-sm hover:shadow-md transition-shadow relative group">
+                    <div class="grid grid-cols-1 lg:grid-cols-[45%_1fr] gap-6 lg:gap-8 h-full">
+                        
+                        <!-- Left Info & Actions -->
+                        <div class="flex flex-col justify-between gap-6 h-full">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-1">
+                                    <h3 class="text-[18px] font-bold text-primary leading-tight">{{ req.condition or req.specialty or req.diagnosis or "Treatment Request" }}</h3>
+                                    {% if req.status == 'Open' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider {% if resp_count > 0 %}bg-green-100 text-green-800{% else %}bg-amber-100 text-amber-800{% endif %} w-max">Active</span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider bg-gray-100 text-gray-800 w-max">{{ req.status or 'Pending' }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-5 text-[14px] text-textMuted mt-1">
+                                    <span class="flex items-center gap-1.5 font-medium"><i data-lucide="hash" class="w-4 h-4 text-gray-400"></i> {{ req.reference_id or 'N/A' }}</span>
+                                    <span class="hidden sm:inline text-gray-300">•</span>
+                                    <span class="flex items-center gap-1.5 font-medium"><i data-lucide="stethoscope" class="w-4 h-4 text-gray-400"></i> {{ req.specialty or 'Not specified' }}</span>
+                                    <span class="hidden sm:inline text-gray-300">•</span>
+                                    <span class="flex items-center gap-1.5 font-medium"><i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i> {{ req.created_at.strftime('%b %d, %Y') if req.created_at else 'Unknown' }}</span>
+                                </div>
                             </div>
-                            <div class="flex flex-wrap items-center gap-4 text-[13px] text-textMuted mt-1">
-                                <span class="flex items-center gap-1.5"><i data-lucide="hash" class="w-4 h-4"></i> Ref: {{ req.reference_id or 'N/A' }}</span>
-                                <span class="flex items-center gap-1.5"><i data-lucide="stethoscope" class="w-4 h-4"></i> Specialty: {{ req.specialty or 'Not specified' }}</span>
-                                <span class="flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> Submitted: {{ req.created_at.strftime('%b %d, %Y') if req.created_at else 'Unknown' }}</span>
-                                <span class="flex items-center gap-1.5 font-semibold {% if req.proposals|length > 0 %}text-secondary{% endif %}"><i data-lucide="message-square" class="w-4 h-4"></i> {{ req.proposals|length }} Responses</span>
+                            
+                            <!-- Left Buttons -->
+                            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2">
+                                <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-5 py-2.5 border border-gray-200 text-textMain text-[14px] font-bold rounded-xl hover:bg-gray-50 text-center transition-colors shadow-sm whitespace-nowrap">
+                                    View Request
+                                </a>
+                                <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-5 py-2.5 bg-cta-gradient text-white text-[14px] font-bold rounded-xl hover:bg-blue-600 text-center transition-colors shadow-sm whitespace-nowrap">
+                                    Hospital Responses
+                                </a>
                             </div>
+                        </div>
+
+                        <!-- Right Status Box -->
+                        <div class="w-full h-full flex flex-col justify-center">
+                            {% if resp_count > 0 %}
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 lg:gap-5 bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl p-5 lg:p-6 h-full w-full">
+                                <div class="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-white shadow-[0_4px_14px_rgba(21,128,61,0.08)] flex items-center justify-center flex-shrink-0 border border-[#DCFCE7]">
+                                    <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="Emblem" class="w-7 h-7 lg:w-9 lg:h-9 object-contain">
+                                </div>
+                                <div class="flex items-baseline gap-4 sm:gap-5">
+                                    <span class="text-[48px] lg:text-[54px] font-black text-[#15803D] leading-none tracking-tighter">{{ resp_count }}</span>
+                                    <div class="flex flex-col justify-center text-left">
+                                        <span class="text-[20px] lg:text-[22px] font-bold text-[#166534] leading-tight tracking-tight uppercase">{% if resp_count == 1 %}HOSPITAL RESPONSE{% else %}HOSPITAL RESPONSES{% endif %}</span>
+                                        <span class="text-[14px] lg:text-[15px] font-medium text-[#15803D] mt-1.5">Great! You have received {% if resp_count == 1 %}a response{% else %}responses{% endif %}.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 lg:gap-5 bg-amber-50 border border-amber-100 rounded-xl p-5 lg:p-6 h-full w-full">
+                                <div class="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-white shadow-[0_4px_14px_rgba(217,119,6,0.08)] flex items-center justify-center flex-shrink-0 border border-amber-100/50">
+                                    <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="Emblem" class="w-7 h-7 lg:w-9 lg:h-9 object-contain">
+                                </div>
+                                <div class="flex flex-col justify-center text-left">
+                                    <span class="text-[20px] lg:text-[24px] font-bold text-amber-900 leading-tight tracking-tight uppercase">AWAITING HOSPITAL RESPONSES</span>
+                                    <span class="text-[14px] lg:text-[15px] font-medium text-amber-800 mt-1.5">We're actively notifying hospitals that match your request.</span>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                         
-                        <div class="flex flex-col sm:flex-row items-center gap-3 self-start sm:self-center w-full sm:w-auto mt-2 sm:mt-0">
-                            <a href="{{ url_for('patient_request_details', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-4 py-2 border border-gray-200 text-textMain text-[13px] font-bold rounded-xl hover:bg-gray-50 text-center transition-colors shadow-sm whitespace-nowrap">
-                                View Request
-                            </a>
-                            <a href="{{ url_for('patient_hospital_responses', reference_id=req.reference_id) }}" class="w-full sm:w-auto px-4 py-2 bg-cta-gradient text-white text-[13px] font-bold rounded-xl hover:bg-blue-600 text-center transition-colors shadow-sm whitespace-nowrap">
-                                Hospital Responses
-                            </a>
-                        </div>
                     </div>
                 </div>
                 {% endfor %}
