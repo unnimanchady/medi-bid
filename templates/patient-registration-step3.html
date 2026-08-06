@@ -225,6 +225,13 @@
                 <!-- Heading -->
                 <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Medical Information</h2>
                 <p class="text-[15px] text-gray-500 mb-10 leading-relaxed">Help hospitals understand your condition so they can provide accurate treatment estimates.</p>
+
+                <!-- Global Validation Reminder -->
+                <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[14px] text-amber-900 font-medium leading-relaxed">Provide complete and accurate information to help hospitals prepare the best treatment proposal for you.</p>
+                </div>
+
                 
                 {% if error %}
                 <div class="mb-5 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
@@ -359,18 +366,26 @@
                     <div class="flex flex-col gap-6">
                         <!-- Previous Treatments -->
                         <div class="flex flex-col gap-1.5">
-                            <label for="previous-treatments" class="text-[14px] font-bold text-gray-800 ml-1">Previous Treatments <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
-                            <textarea id="previous-treatments" name="previous-treatments" rows="2"
+                            <label for="previous-treatments" class="text-[14px] font-bold text-gray-800 ml-1">Previous Treatments <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <textarea id="previous-treatments" name="previous-treatments" rows="2" required
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none resize-y" 
                                 placeholder="e.g. Previous surgery, Chemotherapy, Physiotherapy, Medication"></textarea>
+                            <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                                <input type="checkbox" id="no-previous-treatments" name="no-previous-treatments" class="custom-checkbox h-4 w-4">
+                                <span class="text-[14px] text-gray-600 font-medium">None / No previous treatments</span>
+                            </label>
                         </div>
 
                         <!-- Current Medications -->
                         <div class="flex flex-col gap-1.5">
-                            <label for="medications" class="text-[14px] font-bold text-gray-800 ml-1">Current Medications <span class="text-gray-400 font-normal ml-1">(Optional)</span></label>
-                            <textarea id="medications" name="medications" rows="2"
+                            <label for="medications" class="text-[14px] font-bold text-gray-800 ml-1">Current Medications <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <textarea id="medications" name="medications" rows="2" required
                                 class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none resize-y" 
                                 placeholder="List any medications you are currently taking."></textarea>
+                            <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                                <input type="checkbox" id="no-medications" name="no-medications" class="custom-checkbox h-4 w-4">
+                                <span class="text-[14px] text-gray-600 font-medium">None / Not currently taking medications</span>
+                            </label>
                         </div>
 
                         <!-- Allergies -->
@@ -1054,5 +1069,176 @@
         }
 
     </script>
+
+        <script>
+        // Inline Validation Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            if (!form) return;
+            
+            
+            // Toggle Logic for 'None' checkboxes
+            const noPrevTreatments = document.getElementById('no-previous-treatments');
+            const prevTreatmentsTextarea = document.getElementById('previous-treatments');
+            
+            if (noPrevTreatments && prevTreatmentsTextarea) {
+                noPrevTreatments.addEventListener('change', function() {
+                    if (this.checked) {
+                        prevTreatmentsTextarea.value = '';
+                        prevTreatmentsTextarea.disabled = true;
+                        prevTreatmentsTextarea.removeAttribute('required');
+                        let err = document.getElementById('previous-treatments-inline-error');
+                        if(err) err.classList.add('hidden');
+                        prevTreatmentsTextarea.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+                        prevTreatmentsTextarea.classList.add('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                    } else {
+                        prevTreatmentsTextarea.disabled = false;
+                        prevTreatmentsTextarea.setAttribute('required', 'true');
+                    }
+                });
+            }
+
+            const noMedications = document.getElementById('no-medications');
+            const medicationsTextarea = document.getElementById('medications');
+            
+            if (noMedications && medicationsTextarea) {
+                noMedications.addEventListener('change', function() {
+                    if (this.checked) {
+                        medicationsTextarea.value = '';
+                        medicationsTextarea.disabled = true;
+                        medicationsTextarea.removeAttribute('required');
+                        let err = document.getElementById('medications-inline-error');
+                        if(err) err.classList.add('hidden');
+                        medicationsTextarea.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+                        medicationsTextarea.classList.add('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                    } else {
+                        medicationsTextarea.disabled = false;
+                        medicationsTextarea.setAttribute('required', 'true');
+                    }
+                });
+            }
+
+            // Group validation for checkboxes (allergies)
+            function checkAllergies() {
+                const allergyGroup = document.querySelectorAll('input[name="allergies"]');
+                if (allergyGroup.length > 0) {
+                    let anyChecked = Array.from(allergyGroup).some(r => r.checked);
+                    let err = document.getElementById('allergies-inline-error');
+                    if (!anyChecked) {
+                        if (err) err.classList.remove('hidden');
+                        return false;
+                    } else {
+                        if (err) err.classList.add('hidden');
+                        return true;
+                    }
+                }
+                return true;
+            }
+
+
+            function createErrorElement(id) {
+                let errorEl = document.getElementById(id + '-inline-error');
+                if (!errorEl) {
+                    errorEl = document.createElement('p');
+                    errorEl.id = id + '-inline-error';
+                    errorEl.className = 'text-red-500 text-[13px] font-medium hidden mt-1.5';
+                    errorEl.setAttribute('aria-live', 'polite');
+                    errorEl.textContent = 'Please provide this information.';
+                }
+                return errorEl;
+            }
+
+            const requiredInputs = form.querySelectorAll('input[required]:not([type="checkbox"]), select[required], textarea[required]');
+            
+            requiredInputs.forEach(input => {
+                // Determine container to append error
+                let container = input.closest('.flex-col') || input.closest('.relative')?.parentElement || input.parentElement;
+                if (!container) return;
+                
+                let errorEl = createErrorElement(input.id || input.name);
+                container.appendChild(errorEl);
+
+                input.addEventListener('blur', function() {
+                    if(this.hasAttribute('required')) validateField(this, errorEl);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.hasAttribute('required') && !errorEl.classList.contains('hidden')) {
+                        validateField(this, errorEl);
+                    }
+                });
+                
+                if(input.tagName === 'SELECT') {
+                    input.addEventListener('change', function() {
+                        if(this.hasAttribute('required')) validateField(this, errorEl);
+                    });
+                }
+            });
+            
+            // Allergy group error element
+            const firstAllergy = form.querySelector('input[name="allergies"]');
+            if (firstAllergy) {
+                let container = firstAllergy.closest('.flex-col');
+                let err = createErrorElement('allergies');
+                container.appendChild(err);
+                
+                const allergyGroup = document.querySelectorAll('input[name="allergies"]');
+                allergyGroup.forEach(cb => {
+                    cb.addEventListener('change', checkAllergies);
+                });
+            }
+
+            function validateField(input, errorEl) {
+                let isValid = true;
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    isValid = input.checked;
+                } else {
+                    isValid = input.value.trim() !== '';
+                }
+
+                if (!isValid) {
+                    input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+                    input.classList.remove('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                    if(errorEl) errorEl.classList.remove('hidden');
+                } else {
+                    input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+                    input.classList.add('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                    if(errorEl) errorEl.classList.add('hidden');
+                }
+                return isValid;
+            }
+
+            form.addEventListener('submit', function(e) {
+                let isFormValid = true;
+                let firstInvalid = null;
+
+                const currentRequired = form.querySelectorAll('input[required]:not([type="checkbox"]), select[required], textarea[required]');
+                currentRequired.forEach(input => {
+                    let errorEl = document.getElementById((input.id || input.name) + '-inline-error');
+                    let isValid = validateField(input, errorEl);
+                    if (!isValid) {
+                        isFormValid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                    }
+                });
+                
+                if (form.querySelector('input[name="allergies"]')) {
+                    if (!checkAllergies()) {
+                        isFormValid = false;
+                        let firstAllergy = form.querySelector('input[name="allergies"]');
+                        if (!firstInvalid) firstInvalid = firstAllergy;
+                    }
+                }
+
+                if (!isFormValid) {
+                    e.preventDefault();
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus();
+                    }
+                }
+            });
+        });
+</script>
 </body>
 </html>

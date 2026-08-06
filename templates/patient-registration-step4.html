@@ -222,6 +222,13 @@
                     <i data-lucide="info" class="w-4 h-4 text-secondary"></i>
                     You can continue even if you don't have all your medical documents available right now.
                 </div>
+
+                <!-- Global Validation Reminder -->
+                <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[14px] text-amber-900 font-medium leading-relaxed">Provide complete and accurate information to help hospitals prepare the best treatment proposal for you.</p>
+                </div>
+
                 
                 <!-- Form -->
                 <form id="upload-form" class="flex flex-col w-full">
@@ -575,10 +582,28 @@
             }
         });
 
+
         // Form submission
         document.getElementById('upload-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            if (selectedFiles.length === 0 && !noDocsCheckbox.checked) {
+                let errEl = document.getElementById('docs-inline-error');
+                if (!errEl) {
+                    errEl = document.createElement('p');
+                    errEl.id = 'docs-inline-error';
+                    errEl.className = 'text-red-500 text-[13px] font-medium mt-2';
+                    errEl.setAttribute('aria-live', 'polite');
+                    errEl.textContent = 'Please provide this information by either uploading documents or selecting the checkbox above.';
+                    document.getElementById('upload-section').parentElement.appendChild(errEl);
+                }
+                errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else {
+                let errEl = document.getElementById('docs-inline-error');
+                if (errEl) errEl.remove();
+            }
+
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Uploading...';

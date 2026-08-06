@@ -79,7 +79,7 @@
             <div class="flex flex-col md:flex-row justify-between md:items-end gap-4">
                 <div>
                     <h1 class="text-3xl font-extrabold text-textMain tracking-tight">Treatment Request Details</h1>
-                    <p class="text-textMuted mt-1">Review patient request and hospital proposals.</p>
+                    <p class="text-textMuted mt-1">Review complete patient information, medical details, and matched hospitals.</p>
                 </div>
                 <div>
                     <div class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-bold {% if req.status == 'Active' %}bg-emerald-50 text-emerald-700 border border-emerald-100{% else %}bg-slate-100 text-slate-700 border border-slate-200{% endif %}">
@@ -96,7 +96,7 @@
                     <div class="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden">
                         <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
                             <i data-lucide="clipboard-list" class="w-5 h-5 text-accent"></i>
-                            <h2 class="text-lg font-bold text-textMain">Request Overview</h2>
+                            <h2 class="text-lg font-bold text-textMain">A. Request Overview</h2>
                         </div>
                         <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -104,16 +104,20 @@
                                 <p class="font-semibold text-textMain">{{ req.reference_id }}</p>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Submission Date</p>
-                                <p class="font-semibold text-textMain">{{ req.created_at.strftime('%B %d, %Y') }}</p>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Submission Date & Time</p>
+                                <p class="font-semibold text-textMain">{{ req.created_at.strftime('%B %d, %Y, %H:%M UTC') }}</p>
                             </div>
-                            <div class="md:col-span-2">
+                            <div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Status</p>
+                                <p class="font-semibold text-textMain">{{ req.status }}</p>
+                            </div>
+                            <div>
                                 <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Specialty / Category</p>
-                                <p class="font-semibold text-textMain">{{ req.specialty }}</p>
+                                <p class="font-semibold text-textMain">{{ req.specialty or 'Not provided' }}</p>
                             </div>
                             <div class="md:col-span-2">
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Medical Condition</p>
-                                <p class="font-semibold text-textMain">{{ req.condition }}</p>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Medical Condition / Diagnosis Overview</p>
+                                <p class="font-semibold text-textMain">{{ req.condition or 'Not provided' }}</p>
                             </div>
                         </div>
                     </div>
@@ -122,10 +126,14 @@
                     <div class="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden">
                         <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
                             <i data-lucide="user" class="w-5 h-5 text-accent"></i>
-                            <h2 class="text-lg font-bold text-textMain">Patient Profile</h2>
+                            <h2 class="text-lg font-bold text-textMain">B. Patient Information</h2>
                             {% if patient.relationship_type != 'Self' %}
                             <span class="ml-auto bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">
                                 Booking for: {{ patient.relationship_type }}
+                            </span>
+                            {% else %}
+                            <span class="ml-auto bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">
+                                Booking for: Self
                             </span>
                             {% endif %}
                         </div>
@@ -135,123 +143,236 @@
                                 <p class="font-semibold text-textMain">{{ patient.first_name }} {{ patient.last_name }}</p>
                             </div>
                             <div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Relationship to Account Holder</p>
+                                <p class="font-semibold text-textMain">{{ patient.relationship_type }}</p>
+                            </div>
+                            <div>
                                 <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Date of Birth</p>
-                                <p class="font-semibold text-textMain">{{ patient.date_of_birth.strftime('%b %d, %Y') }}</p>
+                                <p class="font-semibold text-textMain">{{ patient.date_of_birth.strftime('%b %d, %Y') if patient.date_of_birth else 'Not provided' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Age</p>
+                                <p class="font-semibold text-textMain">{{ patient.age ~ ' years' if patient.age is not none else 'Not provided' }}</p>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Gender</p>
-                                <p class="font-semibold text-textMain capitalize">{{ patient.gender }}</p>
+                                <p class="font-semibold text-textMain capitalize">{{ patient.gender or 'Not provided' }}</p>
                             </div>
                             <div>
                                 <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Country of Residence</p>
-                                <p class="font-semibold text-textMain">{{ patient.country_of_residence }}</p>
+                                <p class="font-semibold text-textMain">{{ patient.country_of_residence or 'Not provided' }}</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- C. MEDICAL INFORMATION -->
+                    <!-- C. COMPLETE CLINICAL INFORMATION -->
                     <div class="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden">
                         <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
                             <i data-lucide="stethoscope" class="w-5 h-5 text-accent"></i>
-                            <h2 class="text-lg font-bold text-textMain">Medical Information</h2>
+                            <h2 class="text-lg font-bold text-textMain">C. Complete Clinical Information</h2>
                         </div>
                         <div class="p-6 space-y-6">
-                            {% if req.symptoms %}
                             <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Symptoms</p>
-                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.symptoms }}</div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Condition / Diagnosis</p>
+                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.diagnosis or 'Not provided' }}</div>
                             </div>
-                            {% endif %}
                             
-                            {% if req.diagnosis %}
                             <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Diagnosis</p>
-                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.diagnosis }}</div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Current Symptoms</p>
+                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.symptoms or 'Not provided' }}</div>
                             </div>
-                            {% endif %}
                             
-                            {% if req.previous_treatments %}
                             <div>
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Previous Treatments</p>
-                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.previous_treatments }}</div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Previous Treatments / Surgeries</p>
+                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.previous_treatments or 'Not provided' }}</div>
                             </div>
-                            {% endif %}
 
-                            <div class="border-t border-slate-100 pt-6">
-                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Medical Documents ({{ docs|length }})</p>
-                                {% if docs %}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {% for doc in docs %}
-                                    <div class="flex items-center gap-3 p-3 border border-slate-200 rounded-xl bg-white">
-                                        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                                            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm font-bold text-textMain truncate">{{ doc.original_filename }}</p>
-                                            <p class="text-xs text-textMuted mt-0.5">{{ doc.document_type }}</p>
-                                        </div>
-                                    </div>
-                                    {% endfor %}
+                            <div>
+                                <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-2">Current Medications</p>
+                                <div class="bg-slate-50 rounded-xl p-4 text-sm text-textMain whitespace-pre-wrap">{{ req.medications or 'Not provided' }}</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Allergies</p>
+                                    <p class="font-semibold text-textMain">
+                                        {% if req.allergies %}
+                                            {{ req.allergies|join(', ') }}
+                                            {% if req.allergy_other_text %}
+                                                ({{ req.allergy_other_text }})
+                                            {% endif %}
+                                        {% else %}
+                                            Not provided
+                                        {% endif %}
+                                    </p>
                                 </div>
-                                {% else %}
-                                <p class="text-sm text-textMuted italic">No documents uploaded.</p>
-                                {% endif %}
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Blood Group</p>
+                                    <p class="font-semibold text-textMain">{{ req.blood_group or 'Not provided' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Height</p>
+                                    <p class="font-semibold text-textMain">
+                                        {% if req.height_cm %}
+                                            {{ req.height_cm }} cm
+                                        {% elif req.height_ft %}
+                                            {{ req.height_ft }}' {{ req.height_in or '0' }}"
+                                        {% else %}
+                                            Not provided
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Weight</p>
+                                    <p class="font-semibold text-textMain">
+                                        {% if req.weight_kg %}
+                                            {{ req.weight_kg }} kg
+                                        {% elif req.weight_lbs %}
+                                            {{ req.weight_lbs }} lbs
+                                        {% else %}
+                                            Not provided
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Recent Weight Change</p>
+                                    <p class="font-semibold text-textMain">
+                                        {% if req.weight_change_type and req.weight_change_type != 'none' %}
+                                            {{ req.weight_change_type|title }} 
+                                            {% if req.weight_change_amount %}
+                                                of {{ req.weight_change_amount }} {{ req.weight_change_amount_unit }}
+                                            {% endif %}
+                                            {% if req.weight_change_period %}
+                                                in the last {{ req.weight_change_period }} {{ req.weight_change_period_unit }}
+                                            {% endif %}
+                                        {% elif req.weight_change_type == 'none' %}
+                                            No recent weight change
+                                        {% else %}
+                                            Not provided
+                                        {% endif %}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Column (D. HOSPITAL RESPONSES) -->
+                <!-- Right Column (Documents & Hospital Matching) -->
                 <div class="space-y-8">
-                    <div class="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden sticky top-6">
+                    
+                    <!-- MEDICAL DOCUMENTS -->
+                    <div class="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden">
                         <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                             <div class="flex items-center gap-3">
-                                <i data-lucide="building-2" class="w-5 h-5 text-emerald-600"></i>
-                                <h2 class="text-lg font-bold text-textMain">Hospital Responses</h2>
+                                <i data-lucide="file-stack" class="w-5 h-5 text-accent"></i>
+                                <h2 class="text-lg font-bold text-textMain">Medical Documents</h2>
                             </div>
-                            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-full">{{ proposals|length }}</span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded-full">{{ docs|length }}</span>
                         </div>
-                        
-                        <div class="p-0">
-                            {% if proposals %}
-                                <div class="divide-y divide-slate-100">
-                                {% for proposal in proposals %}
-                                    <div class="p-6 hover:bg-slate-50 transition-colors">
-                                        <h3 class="font-bold text-textMain text-lg mb-1">{{ proposal.hospital.display_name or proposal.hospital.legal_name }}</h3>
-                                        <p class="text-sm text-textMuted flex items-center gap-1.5 mb-4">
-                                            <i data-lucide="map-pin" class="w-4 h-4"></i> {{ proposal.hospital|format_location }}
-                                        </p>
-                                        
-                                        <div class="space-y-3 mb-5">
-                                            <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-                                                <span class="text-textMuted font-medium">Estimated Cost</span>
-                                                <span class="font-bold text-textMain">{{ proposal.currency }} {{ "{:,.0f}".format(proposal.estimated_cost_min) }} - {{ "{:,.0f}".format(proposal.estimated_cost_max) }}</span>
-                                            </div>
-                                            <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-                                                <span class="text-textMuted font-medium">Duration</span>
-                                                <span class="font-bold text-textMain">{{ proposal.estimated_duration_value|format_duration(proposal.estimated_duration_unit) }}</span>
-                                            </div>
-                                            <div class="flex justify-between items-center text-sm border-b border-slate-100 pb-2">
-                                                <span class="text-textMuted font-medium">Submitted</span>
-                                                <span class="font-bold text-textMain">{{ proposal.submitted_at.strftime('%b %d, %Y') if proposal.submitted_at else 'Not available' }}</span>
-                                            </div>
+                        <div class="p-6">
+                            {% if docs %}
+                            <div class="space-y-4">
+                                {% for doc in docs %}
+                                <div class="border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                                            {% if 'pdf' in doc.mime_type %}
+                                                <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+                                            {% elif 'image' in doc.mime_type %}
+                                                <i data-lucide="image" class="w-5 h-5 text-blue-600"></i>
+                                            {% else %}
+                                                <i data-lucide="file" class="w-5 h-5 text-blue-600"></i>
+                                            {% endif %}
                                         </div>
-                                        
-                                        <a href="{{ url_for('admin_proposal_view', reference_id=req.reference_id, proposal_id=proposal.id) }}" class="w-full inline-flex items-center justify-center bg-slate-100 hover:bg-accent text-slate-700 hover:text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-sm group">
-                                            View Proposal <i data-lucide="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-bold text-textMain truncate" title="{{ doc.original_filename }}">{{ doc.original_filename }}</p>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{{ doc.document_type }}</span>
+                                            </div>
+                                            <p class="text-xs text-textMuted mt-2">Uploaded: {{ doc.uploaded_at.strftime('%b %d, %Y') }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex items-center gap-2">
+                                        <!-- Note: using the same secure admin hospital download route as used in hospital applications, or if not mapped for requests, use an appropriate route. Wait, is there a route? I'll check after generating this -->
+                                        <!-- Wait, there might be a specific route for document download. We will link to the original document route if needed. -->
+                                        <a href="/admin/hospitals/applications/document/{{ doc.id }}" class="flex-1 text-center bg-white border border-slate-200 hover:border-accent hover:text-accent text-slate-700 text-xs font-bold py-2 rounded-lg transition-colors">
+                                            View / Download
                                         </a>
                                     </div>
+                                </div>
                                 {% endfor %}
-                                </div>
+                            </div>
                             {% else %}
-                                <div class="p-8 text-center">
-                                    <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                                        <i data-lucide="clock" class="w-6 h-6"></i>
-                                    </div>
-                                    <p class="text-sm font-medium text-textMain mb-1">Awaiting Responses</p>
-                                    <p class="text-xs text-textMuted">No hospitals have submitted a final proposal yet.</p>
+                            <div class="text-center py-6">
+                                <div class="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-100">
+                                    <i data-lucide="file-x" class="w-6 h-6 text-slate-400"></i>
                                 </div>
+                                <p class="text-sm text-textMuted italic">No medical documents provided by the patient.</p>
+                            </div>
                             {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- HOSPITAL MATCHING -->
+                    <div class="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden">
+                        <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
+                            <i data-lucide="hospital" class="w-5 h-5 text-accent"></i>
+                            <h2 class="text-lg font-bold text-textMain">Hospital Matching</h2>
+                        </div>
+                        <div class="p-6 border-b border-slate-100">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-sm font-bold text-textMuted">Total Hospitals Matched</span>
+                                <span class="text-lg font-extrabold text-textMain">{{ total_matched }}</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-sm font-bold text-textMuted">Total Responses</span>
+                                <span class="text-lg font-extrabold text-blue-600">{{ proposals|length }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-bold text-textMuted">Awaiting Responses</span>
+                                <span class="text-lg font-extrabold text-amber-600">{{ total_matched - proposals|length }}</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-4">Matched Hospitals Details</h3>
+                            
+                            <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2 hide-scroll">
+                                {% for match in hospital_matches %}
+                                <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <h4 class="font-bold text-sm text-textMain truncate pr-4">{{ match.hospital.display_name or match.hospital.legal_name }}</h4>
+                                    </div>
+                                    <div class="text-xs text-textMuted mb-3">
+                                        Matching Status: <span class="font-semibold text-emerald-600">Matched (MVP Logic)</span>
+                                    </div>
+                                    
+                                    {% if match.proposal %}
+                                        <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-200/60">
+                                            <div>
+                                                <p class="text-[11px] text-textMuted font-bold uppercase mb-0.5">Response</p>
+                                                <p class="text-xs font-bold text-blue-600 capitalize">{{ match.proposal.status }}</p>
+                                            </div>
+                                            {% if match.proposal.status == 'submitted' %}
+                                            <a href="{{ url_for('admin_proposal_detail', reference_id=req.reference_id, proposal_id=match.proposal.id) }}" class="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors">
+                                                View Proposal
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-200/60">
+                                            <div>
+                                                <p class="text-[11px] text-textMuted font-bold uppercase mb-0.5">Response</p>
+                                                <p class="text-xs font-medium text-amber-600">Awaiting Response</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                
+                                {% if not hospital_matches %}
+                                <p class="text-sm text-textMuted text-center py-4">No verified hospitals found.</p>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>

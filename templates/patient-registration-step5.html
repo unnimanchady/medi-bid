@@ -170,6 +170,11 @@
                 </div>
                 
                 <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-8">Treatment Preferences</h2>
+                <!-- Global Validation Reminder -->
+                <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[14px] text-amber-900 font-medium leading-relaxed">Provide complete and accurate information to help hospitals prepare the best treatment proposal for you.</p>
+                </div>
                 
                 {% if error %}
                 <div class="mb-8 p-4 bg-red-50 border border-red-200 text-red-600 text-[14px] rounded-2xl flex items-start gap-3">
@@ -542,5 +547,105 @@
         textarea.addEventListener('input', updateCharCount);
         updateCharCount(); // Initialize
     </script>
+
+        <script>
+        // Inline Validation Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('preferences-form');
+            if (!form) return;
+            const requiredInputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+            function createErrorElement(id) {
+                let errorEl = document.getElementById(id + '-inline-error');
+                if (!errorEl) {
+                    errorEl = document.createElement('p');
+                    errorEl.id = id + '-inline-error';
+                    errorEl.className = 'text-red-500 text-[13px] font-medium hidden mt-1.5';
+                    errorEl.setAttribute('aria-live', 'polite');
+                    errorEl.textContent = 'Please provide this information.';
+                }
+                return errorEl;
+            }
+
+            requiredInputs.forEach(input => {
+                // Determine container to append error
+                let container = input.closest('.flex-col') || input.closest('.relative')?.parentElement || input.parentElement;
+                if (!container) return;
+                
+                let errorEl = createErrorElement(input.id || input.name);
+                container.appendChild(errorEl);
+
+                input.addEventListener('blur', function() {
+                    validateField(this, errorEl);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (!errorEl.classList.contains('hidden')) {
+                        validateField(this, errorEl);
+                    }
+                });
+                
+                if(input.tagName === 'SELECT') {
+                    input.addEventListener('change', function() {
+                        validateField(this, errorEl);
+                    });
+                }
+            });
+
+            function validateField(input, errorEl) {
+                let isValid = true;
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    if(input.name) {
+                        let group = form.querySelectorAll(`input[name="${input.name}"][required]`);
+                        if(group.length > 0) {
+                            isValid = Array.from(group).some(r => r.checked);
+                        } else {
+                            isValid = input.checked;
+                        }
+                    } else {
+                        isValid = input.checked;
+                    }
+                } else {
+                    isValid = input.value.trim() !== '';
+                }
+
+                if (!isValid) {
+                    input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+                    input.classList.remove('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                    if(errorEl) errorEl.classList.remove('hidden');
+                } else {
+                    input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500/20');
+                    input.classList.add('border-gray-200', 'focus:border-secondary', 'focus:ring-input-focus');
+                    if(errorEl) errorEl.classList.add('hidden');
+                }
+                return isValid;
+            }
+
+            
+
+            form.addEventListener('submit', function(e) {
+                let isFormValid = true;
+                let firstInvalid = null;
+
+                const currentRequired = form.querySelectorAll('input[required], select[required], textarea[required]');
+                currentRequired.forEach(input => {
+                    let errorEl = document.getElementById((input.id || input.name) + '-inline-error');
+                    let isValid = validateField(input, errorEl);
+                    if (!isValid) {
+                        isFormValid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                    }
+                });
+
+                if (!isFormValid) {
+                    e.preventDefault();
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstInvalid.focus();
+                    }
+                }
+            });
+        });
+</script>
 </body>
 </html>

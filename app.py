@@ -95,7 +95,7 @@ def patient_registration_step1():
             if clean_mobile:
                 full_phone = f"{country_code} {clean_mobile}"
         
-        if not email or not password or not mobile or not first_name or not last_name or not residence or not language:
+        if not email or not password or not mobile or not first_name or not last_name or not residence or not language or not request.form.get("terms") or not request.form.get("privacy"):
             error = "All fields are required."
         elif not full_phone:
             error = "Please enter a valid phone number format."
@@ -375,7 +375,16 @@ def patient_registration_step3():
     error = request.args.get('error')
 
     if request.method == "POST":
+        condition = request.form.get("condition", "").strip()
         specialty = request.form.get("specialty", "").strip()
+        diagnosis = request.form.get("diagnosis", "").strip()
+        
+        prev_treatments = request.form.get("previous-treatments", "").strip()
+        no_prev_treatments = request.form.get("no-previous-treatments")
+        
+        medications = request.form.get("medications", "").strip()
+        no_medications = request.form.get("no-medications")
+        
         if specialty:
             session['registration_specialty'] = specialty
 
@@ -410,6 +419,21 @@ def patient_registration_step3():
         except ValueError:
             error = "Invalid number format."
             
+        if not error:
+            if not condition or not specialty or not diagnosis:
+                error = "Please fill out all required medical condition fields."
+            elif not prev_treatments and not no_prev_treatments:
+                error = "Please provide your previous treatments or select None."
+            elif not medications and not no_medications:
+                error = "Please provide your current medications or select None."
+            elif not request.form.getlist("allergies"):
+                error = "Please provide your allergies or select No Known Allergies."
+            elif not previous_request:
+                if not height_cm_str and not (height_ft_str or height_in_str):
+                    error = "Please provide your height."
+                elif not weight_kg_str and not weight_lbs_str:
+                    error = "Please provide your weight."
+
         if error:
             return render_template("patient-registration-step3.html", show_pregnancy=show_pregnancy, error=error)
 
@@ -787,6 +811,7 @@ def patient_registration_step6():
                 session.pop('registration_preferences', None)
                 session.pop('creating_new_request', None)
                 
+                session['patient_authenticated'] = True
                 session['last_request_reference'] = reference_id
                 
                 return redirect(url_for('patient_registration_success'))
@@ -2618,8 +2643,10 @@ def admin_treatment_requests():
         
     requests_list = query.order_by(TreatmentRequest.created_at.desc()).all()
     
+    verified_hospitals_count = Hospital.query.filter_by(verification_status='verified').count()
     for req in requests_list:
         req.response_count = TreatmentProposal.query.filter_by(treatment_request_id=req.id, status='submitted').count()
+        req.matched_count = verified_hospitals_count
         
     return render_template(
         "admin-treatment-requests.html", 
@@ -2635,10 +2662,37 @@ def admin_treatment_requests():
 def admin_treatment_request_detail(reference_id):
     req = TreatmentRequest.query.filter_by(reference_id=reference_id).first_or_404()
     patient = req.patient_profile
-    proposals = TreatmentProposal.query.filter_by(treatment_request_id=req.id, status='submitted').all()
+    proposals = TreatmentProposal.query.filter_by(treatment_request_id=req.id).all()
+    
+    verified_hospitals = Hospital.query.filter_by(verification_status='verified').all()
+    
+    proposals_by_hospital = {p.hospital_id: p for p in proposals}
+    
+    hospital_matches = []
+    for h in verified_hospitals:
+        prop = proposals_by_hospital.get(h.id)
+        hospital_matches.append({
+            'hospital': h,
+            'proposal': prop
+        })
+        
     docs = MedicalDocument.query.filter_by(treatment_request_id=req.id).all()
     
-    return render_template("admin-treatment-request-detail.html", req=req, patient=patient, proposals=proposals, docs=docs)
+    from datetime import date
+    today = date.today()
+    if patient.date_of_birth:
+        age = today.year - patient.date_of_birth.year - ((today.month, today.day) < (patient.date_of_birth.month, patient.date_of_birth.day))
+    else:
+        age = None
+    patient.age = age
+    
+    return render_template("admin-treatment-request-detail.html", 
+                           req=req, 
+                           patient=patient, 
+                           proposals=proposals, 
+                           docs=docs, 
+                           hospital_matches=hospital_matches,
+                           total_matched=len(verified_hospitals))
 
 @app.route("/admin/treatment-requests/<string:reference_id>/proposal/<int:proposal_id>")
 @admin_required

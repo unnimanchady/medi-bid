@@ -126,7 +126,8 @@
                                 <th class="px-6 py-4 font-bold">Patient</th>
                                 <th class="px-6 py-4 font-bold hidden md:table-cell">Specialty / Condition</th>
                                 <th class="px-6 py-4 font-bold">Submitted Date</th>
-                                <th class="px-6 py-4 font-bold">Responses</th>
+                                <th class="px-6 py-4 font-bold text-center">Hospitals Matched</th>
+                                <th class="px-6 py-4 font-bold text-center">Responses</th>
                                 <th class="px-6 py-4 font-bold text-right">Action</th>
                             </tr>
                         </thead>
@@ -151,7 +152,12 @@
                                     <div class="text-sm text-textMain">{{ req.created_at.strftime('%b %d, %Y') }}</div>
                                     <div class="text-xs text-textMuted mt-0.5">{{ req.created_at.strftime('%H:%M UTC') }}</div>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 text-center">
+                                    <div class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-100">
+                                        {{ req.matched_count }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-center">
                                     <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md {% if req.response_count > 0 %}bg-blue-50 text-blue-700 border border-blue-100{% else %}bg-slate-50 text-slate-500 border border-slate-200{% endif %} text-xs font-bold">
                                         <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
                                         {{ req.response_count }}
