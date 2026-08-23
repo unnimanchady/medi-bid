@@ -85,6 +85,7 @@ def patient_registration_step1():
         first_name = request.form.get("first-name", "").strip().title()
         last_name = request.form.get("last-name", "").strip().title()
         residence = request.form.get("residence", "").strip()
+        nationality = request.form.get("nationality", "").strip()
         language = request.form.get("language", "").strip()
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm-password", "")
@@ -95,7 +96,7 @@ def patient_registration_step1():
             if clean_mobile:
                 full_phone = f"{country_code} {clean_mobile}"
         
-        if not email or not password or not mobile or not first_name or not last_name or not residence or not language or not request.form.get("terms") or not request.form.get("privacy"):
+        if not email or not password or not mobile or not first_name or not last_name or not residence or not nationality or not language or not request.form.get("terms") or not request.form.get("privacy"):
             error = "All fields are required."
         elif not full_phone:
             error = "Please enter a valid phone number format."
@@ -145,7 +146,7 @@ def patient_registration_step1():
                     
                     # Store user ID in session securely
                     session['registration_user_id'] = current_user.id
-                    
+                    session['registration_nationality'] = nationality
                     return redirect(url_for("patient_registration_who"))
                 except Exception as e:
                     db.session.rollback()
@@ -253,16 +254,33 @@ def patient_registration_step2():
         last_name = request.form.get("last-name", "").strip().title()
         dob_str = request.form.get("dob", "").strip()
         gender = request.form.get("gender", "").strip().lower()
-        nationality = request.form.get("nationality", "").strip()
-        residence = request.form.get("residence", "").strip()
+        
+        # Get nationality and residence from session or user account
+        nationality = session.get('registration_nationality')
+        residence = None
+        current_user = User.query.get(user_id)
+        if current_user:
+            residence = current_user.country_of_residence
+            
+        relationship = session.get('new_profile_relationship', 'Self')
+        is_self = (relationship == 'Self')
+        
+        if not is_self:
+            form_nationality = request.form.get("nationality", "").strip()
+            form_residence = request.form.get("country_of_residence", "").strip()
+            if form_nationality:
+                nationality = form_nationality
+            if form_residence:
+                residence = form_residence
+            
         city = request.form.get("city", "").strip()
         passport = request.form.get("passport", "").strip()
         
-        if not first_name or not last_name or not dob_str or not gender or not nationality or not residence or not city:
+        if not first_name or not last_name or not dob_str or not gender or not city or (not is_self and (not nationality or not residence)):
             error = "Please fill out all required fields."
         elif gender not in ["male", "female", "other"]:
             error = "Please select a valid gender."
-        elif len(first_name) > 100 or len(last_name) > 100 or len(nationality) > 100 or len(residence) > 100 or len(city) > 100 or len(passport) > 100:
+        elif len(first_name) > 100 or len(last_name) > 100 or len(city) > 100 or len(passport) > 100:
             error = "One or more fields exceed the maximum length limit."
         else:
             try:

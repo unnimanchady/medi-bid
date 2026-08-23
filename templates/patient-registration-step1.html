@@ -405,9 +405,35 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Nationality -->
+                        <div class="flex flex-col gap-1.5">
+                            <label for="nationality" class="text-[14px] font-bold text-gray-800 ml-1">Nationality <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="flag" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <select id="nationality" name="nationality" required aria-required="true"
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    <option value="" disabled {% if not request.form.get('nationality') %}selected{% endif %}>Select</option>
+                                    <option value="US" {% if request.form.get('nationality') == 'US' %}selected{% endif %}>United States</option>
+                                    <option value="UK" {% if request.form.get('nationality') == 'UK' %}selected{% endif %}>United Kingdom</option>
+                                    <option value="IN" {% if request.form.get('nationality') == 'IN' %}selected{% endif %}>India</option>
+                                    <option value="CA" {% if request.form.get('nationality') == 'CA' %}selected{% endif %}>Canada</option>
+                                    <option value="FR" {% if request.form.get('nationality') == 'FR' %}selected{% endif %}>France</option>
+                                    <option value="NG" {% if request.form.get('nationality') == 'NG' %}selected{% endif %}>Nigeria</option>
+                                    <option value="PH" {% if request.form.get('nationality') == 'PH' %}selected{% endif %}>Philippines</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                    <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Language Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <!-- Preferred Language -->
-                    <div class="flex flex-col gap-1.5">
+                        <div class="flex flex-col gap-1.5">
                         <label for="language" class="text-[14px] font-bold text-gray-800 ml-1">Preferred Language <span class="text-red-500" aria-hidden="true">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

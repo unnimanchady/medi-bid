@@ -298,7 +298,7 @@
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative block">
-                                    <input type="radio" name="gender" value="female" class="gender-radio sr-only" {% if request.form.get('gender') == 'female' %}checked{% endif %}>
+                                    <input type="radio" name="gender" value="female" class="gender-radio sr-only" required aria-required="true" {% if request.form.get('gender') == 'female' %}checked{% endif %}>
                                     <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
                                         <span class="text-[14px] font-semibold text-gray-700">Female</span>
                                         <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
@@ -307,7 +307,7 @@
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative block">
-                                    <input type="radio" name="gender" value="other" class="gender-radio sr-only" {% if request.form.get('gender') == 'other' %}checked{% endif %}>
+                                    <input type="radio" name="gender" value="other" class="gender-radio sr-only" required aria-required="true" {% if request.form.get('gender') == 'other' %}checked{% endif %}>
                                     <div class="border border-gray-200 bg-bgLight rounded-2xl p-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200 hover:bg-white hover:border-gray-300">
                                         <span class="text-[14px] font-semibold text-gray-700">Other</span>
                                         <div class="check-icon absolute top-2 right-2 opacity-0 transform scale-50 transition-all duration-200">
@@ -319,21 +319,27 @@
                         </div>
                     </div>
 
-                    <!-- Nationality & Country Row -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                    <!-- City & Passport Row -->
+                    {% if not is_self %}
+                    <!-- Nationality & Country of Residence Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                         <div class="flex flex-col gap-1.5">
                             <label for="nationality" class="text-[14px] font-bold text-gray-800 ml-1">Nationality <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="flag" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
                                 <select id="nationality" name="nationality" required aria-required="true"
-                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
-                                    <option value="" disabled selected>Select</option>
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="IN">India</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="FR">France</option>
-                                    <option value="NG">Nigeria</option>
-                                    <option value="PH">Philippines</option>
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    <option value="" disabled {% if not request.form.get('nationality') %}selected{% endif %}>Select nationality</option>
+                                    <option value="US" {% if request.form.get('nationality') == 'US' %}selected{% endif %}>United States</option>
+                                    <option value="UK" {% if request.form.get('nationality') == 'UK' %}selected{% endif %}>United Kingdom</option>
+                                    <option value="IN" {% if request.form.get('nationality') == 'IN' %}selected{% endif %}>India</option>
+                                    <option value="CA" {% if request.form.get('nationality') == 'CA' %}selected{% endif %}>Canada</option>
+                                    <option value="FR" {% if request.form.get('nationality') == 'FR' %}selected{% endif %}>France</option>
+                                    <option value="NG" {% if request.form.get('nationality') == 'NG' %}selected{% endif %}>Nigeria</option>
+                                    <option value="PH" {% if request.form.get('nationality') == 'PH' %}selected{% endif %}>Philippines</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                     <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
@@ -341,18 +347,21 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label for="residence" class="text-[14px] font-bold text-gray-800 ml-1">Country of Residence <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <label for="country_of_residence" class="text-[14px] font-bold text-gray-800 ml-1">Country of Residence <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="relative">
-                                <select id="residence" name="residence" required aria-required="true"
-                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
-                                    <option value="" disabled {% if not request.form.get('residence', default_residence|default('')) %}selected{% endif %}>Select</option>
-                                    <option value="US" {% if request.form.get('residence', default_residence|default('')) == 'US' %}selected{% endif %}>United States</option>
-                                    <option value="UK" {% if request.form.get('residence', default_residence|default('')) == 'UK' %}selected{% endif %}>United Kingdom</option>
-                                    <option value="IN" {% if request.form.get('residence', default_residence|default('')) == 'IN' %}selected{% endif %}>India</option>
-                                    <option value="CA" {% if request.form.get('residence', default_residence|default('')) == 'CA' %}selected{% endif %}>Canada</option>
-                                    <option value="FR" {% if request.form.get('residence', default_residence|default('')) == 'FR' %}selected{% endif %}>France</option>
-                                    <option value="NG" {% if request.form.get('residence', default_residence|default('')) == 'NG' %}selected{% endif %}>Nigeria</option>
-                                    <option value="PH" {% if request.form.get('residence', default_residence|default('')) == 'PH' %}selected{% endif %}>Philippines</option>
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="map-pin" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
+                                </div>
+                                <select id="country_of_residence" name="country_of_residence" required aria-required="true"
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    <option value="" disabled {% if not request.form.get('country_of_residence') %}selected{% endif %}>Select country</option>
+                                    <option value="US" {% if request.form.get('country_of_residence') == 'US' %}selected{% endif %}>United States</option>
+                                    <option value="UK" {% if request.form.get('country_of_residence') == 'UK' %}selected{% endif %}>United Kingdom</option>
+                                    <option value="IN" {% if request.form.get('country_of_residence') == 'IN' %}selected{% endif %}>India</option>
+                                    <option value="CA" {% if request.form.get('country_of_residence') == 'CA' %}selected{% endif %}>Canada</option>
+                                    <option value="FR" {% if request.form.get('country_of_residence') == 'FR' %}selected{% endif %}>France</option>
+                                    <option value="NG" {% if request.form.get('country_of_residence') == 'NG' %}selected{% endif %}>Nigeria</option>
+                                    <option value="PH" {% if request.form.get('country_of_residence') == 'PH' %}selected{% endif %}>Philippines</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                     <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
@@ -360,8 +369,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- City & Passport Row -->
+                    {% endif %}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="flex flex-col gap-1.5">
                             <label for="city" class="text-[14px] font-bold text-gray-800 ml-1">City <span class="text-red-500" aria-hidden="true">*</span></label>
@@ -634,7 +642,7 @@
                     }
                 });
                 
-                if(input.tagName === 'SELECT') {
+                if(input.tagName === 'SELECT' || input.type === 'radio' || input.type === 'checkbox') {
                     input.addEventListener('change', function() {
                         validateField(this, errorEl);
                     });
@@ -645,7 +653,7 @@
                 let isValid = true;
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     if(input.name) {
-                        let group = form.querySelectorAll(`input[name="${input.name}"][required]`);
+                        let group = form.querySelectorAll(`input[name="${input.name}"]`);
                         if(group.length > 0) {
                             isValid = Array.from(group).some(r => r.checked);
                         } else {
