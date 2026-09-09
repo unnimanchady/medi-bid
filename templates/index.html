@@ -67,6 +67,7 @@
             height: auto;
         }
     </style>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 </head>
 <body class="bg-bgLight text-textMain overflow-x-hidden selection:bg-secondary selection:text-white flex flex-col min-h-screen">
 
@@ -130,13 +131,13 @@
     </header>
 
     <!-- Main Content wrapper to push down below sticky header -->
-    <div class="pt-20 flex-grow">
+    <div class="pt-20">
         
         <!-- Hero Section -->
-        <main id="main-content" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-8 xl:gap-16 h-auto lg:h-[calc(100vh-80px)] pt-6 pb-0 lg:pt-0 lg:pb-0 lg:py-0">
+        <main id="main-content" class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-8 xl:gap-16 pt-3 pb-0">
             
             <!-- Hero Left Column -->
-            <div class="w-full lg:w-1/2 pt-2 lg:pt-0 flex flex-col justify-center lg:pr-4">
+            <div class="w-full lg:w-1/2 pt-2 lg:pt-0 flex flex-col justify-center lg:pr-4 lg:min-h-[420px] xl:min-h-[500px]">
                 
                 <!-- Badge -->
                 <div class="inline-flex items-center gap-2 bg-[#EAF5FB] text-[#02649B] font-medium px-4 py-1.5 rounded-full text-[13px] mb-4 sm:mb-6 self-start border border-[#D5EBF7]">

@@ -34,4 +34,6 @@ Thumbs.db
 # User-uploaded files
 uploads/
 # Backup archives
-*.zip
+*.zipaws/*.pem 
+aws/*.pem 
+templates_backup.zip 
