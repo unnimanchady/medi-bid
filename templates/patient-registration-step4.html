@@ -108,7 +108,7 @@
             overflow-x: hidden;
         }
     </style>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='favicon.webp') }}">
 </head>
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-cta-gradient selection:text-white">
 
@@ -116,11 +116,7 @@
     <header class="bg-white border-b border-gray-100 h-[80px] flex items-center justify-between px-3 sm:px-6 lg:px-12 fixed w-full top-0 z-50">
         <div class="flex items-center gap-2 sm:gap-6">
             <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="TreatAnywhere Home">
-                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-6 h-6 sm:w-10 sm:h-10 object-contain flex-shrink-0">
-                <div class="flex flex-col">
-                    <span class="text-[18px] sm:text-[20px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
-                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
-                </div>
+                <img src="{{ url_for('static', filename='images/treatanywhere-logo.webp') }}" alt="TreatAnywhere emblem" class="h-10 sm:h-12 lg:h-[52px] w-auto object-contain flex-shrink-0">
             </a>
             <a href="{{ url_for('home') }}" class="hidden md:flex items-center gap-1.5 text-[14px] text-gray-500 hover:text-primary font-medium transition-colors ml-4 focus:outline-none focus:underline">
                 <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>

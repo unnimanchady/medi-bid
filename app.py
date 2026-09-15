@@ -394,7 +394,6 @@ def patient_registration_step3():
 
     if request.method == "POST":
         condition = request.form.get("condition", "").strip()
-        specialty = request.form.get("specialty", "").strip()
         diagnosis = request.form.get("diagnosis", "").strip()
         
         prev_treatments = request.form.get("previous-treatments", "").strip()
@@ -403,8 +402,6 @@ def patient_registration_step3():
         medications = request.form.get("medications", "").strip()
         no_medications = request.form.get("no-medications")
         
-        if specialty:
-            session['registration_specialty'] = specialty
 
         height_cm_str = request.form.get("height-cm", "").strip()
         weight_kg_str = request.form.get("weight-kg", "").strip()
@@ -438,14 +435,19 @@ def patient_registration_step3():
             error = "Invalid number format."
             
         if not error:
-            if not condition or not specialty or not diagnosis:
+            if not condition or not diagnosis:
                 error = "Please fill out all required medical condition fields."
             elif not prev_treatments and not no_prev_treatments:
                 error = "Please provide your previous treatments or select None."
             elif not medications and not no_medications:
                 error = "Please provide your current medications or select None."
             elif not request.form.getlist("allergies"):
-                error = "Please provide your allergies or select No Known Allergies."
+                has_existing_allergies = profile and (
+                    (profile.allergies and profile.allergies != ['No Known Allergies']) or 
+                    profile.allergy_other_text
+                )
+                if not has_existing_allergies:
+                    error = "Please provide your allergies or select No Known Allergies."
             elif not previous_request:
                 if not height_cm_str and not (height_ft_str or height_in_str):
                     error = "Please provide your height."
@@ -571,7 +573,9 @@ def patient_registration_step3():
             db.session.rollback()
             # If there's an error, just redirect back or render with error. The UI has no error banner, so we just pass for now.
 
-    return render_template("patient-registration-step3.html", show_pregnancy=show_pregnancy, previous_request=previous_request, profile=profile)
+    medical_data = session.get('registration_medical', {})
+    specialty_data = session.get('registration_specialty', '')
+    return render_template("patient-registration-step3.html", show_pregnancy=show_pregnancy, previous_request=previous_request, profile=profile, medical_data=medical_data, specialty_data=specialty_data)
 
 
 @app.route("/patient/register/step-4")
@@ -745,9 +749,9 @@ def patient_registration_step6():
     medical = session.get('registration_medical')
     preferences = session.get('registration_preferences')
     
-    if not specialty or not medical or not preferences:
+    if not medical or not preferences:
         error_msg = "Some information from your treatment request is missing. Please review the highlighted steps before submitting again."
-        if not specialty or not medical:
+        if not medical:
             return redirect(url_for('patient_registration_step3', error=error_msg))
         else:
             return redirect(url_for('patient_registration_step5', error=error_msg))

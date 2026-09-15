@@ -9,7 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -67,7 +67,7 @@
             height: auto;
         }
     </style>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='favicon.webp') }}">
 </head>
 <body class="bg-bgLight text-textMain overflow-x-hidden selection:bg-secondary selection:text-white flex flex-col min-h-screen">
 
@@ -76,12 +76,8 @@
         <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <!-- Logo -->
-            <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg" aria-label="TreatAnywhere Home">
-                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
-                <div class="flex flex-col">
-                    <span class="text-[20px] xl:text-[22px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
-                    <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-[0.08em] mt-0.5">Healthcare Without Borders</span>
-                </div>
+            <a id="main-header-logo" href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded-lg transition-opacity duration-300" aria-label="TreatAnywhere Home">
+                <img src="{{ url_for('static', filename='images/treatanywhere-logo.webp') }}" alt="TreatAnywhere emblem" class="h-10 sm:h-12 lg:h-[52px] w-auto object-contain flex-shrink-0">
             </a>
 
             <!-- Desktop Navigation -->
@@ -117,7 +113,7 @@
                     EN
                     <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500" aria-hidden="true"></i>
                 </button>
-                <a href="{{ url_for('patient_login') }}" class="whitespace-nowrap bg-primary hover:bg-blue-800 hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 hover:-translate-y-0.5">
+                <a href="{{ url_for('patient_login') }}" class="whitespace-nowrap bg-[#fc4c5f] hover:bg-[#e63e50] hover:shadow-premium text-white text-[15px] font-semibold px-6 py-2.5 rounded-full transition-all duration-300 flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-[#fc4c5f] focus:ring-offset-2 hover:-translate-y-0.5">
                     <i data-lucide="user" class="w-4 h-4" aria-hidden="true"></i>
                     Sign In
                 </a>
@@ -146,9 +142,9 @@
                 </div>
                 
                 <!-- Headline -->
-                <h1 class="text-[clamp(26px,5vw,38px)] font-extrabold text-primary leading-[1.1] mb-4 sm:mb-6 tracking-tight">
-                    Find the <span class="text-orange-500">Right Treatment Anywhere.</span><br>
-                    At the <span class="text-orange-500">Right Price.</span>
+                <h1 class="font-medium text-primary leading-[1.1] mb-4 sm:mb-6 tracking-tight text-[clamp(27px,4.5vw,39px)] lg:whitespace-nowrap" style="font-family: 'Poppins', sans-serif;">
+                    Find the <span class="text-[#fc4c5f]">Right Treatment</span><br>
+                    <span class="text-[#fc4c5f]">Anywhere.</span> At the <span class="text-[#fc4c5f]">Right Price.</span>
                 </h1>
                 
                 <!-- Description -->
@@ -192,7 +188,7 @@
                 
                 <!-- CTA -->
                 <div class="w-full sm:w-auto">
-                    <a href="{{ url_for('patient_registration_step1') }}" class="bg-primary hover:bg-blue-800 text-white font-semibold px-8 sm:px-10 py-3 sm:py-3.5 rounded-full inline-flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[16px] w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 min-h-[48px]">
+                    <a href="{{ url_for('patient_registration_step1') }}" class="bg-[#fc4c5f] hover:bg-[#e63e50] text-white font-semibold px-8 sm:px-10 py-3 sm:py-3.5 rounded-full inline-flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-1 text-[16px] w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-[#fc4c5f] focus:ring-offset-2 min-h-[48px]">
                         Get Started
                         <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
                     </a>
@@ -481,11 +477,7 @@
         
         <div class="px-6 h-20 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0">
             <div class="flex items-center gap-3">
-                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0">
-                <div class="flex flex-col">
-                    <span class="text-[20px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
-                    <span class="text-[11px] font-semibold text-gray-600 uppercase tracking-wider mt-1">Healthcare Without Borders</span>
-                </div>
+                <img src="{{ url_for('static', filename='images/treatanywhere-logo.webp') }}" alt="TreatAnywhere emblem" class="h-10 sm:h-12 lg:h-[52px] w-auto object-contain flex-shrink-0">
             </div>
             <button id="close-menu-btn" class="p-2.5 text-gray-500 hover:text-gray-900 bg-gray-50 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary transition-colors" aria-label="Close menu">
                 <i data-lucide="x" class="w-6 h-6" aria-hidden="true"></i>
@@ -535,11 +527,17 @@
         const closeBtn = document.getElementById('close-menu-btn');
         const overlay = document.getElementById('mobile-menu-overlay');
         const panel = document.getElementById('mobile-menu-panel');
+        const mainLogo = document.getElementById('main-header-logo');
 
         function openMenu() {
             menuBtn.setAttribute('aria-expanded', 'true');
             overlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // Lock body scroll
+            
+            if (mainLogo) {
+                mainLogo.classList.add('opacity-0');
+                mainLogo.classList.add('pointer-events-none');
+            }
             
             // Trigger reflow for transitions
             void overlay.offsetWidth;
@@ -557,6 +555,11 @@
             menuBtn.setAttribute('aria-expanded', 'false');
             overlay.classList.add('opacity-0');
             panel.classList.add('translate-x-full');
+            
+            if (mainLogo) {
+                mainLogo.classList.remove('opacity-0');
+                mainLogo.classList.remove('pointer-events-none');
+            }
             
             setTimeout(() => {
                 overlay.classList.add('hidden');

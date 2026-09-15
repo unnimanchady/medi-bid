@@ -108,7 +108,7 @@
             overflow-x: hidden;
         }
     </style>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='favicon.webp') }}">
 </head>
 <body class="bg-bgLight text-textMain min-h-screen flex flex-col selection:bg-cta-gradient selection:text-white">
 
@@ -118,11 +118,7 @@
         <!-- Logo and Back -->
         <div class="flex items-center gap-2 sm:gap-6">
             <a href="{{ url_for('home') }}" class="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-secondary rounded-lg" aria-label="TreatAnywhere Home">
-                <img src="{{ url_for('static', filename='images/treatanywhere-emblem.webp') }}" alt="TreatAnywhere emblem" class="w-6 h-6 sm:w-10 sm:h-10 object-contain flex-shrink-0">
-                <div class="flex flex-col">
-                    <span class="text-[18px] sm:text-[20px] font-extrabold leading-none tracking-tight"><span class="text-primary">Treat</span><span class="text-secondary">Anywhere</span></span>
-                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 hidden xl:block">Healthcare Without Borders</span>
-                </div>
+                <img src="{{ url_for('static', filename='images/treatanywhere-logo.webp') }}" alt="TreatAnywhere emblem" class="h-10 sm:h-12 lg:h-[52px] w-auto object-contain flex-shrink-0">
             </a>
             
             <!-- Back to Home -->
@@ -148,7 +144,7 @@
             </button>
             
             <!-- Sign In -->
-            <a href="{{ url_for('patient_login') }}" class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[13px] sm:text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+            <a href="{{ url_for('patient_login') }}" class="bg-primary hover:bg-primary/90 disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-3 py-1.5 sm:px-6 sm:py-2.5 rounded-full text-[13px] sm:text-[14px] transition-all duration-300 shadow-sm hover:shadow-premium hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
                 Sign In
             </a>
             
@@ -221,8 +217,8 @@
         </div>
 
         <!-- 4. REGISTRATION CARD -->
-        <div class="w-full max-w-[520px]">
-            <main class="bg-white w-full rounded-[32px] shadow-card border border-gray-100 p-5 sm:p-10 relative">
+        <div class="w-full max-w-[600px]">
+            <main class="bg-white w-full rounded-[20px] shadow-sm hover:shadow-card border border-gray-200/70 p-6 sm:p-8 relative">
                 
                 <!-- Inner Badge: Step 1 of 6 -->
                 <div class="flex items-center justify-start mb-8">
@@ -232,13 +228,13 @@
                 </div>
                 
                 <!-- Heading -->
-                <h2 class="text-[26px] sm:text-[28px] font-extrabold text-primary leading-tight tracking-tight mb-2">Create Your Account</h2>
-                <p class="text-[15px] text-gray-500 mb-8 leading-relaxed">Let's begin by creating your secure TreatAnywhere account.</p>
+                <h2 class="text-[24px] font-extrabold text-primary leading-tight tracking-tight mb-2">Create Your Account</h2>
+                <p class="text-[14px] sm:text-[15px] text-gray-500 mb-8 leading-relaxed">Let's begin by creating your secure TreatAnywhere account.</p>
 
                 <!-- Global Validation Reminder -->
-                <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                    <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
-                    <p class="text-[14px] text-amber-900 font-medium leading-relaxed">Provide complete and accurate information to help hospitals prepare the best treatment proposal for you.</p>
+                <div class="mb-8 p-4 bg-[#F8FAFC] border border-gray-200/80 rounded-[12px] flex items-start gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-secondary flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[14px] text-gray-700 font-medium leading-relaxed">Provide complete and accurate information to help hospitals prepare the best treatment proposal for you.</p>
                 </div>
 
                 
@@ -255,24 +251,24 @@
                     <!-- Name Row -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="flex flex-col gap-1.5">
-                            <label for="first-name" class="text-[14px] font-bold text-gray-800 ml-1">First Name <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <label for="first-name" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">First Name <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <i data-lucide="user" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                                 </div>
                                 <input type="text" id="first-name" name="first-name" required aria-required="true"
-                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 shadow-input transition-all duration-200 outline-none" 
                                     placeholder="John" value="{{ request.form.get('first-name', '') }}">
                             </div>
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <label for="last-name" class="text-[14px] font-bold text-gray-800 ml-1">Last Name <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <label for="last-name" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Last Name <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <i data-lucide="user" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                                 </div>
                                 <input type="text" id="last-name" name="last-name" required aria-required="true"
-                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 shadow-input transition-all duration-200 outline-none" 
                                     placeholder="Doe" value="{{ request.form.get('last-name', '') }}">
                             </div>
                         </div>
@@ -280,25 +276,25 @@
                     
                     <!-- Email Address -->
                     <div class="flex flex-col gap-1.5">
-                        <label for="email" class="text-[14px] font-bold text-gray-800 ml-1">Email Address <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <label for="email" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Email Address <span class="text-red-500" aria-hidden="true">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="mail" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                             </div>
                             <input type="email" id="email" name="email" required aria-required="true"
-                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 shadow-input transition-all duration-200 outline-none" 
                                 placeholder="name@example.com" value="{{ request.form.get('email', '') }}">
                         </div>
                     </div>
                     
                     <!-- Mobile Number -->
                     <div class="flex flex-col gap-1.5">
-                        <label for="mobile" class="text-[14px] font-bold text-gray-800 ml-1">Mobile Number <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <label for="mobile" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Mobile Number <span class="text-red-500" aria-hidden="true">*</span></label>
                         <div class="flex gap-2">
                             <!-- Country Code Selector -->
                             <div class="relative w-[110px] sm:w-[120px] flex-shrink-0">
                                 <select id="country-code" name="country-code" aria-label="Country Code"
-                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 shadow-input transition-all duration-200 outline-none cursor-pointer">
                                     <option value="+1">🇺🇸 +1</option>
                                     <option value="+44">🇬🇧 +44</option>
                                     <option value="+91">🇮🇳 +91</option>
@@ -314,7 +310,7 @@
                                     <i data-lucide="phone" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                                 </div>
                                 <input type="tel" id="mobile" name="mobile" required aria-required="true"
-                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none" 
+                                    class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 shadow-input transition-all duration-200 outline-none" 
                                     placeholder="000-000-0000" value="{{ request.form.get('mobile', '') }}">
                             </div>
                         </div>
@@ -322,13 +318,13 @@
                     
                     <!-- Password -->
                     <div class="flex flex-col gap-1.5">
-                        <label for="password" class="text-[14px] font-bold text-gray-800 ml-1">Password <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <label for="password" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Password <span class="text-red-500" aria-hidden="true">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="lock" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                             </div>
                             <input type="password" id="password" name="password" required aria-required="true"
-                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
                                 placeholder="••••••••">
                             <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Show password" aria-pressed="false" onclick="togglePasswordVisibility(this, 'password')">
                                 <i data-lucide="eye" class="h-5 w-5" aria-hidden="true"></i>
@@ -336,7 +332,7 @@
                         </div>
                         
                         <!-- Live Password Checklist -->
-                        <div class="mt-1.5 bg-[#F8F9FA] rounded-[16px] p-4 border border-gray-100 shadow-sm">
+                        <div class="mt-1.5 bg-[#F8F9FA] rounded-[12px] p-4 border border-gray-200/60 shadow-sm">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-4">
                                 <div id="req-length" class="flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors duration-300">
                                     <i data-lucide="check-circle-2" class="w-4 h-4 text-gray-300 transition-colors duration-300" aria-hidden="true"></i>
@@ -366,13 +362,13 @@
 
                     <!-- Confirm Password -->
                     <div class="flex flex-col gap-1.5">
-                        <label for="confirm-password" class="text-[14px] font-bold text-gray-800 ml-1">Confirm Password <span class="text-red-500" aria-hidden="true">*</span></label>
+                        <label for="confirm-password" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Confirm Password <span class="text-red-500" aria-hidden="true">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="lock" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                             </div>
                             <input type="password" id="confirm-password" name="confirm-password" required aria-required="true"
-                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
+                                class="w-full bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 pr-12 shadow-input transition-all duration-200 outline-none" 
                                 placeholder="••••••••">
                             <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-secondary transition-colors" aria-label="Show password" aria-pressed="false" onclick="togglePasswordVisibility(this, 'confirm-password')">
                                 <i data-lucide="eye" class="h-5 w-5" aria-hidden="true"></i>
@@ -385,13 +381,13 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <!-- Country of Residence -->
                         <div class="flex flex-col gap-1.5">
-                            <label for="residence" class="text-[14px] font-bold text-gray-800 ml-1">Country of Residence <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <label for="residence" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Country of Residence <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <i data-lucide="map-pin" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                                 </div>
                                 <select id="residence" name="residence" required aria-required="true"
-                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
                                     <option value="" disabled {% if not request.form.get('residence') %}selected{% endif %}>Select</option>
                                     <option value="US" {% if request.form.get('residence') == 'US' %}selected{% endif %}>United States</option>
                                     <option value="UK" {% if request.form.get('residence') == 'UK' %}selected{% endif %}>United Kingdom</option>
@@ -408,13 +404,13 @@
                         </div>
                         <!-- Nationality -->
                         <div class="flex flex-col gap-1.5">
-                            <label for="nationality" class="text-[14px] font-bold text-gray-800 ml-1">Nationality <span class="text-red-500" aria-hidden="true">*</span></label>
+                            <label for="nationality" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Nationality <span class="text-red-500" aria-hidden="true">*</span></label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <i data-lucide="flag" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                                 </div>
                                 <select id="nationality" name="nationality" required aria-required="true"
-                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                    class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] py-3 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
                                     <option value="" disabled {% if not request.form.get('nationality') %}selected{% endif %}>Select</option>
                                     <option value="US" {% if request.form.get('nationality') == 'US' %}selected{% endif %}>United States</option>
                                     <option value="UK" {% if request.form.get('nationality') == 'UK' %}selected{% endif %}>United Kingdom</option>
@@ -432,16 +428,15 @@
                     </div>
 
                     <!-- Language Row -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <!-- Preferred Language -->
-                        <div class="flex flex-col gap-1.5">
-                        <label for="language" class="text-[14px] font-bold text-gray-800 ml-1">Preferred Language <span class="text-red-500" aria-hidden="true">*</span></label>
+                    <!-- Preferred Language (Full Width) -->
+                    <div class="flex flex-col gap-1.5 mt-1 sm:mt-2">
+                        <label for="language" class="text-[13px] sm:text-[14px] font-semibold text-gray-800 ml-1">Preferred Language <span class="text-red-500" aria-hidden="true">*</span></label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <i data-lucide="globe" class="h-5 w-5 text-gray-400" aria-hidden="true"></i>
                             </div>
                             <select id="language" name="language" required aria-required="true"
-                                class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] rounded-2xl focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 py-3.5 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
+                                class="w-full appearance-none bg-bgLight border border-gray-200 text-gray-900 text-[15px] sm:text-[16px] rounded-[12px] focus:ring-input-focus focus:border-secondary focus:bg-white block px-4 h-[48px] sm:h-[50px] py-0 pl-11 shadow-input transition-all duration-200 outline-none cursor-pointer">
                                 <option value="" disabled {% if not request.form.get('language') %}selected{% endif %}>Select a language</option>
                                 <option value="en" {% if request.form.get('language') == 'en' %}selected{% endif %}>English</option>
                                 <option value="fr" {% if request.form.get('language') == 'fr' %}selected{% endif %}>French</option>
@@ -454,44 +449,41 @@
                         </div>
                     </div>
                     
-                    <!-- Bottom Section -->
-                    <!-- Bottom Section -->
-                    <div class="mt-6 border-t border-gray-100 pt-7 pb-7 flex flex-col w-full">
+                    <!-- Divider -->
+                    <div class="w-full h-px bg-gray-200 my-6"></div>
+                    
+                    <!-- Consent Panel -->
+                    <div class="flex flex-col gap-4 w-full bg-[#F1F5F9] border border-gray-200/80 rounded-[14px] px-6 py-5">
+                        <label class="flex items-center gap-3 w-full cursor-pointer group m-0">
+                            <div class="flex items-center h-5">
+                                <input id="terms" name="terms" type="checkbox" required aria-required="true" class="custom-checkbox flex-shrink-0 group-hover:border-primary transition-colors h-5 w-5">
+                            </div>
+                            <span class="text-[14px] sm:text-[15px] text-gray-700 font-medium leading-tight select-none">
+                                I agree to the <a href="#" class="text-[#2563EB] hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Terms of Service</a> <span class="text-red-500" aria-hidden="true">*</span>
+                            </span>
+                        </label>
+                        <label class="flex items-center gap-3 w-full cursor-pointer group m-0">
+                            <div class="flex items-center h-5">
+                                <input id="privacy" name="privacy" type="checkbox" required aria-required="true" class="custom-checkbox flex-shrink-0 group-hover:border-primary transition-colors h-5 w-5">
+                            </div>
+                            <span class="text-[14px] sm:text-[15px] text-gray-700 font-medium leading-tight select-none">
+                                I agree to the <a href="#" class="text-[#2563EB] hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Privacy Policy</a> <span class="text-red-500" aria-hidden="true">*</span>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <!-- Action Area -->
+                    <div class="flex flex-col items-center w-full mt-5 mb-2">
+                        <button type="submit" 
+                            class="bg-primary hover:bg-primary/90 disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 h-[50px] sm:h-[52px] rounded-[12px] flex items-center justify-center gap-3 transition-all duration-300 shadow-sm hover:shadow-glow hover:-translate-y-0.5 text-[15px] sm:text-[16px] w-full focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
+                            Continue
+                            <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
+                        </button>
                         
-                        <!-- Consent Checkboxes -->
-                        <div class="flex flex-col gap-4 w-full">
-                            <div class="flex items-center gap-[10px] w-full">
-                                <div class="flex items-center h-5">
-                                    <input id="terms" name="terms" type="checkbox" required aria-required="true" class="custom-checkbox flex-shrink-0">
-                                </div>
-                                <label for="terms" class="text-[14.5px] text-gray-600 font-medium cursor-pointer md:whitespace-nowrap leading-tight">
-                                    I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Terms of Service</a>
-                                </label>
-                            </div>
-                            <div class="flex items-center gap-[10px] w-full">
-                                <div class="flex items-center h-5">
-                                    <input id="privacy" name="privacy" type="checkbox" required aria-required="true" class="custom-checkbox flex-shrink-0">
-                                </div>
-                                <label for="privacy" class="text-[14.5px] text-gray-600 font-medium cursor-pointer md:whitespace-nowrap leading-tight">
-                                    I agree to the <a href="#" class="text-secondary hover:text-primary underline hover:no-underline transition-colors focus:outline-none focus:ring-2 focus:ring-secondary rounded px-0.5">Privacy Policy</a>
-                                </label>
-                            </div>
+                        <div class="text-center text-[14px] sm:text-[15px] mt-4 w-full">
+                            <span class="font-medium text-gray-500">Already have an account?</span>
+                            <a href="{{ url_for('patient_login') }}" class="font-bold text-[#2563EB] hover:text-blue-800 transition-colors ml-1">Sign In</a>
                         </div>
-                        
-                        <!-- Action Area -->
-                        <div class="flex flex-col items-center w-full md:w-auto mt-8 md:ml-auto">
-                            <button type="submit" 
-                                class="bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#CBD5E1] disabled:text-[#64748B] disabled:cursor-not-allowed text-white font-bold px-8 py-3.5 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 shadow-glow hover:shadow-premium hover:-translate-y-0.5 text-[16px] w-full md:w-[240px] focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2">
-                                Continue
-                                <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i>
-                            </button>
-                            
-                            <div class="text-center text-[14px] mt-3.5 w-full md:whitespace-nowrap">
-                                <span class="font-medium text-gray-500">Already have an account?</span>
-                                <a href="{{ url_for('patient_login') }}" class="font-bold text-[#2563EB] hover:text-blue-800 transition-colors ml-1">Sign In</a>
-                            </div>
-                        </div>
-                        
                     </div>
                     
                 </form>
@@ -499,7 +491,7 @@
         </div>
 
         <!-- 8. TRUST FOOTER -->
-        <footer class="mt-12 mb-8 w-full max-w-[520px] flex flex-col items-center gap-3">
+        <footer class="mt-12 mb-8 w-full max-w-[600px] flex flex-col items-center gap-3">
             <div class="flex items-center justify-center gap-5 sm:gap-6 text-[13px] text-gray-500 font-medium">
                 <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Privacy Policy</a>
                 <a href="#" class="hover:text-primary transition-colors focus:outline-none focus:underline">Terms of Service</a>
